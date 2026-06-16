@@ -10,15 +10,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
       - run: bun install
-      - run: cd ./demo
-      - run: bunx nuxt build --preset github_pages
+      - run: NUXT_APP_BASE_URL=/atpol.js/ bunx nuxt build --preset github_pages
+        working-directory: ./demo
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./.output/public
+          path: ./demo/.output/public
   deploy:
     needs: build
     permissions:
@@ -31,4 +31,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
