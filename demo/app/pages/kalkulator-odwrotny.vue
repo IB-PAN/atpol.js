@@ -47,7 +47,8 @@ const result = computed(() => {
 		const mapsUrl = `https://maps.google.com/?q=${center.lat.toFixed(6)},${center.lon.toFixed(6)}`;
 		const osmUrl = `https://www.openstreetmap.org/?mlat=${center.lat.toFixed(6)}&mlon=${center.lon.toFixed(6)}&zoom=${zoom}`;
 		return { bounds, sideLabel, mapsUrl, osmUrl };
-	} catch {
+	} catch (err) {
+    console.error(err);
 		return null;
 	}
 });
@@ -189,7 +190,7 @@ function downloadFromPreview() {
 					Tutaj pojawią się wyniki
 				</p>
 				<p class="text-sm">
-					Wpisz kod kwadratu powyżej
+					Wpisz kod kwadratu powyżej.
 				</p>
 			</div>
 		</UCard>
@@ -307,14 +308,14 @@ function downloadFromPreview() {
 				/>
 			</div>
 
-			<!-- DarwinCore WKT -->
+			<!-- Darwin Core WKT -->
 			<UCard>
 				<div class="flex items-center gap-2 mb-3">
 					<UIcon name="i-lucide-map-pin" class="text-primary size-5 shrink-0" />
 					<h2 class="font-semibold text-sm">
-						Wartości DarwinCore (WKT)
+						Wartości Darwin Core (WKT)
 					</h2>
-					<UTooltip text="Wartości WKT (Well-Known Text) gotowe do użycia w danych DarwinCore (GBIF)" :delay-duration="0">
+					<UTooltip text="Wartości WKT (Well-Known Text) gotowe do użycia w danych Darwin Core (GBIF)" :delay-duration="0">
 						<UIcon name="i-lucide-info" class="text-muted size-4 cursor-help" />
 					</UTooltip>
 				</div>
@@ -325,6 +326,9 @@ function downloadFromPreview() {
 						<div class="flex items-center gap-2 mb-1">
 							<code class="text-xs bg-elevated px-1.5 py-0.5 rounded font-mono text-primary">footprintWKT</code>
 							<span class="text-muted text-xs">Poligon (obrys kwadratu)</span>
+              <UTooltip text="Wypełnienie tego pola w rekordzie Darwin Core umożliwia GBIF-owi rozpoznanie oraz wyświetlenie na mapie wskazanego faktycznego obszaru (zamiast pinezki z punktem centralnym i kołem o promieniu niedokładności)." :delay-duration="0">
+								<UIcon name="i-lucide-info" class="text-muted size-4 cursor-help" />
+							</UTooltip>
 						</div>
 						<div class="flex items-center gap-2">
 							<input
@@ -360,7 +364,7 @@ function downloadFromPreview() {
 						<div class="flex items-center gap-2 mb-1">
 							<code class="text-xs bg-elevated px-1.5 py-0.5 rounded font-mono text-primary">footprintSRS</code>
 							<span class="text-muted text-xs">Układ odniesienia</span>
-							<UTooltip text="EPSG:4326 odpowiada układowi WGS84 — standardowemu układowi stosowanemu w GPS i większości danych geograficznych" :delay-duration="0">
+							<UTooltip text="EPSG:4326 odpowiada układowi WGS84 — standardowemu układowi stosowanemu w GPS i większości danych geograficznych." :delay-duration="0">
 								<UIcon name="i-lucide-info" class="text-muted size-4 cursor-help" />
 							</UTooltip>
 						</div>
@@ -397,7 +401,7 @@ function downloadFromPreview() {
 					<div>
 						<div class="flex items-center gap-2 mb-1">
 							<span class="text-muted text-xs">Centroid (punkt środkowy WKT)</span>
-							<UTooltip text="Wartość pomocnicza — WKT punktu centralnego kwadratu. Nie jest standardowym polem DarwinCore, ale może być przydatna." :delay-duration="0">
+							<UTooltip text="Wartość pomocnicza — WKT punktu centralnego kwadratu. Nie jest standardowym polem Darwin Core, ale może być przydatna." :delay-duration="0">
 								<UIcon name="i-lucide-info" class="text-muted size-4 cursor-help" />
 							</UTooltip>
 						</div>
