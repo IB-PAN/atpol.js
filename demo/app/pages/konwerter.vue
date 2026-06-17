@@ -4,6 +4,13 @@ useSeoMeta({
 	description: 'Konwertuj współrzędne geograficzne między formatem stopni dziesiętnych (DD) a stopniami, minutami i sekundami (DMS).'
 })
 
+const copiedFields = reactive(new Set())
+async function copyText(key, text) {
+	await navigator.clipboard.writeText(text)
+	copiedFields.add(key)
+	setTimeout(() => copiedFields.delete(key), 2000)
+}
+
 // --- DD → DMS ---
 const ddInput = ref('')
 
@@ -125,10 +132,33 @@ const parseResult = computed(() => {
             </UInput>
           </UFormField>
 
-          <div class="p-3 bg-elevated rounded-lg text-sm font-mono min-h-10">
-            <span class="text-muted text-xs not-italic font-sans">Wynik DMS:</span>
-            <br>
-            <span class="font-medium text-base">{{ ddResult || '—' }}</span>
+          <div class="flex items-center justify-between p-3 bg-elevated rounded-lg text-sm font-mono min-h-10">
+            <div>
+              <span class="text-muted text-xs not-italic font-sans">Wynik DMS:</span>
+              <br>
+              <span class="font-medium text-base">{{ ddResult || '—' }}</span>
+            </div>
+            <div v-if="ddResult && ddResult !== 'Nieprawidłowa wartość'" class="relative flex items-center shrink-0">
+              <Transition
+                enter-active-class="transition-opacity duration-150"
+                leave-active-class="transition-opacity duration-150"
+                enter-from-class="opacity-0"
+                leave-to-class="opacity-0"
+              >
+                <span v-if="copiedFields.has('dd')" class="absolute right-full top-1/2 -translate-y-1/2 mr-4 whitespace-nowrap text-xs font-medium text-success bg-elevated border border-success/40 shadow-sm px-1.5 py-0.5 rounded z-10">Skopiowano!</span>
+              </Transition>
+              <UTooltip text="Kopiuj do schowka" :delay-duration="0">
+                <UButton
+                  :icon="copiedFields.has('dd') ? 'i-lucide-check' : 'i-lucide-copy'"
+                  :color="copiedFields.has('dd') ? 'success' : 'neutral'"
+                  size="sm"
+                  variant="ghost"
+                  class="hover:bg-accented!"
+                  aria-label="Kopiuj wynik DMS"
+                  @click="copyText('dd', ddResult)"
+                />
+              </UTooltip>
+            </div>
           </div>
         </div>
       </UCard>
@@ -208,10 +238,33 @@ const parseResult = computed(() => {
             </UTooltip>
           </div>
 
-          <div class="p-3 bg-elevated rounded-lg text-sm font-mono min-h-10">
-            <span class="text-muted text-xs not-italic font-sans">Wynik DD:</span>
-            <br>
-            <span class="font-medium text-base">{{ dmsResult || '—' }}</span>
+          <div class="flex items-center justify-between p-3 bg-elevated rounded-lg text-sm font-mono min-h-10">
+            <div>
+              <span class="text-muted text-xs not-italic font-sans">Wynik DD:</span>
+              <br>
+              <span class="font-medium text-base">{{ dmsResult || '—' }}</span>
+            </div>
+            <div v-if="dmsResult && dmsResult !== 'Nieprawidłowe wartości'" class="relative flex items-center shrink-0">
+              <Transition
+                enter-active-class="transition-opacity duration-150"
+                leave-active-class="transition-opacity duration-150"
+                enter-from-class="opacity-0"
+                leave-to-class="opacity-0"
+              >
+                <span v-if="copiedFields.has('dms')" class="absolute right-full top-1/2 -translate-y-1/2 mr-4 whitespace-nowrap text-xs font-medium text-success bg-elevated border border-success/40 shadow-sm px-1.5 py-0.5 rounded z-10">Skopiowano!</span>
+              </Transition>
+              <UTooltip text="Kopiuj do schowka" :delay-duration="0">
+                <UButton
+                  :icon="copiedFields.has('dms') ? 'i-lucide-check' : 'i-lucide-copy'"
+                  :color="copiedFields.has('dms') ? 'success' : 'neutral'"
+                  size="sm"
+                  variant="ghost"
+                  class="hover:bg-accented!"
+                  aria-label="Kopiuj wynik DD"
+                  @click="copyText('dms', dmsResult)"
+                />
+              </UTooltip>
+            </div>
           </div>
         </div>
       </UCard>
@@ -251,10 +304,33 @@ const parseResult = computed(() => {
           </UInput>
         </UFormField>
 
-        <div class="p-3 bg-elevated rounded-lg text-sm font-mono min-h-10">
-          <span class="text-muted text-xs not-italic font-sans">Wynik DD:</span>
-          <br>
-          <span class="font-medium text-base">{{ parseResult || '—' }}</span>
+        <div class="flex items-center justify-between p-3 bg-elevated rounded-lg text-sm font-mono min-h-10">
+          <div>
+            <span class="text-muted text-xs not-italic font-sans">Wynik DD:</span>
+            <br>
+            <span class="font-medium text-base">{{ parseResult || '—' }}</span>
+          </div>
+          <div v-if="parseResult && parseResult !== 'Nieprawidłowy format'" class="relative flex items-center shrink-0">
+            <Transition
+              enter-active-class="transition-opacity duration-150"
+              leave-active-class="transition-opacity duration-150"
+              enter-from-class="opacity-0"
+              leave-to-class="opacity-0"
+            >
+              <span v-if="copiedFields.has('parse')" class="absolute right-full top-1/2 -translate-y-1/2 mr-4 whitespace-nowrap text-xs font-medium text-success bg-elevated border border-success/40 shadow-sm px-1.5 py-0.5 rounded z-10">Skopiowano!</span>
+            </Transition>
+            <UTooltip text="Kopiuj do schowka" :delay-duration="0">
+              <UButton
+                :icon="copiedFields.has('parse') ? 'i-lucide-check' : 'i-lucide-copy'"
+                :color="copiedFields.has('parse') ? 'success' : 'neutral'"
+                size="sm"
+                variant="ghost"
+                class="hover:bg-accented!"
+                aria-label="Kopiuj wynik DD"
+                @click="copyText('parse', parseResult)"
+              />
+            </UTooltip>
+          </div>
         </div>
       </div>
     </UCard>
