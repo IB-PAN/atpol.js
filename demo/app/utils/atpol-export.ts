@@ -1,20 +1,33 @@
-import type { Bounds_LatLon } from "../../../main.ts";
+import type { Bounds_LatLon, LatLon } from "../../../main.ts";
 
 // ---- KML ----
 
-export function generateKMLString(normalizedCode: string, bounds: Bounds_LatLon, sideLabel: string): string {
+export function generateKMLString(normalizedCode: string, bounds: Bounds_LatLon, sideLabel: string, inputPoint?: LatLon): string {
 	const { center, nw, ne, se, sw } = bounds;
+	const pointPlacemark = inputPoint
+		? [
+			`    <Placemark>`,
+			`      <name>Wpisany punkt</name>`,
+			`      <description>Współrzędne punktu:&#10;Lat (Szer): ${inputPoint.lat}&#10;Lon (Dł): ${inputPoint.lon}</description>`,
+			`      <Point>`,
+			`        <coordinates>${inputPoint.lon},${inputPoint.lat},0</coordinates>`,
+			`      </Point>`,
+			`    </Placemark>`,
+		]
+		: [
+			`    <Placemark>`,
+			`      <name>Środek kwadratu</name>`,
+			`      <description>Środek dla: ${normalizedCode}</description>`,
+			`      <Point>`,
+			`        <coordinates>${center.lon},${center.lat},0</coordinates>`,
+			`      </Point>`,
+			`    </Placemark>`,
+		];
 	return [
 		`<?xml version="1.0" encoding="UTF-8"?>`,
 		`<kml xmlns="http://www.opengis.net/kml/2.2">`,
 		`  <Document>`,
-		`    <Placemark>`,
-		`      <name>Środek kwadratu</name>`,
-		`      <description>Środek dla: ${normalizedCode}</description>`,
-		`      <Point>`,
-		`        <coordinates>${center.lon},${center.lat},0</coordinates>`,
-		`      </Point>`,
-		`    </Placemark>`,
+		...pointPlacemark,
 		`    <Placemark>`,
 		`      <name>${normalizedCode}</name>`,
 		`      <description>Kwadrat ATPOL: ${normalizedCode}\nRozmiar: ${sideLabel}</description>`,
@@ -42,9 +55,9 @@ export function generateKMLString(normalizedCode: string, bounds: Bounds_LatLon,
 	].join("\n");
 }
 
-export function downloadKML(normalizedCode: string, bounds: Bounds_LatLon, sideLabel: string): void {
+export function downloadKML(normalizedCode: string, bounds: Bounds_LatLon, sideLabel: string, inputPoint?: LatLon): void {
 	downloadBlob(
-		generateKMLString(normalizedCode, bounds, sideLabel),
+		generateKMLString(normalizedCode, bounds, sideLabel, inputPoint),
 		`ATPOL_${normalizedCode}.kml`,
 		"application/vnd.google-earth.kml+xml",
 	);
@@ -52,19 +65,15 @@ export function downloadKML(normalizedCode: string, bounds: Bounds_LatLon, sideL
 
 // ---- GeoJSON ----
 
-export function generateGeoJSONString(normalizedCode: string, bounds: Bounds_LatLon, sideLabel: string): string {
+export function generateGeoJSONString(normalizedCode: string, bounds: Bounds_LatLon, sideLabel: string, inputPoint?: LatLon): string {
 	const { center, nw, ne, se, sw } = bounds;
+	const pointFeature = inputPoint
+		? { type: "Feature", properties: { atpol: normalizedCode, name: "Wpisany punkt" }, geometry: { type: "Point", coordinates: [inputPoint.lon, inputPoint.lat] } }
+		: { type: "Feature", properties: { atpol: normalizedCode, name: "Środek kwadratu" }, geometry: { type: "Point", coordinates: [center.lon, center.lat] } };
 	const geojson = {
 		type: "FeatureCollection",
 		features: [
-			{
-				type: "Feature",
-				properties: { atpol: normalizedCode, name: "Środek kwadratu" },
-				geometry: {
-					type: "Point",
-					coordinates: [center.lon, center.lat],
-				},
-			},
+			pointFeature,
 			{
 				type: "Feature",
 				properties: { atpol: normalizedCode, side: sideLabel },
@@ -79,9 +88,9 @@ export function generateGeoJSONString(normalizedCode: string, bounds: Bounds_Lat
 	return JSON.stringify(geojson, null, 2);
 }
 
-export function downloadGeoJSON(normalizedCode: string, bounds: Bounds_LatLon, sideLabel: string): void {
+export function downloadGeoJSON(normalizedCode: string, bounds: Bounds_LatLon, sideLabel: string, inputPoint?: LatLon): void {
 	downloadBlob(
-		generateGeoJSONString(normalizedCode, bounds, sideLabel),
+		generateGeoJSONString(normalizedCode, bounds, sideLabel, inputPoint),
 		`ATPOL_${normalizedCode}.geojson`,
 		"application/geo+json",
 	);

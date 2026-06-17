@@ -66,13 +66,13 @@ const tools = [
       </p>
       <p class="text-muted">
         Więcej informacji o siatce ATPOL znajduje się na stronach:
-        <ul class="list-disc ps-6 my-5 marker:text-(--ui-border-accented)">
-          <li><a href="https://worldbig.org/atpol/" target="blank" class="underline">https://worldbig.org/atpol/</a></li>
-          <li><a href="https://pl.wikipedia.org/wiki/AtPol" target="blank" class="underline">https://pl.wikipedia.org/wiki/AtPol</a></li>
-          <li><a href="http://maxbot.botany.pl/cgi-bin/pubs/data/article_pdf?id=4279" target="blank" class="underline">Siatka ATPOL w analitycznym ujęciu</a></li>
-          <li><a href="http://maxbot.botany.pl/cgi-bin/pubs/data/article_pdf?id=4302" target="blank" class="underline">Standaryzacja zapisu podziałów siatki ATPOL</a></li>
-        </ul>
       </p>
+      <ul class="list-disc ps-6 my-5 marker:text-(--ui-border-accented)">
+        <li><a href="https://worldbig.org/atpol/" target="blank" class="underline">https://worldbig.org/atpol/</a></li>
+        <li><a href="https://pl.wikipedia.org/wiki/AtPol" target="blank" class="underline">https://pl.wikipedia.org/wiki/AtPol</a></li>
+        <li><a href="http://maxbot.botany.pl/cgi-bin/pubs/data/article_pdf?id=4279" target="blank" class="underline">Siatka ATPOL w analitycznym ujęciu</a></li>
+        <li><a href="http://maxbot.botany.pl/cgi-bin/pubs/data/article_pdf?id=4302" target="blank" class="underline">Standaryzacja zapisu podziałów siatki ATPOL</a></li>
+      </ul>
     </div>
 
     <h2 class="text-xl font-semibold mb-4">

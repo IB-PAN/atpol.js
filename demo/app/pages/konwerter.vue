@@ -1,4 +1,6 @@
 <script setup>
+import { ddToDmsString, parseDmsString, dmsToDd } from "~/utils/coord-utils";
+
 useSeoMeta({
 	title: 'Konwerter współrzędnych DD/DMS',
 	description: 'Konwertuj współrzędne geograficzne między formatem stopni dziesiętnych (DD) a stopniami, minutami i sekundami (DMS).'
@@ -14,20 +16,6 @@ async function copyText(key, text) {
 // --- DD → DMS ---
 const ddInput = ref('')
 
-function ddToDmsString(value) {
-  value = value.trim();
-	if (!/^([0-9]+([.,][0-9]+)?)?$/.test(value)) return null
-	const num = parseFloat(value.replace(/,/g, "."))
-	if (isNaN(num)) return null
-	const abs = Math.abs(num)
-	const sign = num < 0 ? '-' : ''
-	const deg = Math.floor(abs)
-	const minFull = (abs - deg) * 60
-	const min = Math.floor(minFull)
-	const sec = ((minFull - min) * 60).toFixed(4)
-	return `${sign}${deg}° ${min}' ${sec}"`
-}
-
 const ddResult = computed(() => {
 	if (!ddInput.value) return ''
 	return ddToDmsString(ddInput.value) ?? 'Nieprawidłowa wartość'
@@ -41,12 +29,11 @@ const dmsResult = computed(() => {
 	if (!/^[0-9]*$/.test(dmsInput.deg.trim())
     || !/^[0-9]*$/.test(dmsInput.min.trim())
     || !/^([0-9]+([.,][0-9]+)?)?$/.test(dmsInput.sec.trim()))
-    return 'Nieprawidłowe wartości'
-	const deg = parseFloat(dmsInput.deg.trim().replace(/,/g, ".")) || 0
-	const min = parseFloat(dmsInput.min.trim().replace(/,/g, ".")) || 0
-	const sec = parseFloat(dmsInput.sec.trim().replace(/,/g, ".")) || 0
-	const sign = deg < 0 ? -1 : 1
-	return (sign * (Math.abs(deg) + min / 60 + sec / 3600)).toFixed(7)
+    return "Nieprawidłowe wartości";
+	const deg = parseFloat(dmsInput.deg.trim().replace(/,/g, ".")) || 0;
+	const min = parseFloat(dmsInput.min.trim().replace(/,/g, ".")) || 0;
+	const sec = parseFloat(dmsInput.sec.trim().replace(/,/g, ".")) || 0;
+	return dmsToDd(deg, min, sec).toFixed(7);
 })
 
 function clearDmsInput() {
@@ -59,24 +46,6 @@ const dmsHasValue = computed(() => dmsInput.deg || dmsInput.min || dmsInput.sec)
 
 // --- Parse DMS string → DD ---
 const parseInput = ref('')
-
-function parseDmsString(str) {
-	const cleaned = str
-    .replace(/(?:[""”″²]|''|′′)/g, ' ')
-    .replace(/['′¢]/g, ' ')
-		.replace(/[°º˚*]/g, ' ')
-		.replace(/\s+/g, ' ')
-		.replace(/,/g, '.')
-		.trim()
-	const parts = cleaned.split(' ').filter(p => p !== '')
-	if (parts.length < 1) return null
-	const deg = parseFloat(parts[0])
-	const min = parseFloat(parts[1]) || 0
-	const sec = parseFloat(parts[2]) || 0
-	if (isNaN(deg)) return null
-	const sign = deg < 0 ? -1 : 1
-	return sign * (Math.abs(deg) + min / 60 + sec / 3600)
-}
 
 const parseResult = computed(() => {
 	if (!parseInput.value) return ''
