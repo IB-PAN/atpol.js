@@ -8,7 +8,9 @@ useSeoMeta({
 const ddInput = ref('')
 
 function ddToDmsString(value) {
-	const num = parseFloat(value)
+  value = value.trim();
+	if (!/^([0-9]+([.,][0-9]+)?)?$/.test(value)) return null
+	const num = parseFloat(value.replace(/,/g, "."))
 	if (isNaN(num)) return null
 	const abs = Math.abs(num)
 	const sign = num < 0 ? '-' : ''
@@ -29,10 +31,13 @@ const dmsInput = reactive({ deg: '', min: '', sec: '' })
 
 const dmsResult = computed(() => {
 	if (!dmsInput.deg && !dmsInput.min && !dmsInput.sec) return ''
-	const deg = parseFloat(dmsInput.deg)
-	const min = parseFloat(dmsInput.min)
-	const sec = parseFloat(dmsInput.sec)
-	if (isNaN(deg) || isNaN(min) || isNaN(sec)) return 'Nieprawidłowe wartości'
+	if (!/^[0-9]*$/.test(dmsInput.deg.trim())
+    || !/^[0-9]*$/.test(dmsInput.min.trim())
+    || !/^([0-9]+([.,][0-9]+)?)?$/.test(dmsInput.sec.trim()))
+    return 'Nieprawidłowe wartości'
+	const deg = parseFloat(dmsInput.deg.trim().replace(/,/g, ".")) || 0
+	const min = parseFloat(dmsInput.min.trim().replace(/,/g, ".")) || 0
+	const sec = parseFloat(dmsInput.sec.trim().replace(/,/g, ".")) || 0
 	const sign = deg < 0 ? -1 : 1
 	return (sign * (Math.abs(deg) + min / 60 + sec / 3600)).toFixed(7)
 })
@@ -50,13 +55,14 @@ const parseInput = ref('')
 
 function parseDmsString(str) {
 	const cleaned = str
-		.replace(/[°]/g, ' ')
-		.replace(/[''']/g, ' ')
-		.replace(/["""]/g, ' ')
+    .replace(/(?:[""”″²]|''|′′)/g, ' ')
+    .replace(/['′¢]/g, ' ')
+		.replace(/[°º˚*]/g, ' ')
 		.replace(/\s+/g, ' ')
+		.replace(/,/g, '.')
 		.trim()
 	const parts = cleaned.split(' ').filter(p => p !== '')
-	if (parts.length < 2) return null
+	if (parts.length < 1) return null
 	const deg = parseFloat(parts[0])
 	const min = parseFloat(parts[1]) || 0
 	const sec = parseFloat(parts[2]) || 0
@@ -156,7 +162,7 @@ const parseResult = computed(() => {
                 </UInput>
               </UFormField>
               <UFormField label="Minuty (')">
-                <UInput v-model="dmsInput.min" placeholder="15" class="w-full font-mono">
+                <UInput v-model="dmsInput.min" placeholder="0" class="w-full font-mono">
                   <template #trailing>
                     <UTooltip v-if="dmsInput.min" text="Wyczyść" :delay-duration="0">
                       <UButton
