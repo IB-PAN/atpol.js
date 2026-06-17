@@ -90,6 +90,37 @@ export function grid_normalize(grid: string, sep: string = ""): string {
 	return new_grid;
 }
 
+export function xy_to_grid(coords: XY, length: number = 8): {
+	grid: string;
+	xoffset: number;
+	yoffset: number;
+} {
+	const { x, y } = coords;
+	if (!(length >= 2 && length <= 12 && (length | 0) === length && (length % 2) === 0))
+		throw new Error(`[ATPOL.xy_to_grid] Invalid grid code length requested: ${length}`);
+	if (!(x >= 0 && x <= 700 && y >= 0 && y <= 700))
+		throw new Error(`[ATPOL.xy_to_grid] Invalid parameters: ${JSON.stringify({ x, y })}`);
+
+	const xs = (1e15 + Math.round(x * 1000) + "").slice(-6);
+	const ys = (1e15 + Math.round(y * 1000) + "").slice(-6);
+
+	let grid = String.fromCharCode(xs.charCodeAt(0) + 17, ys.charCodeAt(0) + 17);
+	for (let i = 1; i < 6; i++) {
+		grid = grid + ys[i] + xs[i];
+	}
+
+	let xoffset = (1e15 + Math.round(x * 1000000) + "").slice(-9);
+	let yoffset = (1e15 + Math.round(y * 1000000) + "").slice(-9);
+	xoffset = "0." + xoffset.slice(-9 + length / 2);
+	yoffset = "0." + yoffset.slice(-9 + length / 2);
+
+	return {
+		grid: grid.substring(0, length),
+		xoffset: parseFloat(xoffset),
+		yoffset: parseFloat(yoffset),
+	};
+}
+
 export function grid_to_xy(grid: string, xoffset: number = 0, yoffset: number = 0): XY {
 	if (!grid_is_valid(grid))
 		throw new Error(`Invalid ATPOL grid string: ${grid}`);

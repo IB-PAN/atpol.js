@@ -151,3 +151,44 @@ test("WKT", () => {
 	expect(ATPOL.grid_to_polygonWKT("DF97p21")).toBe("POLYGON ((19.58317163873754 49.811734287228084, 19.582948996344328 49.79382827146329, 19.61070719646412 49.793681290336835, 19.610940439413625 49.81158724644106, 19.58317163873754 49.811734287228084))");
 	expect(ATPOL.grid_to_centroidWKT("DF97p21")).toBe("POINT (19.596942067739906 49.80270857490112)");
 });
+
+test("Coords to grid", () => {
+	expect(ATPOL.grid_to_xy("EG00", 0, 0)).toMatchObject({ x: 400, y: 600 });
+
+	{
+		const xy: ATPOL.XY = { x: 395.120310, y: 565.032166 };
+		const coords: ATPOL.LatLon = { lat: 50.069000, lon: 19.909200 };
+		const xy_out = ATPOL.latlon_to_xy(coords);
+		expect(xy_out.x).toBeCloseTo(xy.x, 6);
+		expect(xy_out.y).toBeCloseTo(xy.y, 6);
+
+		expect(ATPOL.xy_to_grid(xy_out, 12).grid).toBe("DF6955013220");
+		expect(ATPOL.xy_to_grid(xy_out, 10).grid).toBe("DF69550132");
+		expect(ATPOL.xy_to_grid(xy_out).grid).toBe("DF695501");
+		expect(ATPOL.xy_to_grid(xy_out, 8).grid).toBe("DF695501");
+		expect(ATPOL.xy_to_grid(xy_out, 6).grid).toBe("DF6955");
+		expect(ATPOL.xy_to_grid(xy_out, 4).grid).toBe("DF69");
+		expect(ATPOL.xy_to_grid(xy_out, 2).grid).toBe("DF");
+		expect(() => ATPOL.xy_to_grid(xy_out, 1)).toThrowError();
+
+		const bounds_DF69 = ATPOL.grid_to_xy_bounds("DF69");
+		expect(ATPOL.grid_to_xy("DF69", 0.512031, 0.5032166).x).toBeCloseTo(xy_out.x, 6);
+		expect(ATPOL.grid_to_xy("DF69", 0.512031, 0.5032166).y).toBeCloseTo(xy_out.y, 6);
+		const xoffset_expected =(xy_out.x - bounds_DF69.nw.x) / ATPOL.grid_to_square_side_in_km("DF69");
+		const yoffset_expected =(xy_out.y - bounds_DF69.nw.y) / ATPOL.grid_to_square_side_in_km("DF69");
+		expect(ATPOL.xy_to_grid(xy_out, 4).grid).toBe("DF69");
+		expect(ATPOL.xy_to_grid(xy_out, 4).xoffset).toBeCloseTo(xoffset_expected, 6);
+		expect(ATPOL.xy_to_grid(xy_out, 4).yoffset).toBeCloseTo(yoffset_expected, 6);
+	}
+
+	{
+		const coords: ATPOL.LatLon = { lat: 50.069000, lon: 19.909200 };
+		const xy_out = ATPOL.latlon_to_xy(coords);
+		const bounds_DF695501 = ATPOL.grid_to_xy_bounds("DF695501");
+		const xoffset_expected =(xy_out.x - bounds_DF695501.nw.x) / ATPOL.grid_to_square_side_in_km("DF695501");
+		const yoffset_expected =(xy_out.y - bounds_DF695501.nw.y) / ATPOL.grid_to_square_side_in_km("DF695501");
+		expect(ATPOL.xy_to_grid(xy_out, 8).grid).toBe("DF695501");
+		expect(ATPOL.xy_to_grid(xy_out, 8).xoffset).toBeCloseTo(xoffset_expected, 4);
+		expect(ATPOL.xy_to_grid(xy_out, 8).yoffset).toBeCloseTo(yoffset_expected, 4);
+	}
+});
