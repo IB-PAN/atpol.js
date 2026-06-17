@@ -27,6 +27,8 @@ test("Grid validity", () => {
 test("Grid normalize", () => {
 	expect(ATPOL.grid_normalize("ED 26 27 20 P11")).toBe("ED262720p11");
 	expect(ATPOL.grid_normalize("ED 26 27 20 P11", " ")).toBe("ED 26 27 20 p11");
+	expect(ATPOL.grid_normalize("ED00")).toBe("ED00");
+	expect(ATPOL.grid_normalize("ED")).toBe("ED");
 });
 
 test("Grid square side", () => {
@@ -55,13 +57,20 @@ test("Grid coordinate uncertainty in meters", () => {
 	expect(ATPOL.grid_to_coordinate_uncertainty_in_meters("ED26p13")).toBe(1415);
 	expect(ATPOL.grid_to_square_side_in_meters("ED26")).toBe(10000);
 	expect(ATPOL.grid_to_coordinate_uncertainty_in_meters("ED26")).toBe(7072);
+	expect(ATPOL.grid_to_square_side_in_meters("ED")).toBe(100000);
+	expect(ATPOL.grid_to_coordinate_uncertainty_in_meters("ED")).toBe(70711);
 });
 
 test("Grid to lat-lon coordinate conversion compatibility", () => {
 	expect(ATPOL.grid_to_xy("EG00", 0, 0)).toMatchObject({ x: 400, y: 600 });
 	expect(ATPOL.grid_to_latlon("EG00", 0, 0)).toMatchObject({ lat: 49.75533994502857, lon: 19.970803446537847 });
+	expect(ATPOL.grid_to_xy("EG", 0, 0)).toMatchObject({ x: 400, y: 600 });
+	expect(ATPOL.grid_to_latlon("EG", 0, 0)).toMatchObject({ lat: 49.75533994502857, lon: 19.970803446537847 });
 	expect(ATPOL.grid_to_xy("EG00", 1*0.2, 3*0.2)).toMatchObject({ x: 402, y: 606 }); // EG00P31
 	expect(ATPOL.grid_to_latlon("EG00", 1*0.2, 3*0.2)).toMatchObject({ lat: 49.701388209139274, lon: 19.99739586213447 }); // EG00P31
+
+	expect(ATPOL.grid_to_latlon_bounds("EG00").nw).toMatchObject(ATPOL.grid_to_latlon_bounds("EG").nw);
+	expect(ATPOL.grid_to_latlon_bounds("EG0000p00").nw).toMatchObject(ATPOL.grid_to_latlon_bounds("EG").nw);
 
 	const bounds_10x10_EG00 = ATPOL.grid_to_latlon_bounds("EG00");
 	expect(bounds_10x10_EG00.nw.lat.toFixed(6)).toBe("49.755340");

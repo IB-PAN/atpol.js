@@ -39,7 +39,7 @@ const X_ZERO = 330;
 const Y_ZERO = 350;
 
 // Input needs to be upper-cased and have whitespace removed
-const GRID_REGEX = /^(?<letters>[A-G]{2})(?<digits>(?:[0-9]{2}){0,5})(?<division>D[0-1]{2}|C[0-3]{2}|P[0-4]{2})?$/;
+export const GRID_REGEX = /^(?<letters>[A-G]{2})(?<digits>(?:[0-9]{2}){0,5})(?<division>D[0-1]{2}|C[0-3]{2}|P[0-4]{2})?$/;
 
 /**
  * 
@@ -80,10 +80,10 @@ export function grid_is_valid(grid: string): boolean {
 
 export function grid_normalize(grid: string, sep: string = ""): string {
 	const m = GRID_REGEX.exec(grid.toUpperCase().replaceAll(/\s+/g, ""));
-	if (!m || !m.groups || !m.groups.letters || !m.groups.digits)
+	if (!m || !m.groups || !m.groups.letters)
 		throw new Error(`Invalid ATPOL grid string: ${grid}`);
 	const groups = m.groups;
-	let new_grid = `${groups.letters}${sep}${groups.digits!.match(/.{2}/g)!.join(sep)}`;
+	let new_grid = `${groups.letters}${sep}${groups.digits!.match(/.{2}/g)?.join(sep) || ""}`;
 	if (groups.division) {
 		new_grid += `${sep}${groups.division.toLowerCase()}`;
 	}
@@ -102,9 +102,11 @@ export function grid_to_xy(grid: string, xoffset: number = 0, yoffset: number = 
 	let xs = String.fromCharCode(letters!.charCodeAt(0) - 17);
 	let ys = String.fromCharCode(letters!.charCodeAt(1) - 17);
 
-	for (const pair of digits!.match(/.{2}/g)!) {
-		xs = xs + pair[1];
-		ys = ys + pair[0];
+	if (digits) {
+		for (const pair of digits!.match(/.{2}/g)!) {
+			xs = xs + pair[1];
+			ys = ys + pair[0];
+		}
 	}
 
 	xs = xs.padEnd(6, "0");
