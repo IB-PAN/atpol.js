@@ -1,9 +1,11 @@
 <script setup>
+const { app: { baseURL } } = useRuntimeConfig();
+
 useHead({
   titleTemplate: t => t ? `${t} — atpol.js` : "atpol.js",
   htmlAttrs: { lang: "pl" },
   meta: [{ name: "viewport", content: "width=device-width, initial-scale=1" }],
-  link: [{ rel: "icon", href: "/favicon.ico" }],
+  link: [{ rel: "icon", href: `${baseURL}favicon.ico` }],
 })
 </script>
 

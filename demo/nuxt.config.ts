@@ -32,5 +32,11 @@ export default defineNuxtConfig({
         indent: 'tab'
       }
     }
+  },
+
+  icon: {
+    clientBundle: {
+      scan: true
+    }
   }
 })
