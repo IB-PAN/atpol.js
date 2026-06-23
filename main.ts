@@ -42,7 +42,6 @@ const Y_ZERO = 350;
 export const GRID_REGEX = /^(?<letters>[A-G]{2})(?<digits>(?:[0-9]{2}){0,5})(?<division>D[0-1]{2}|C[0-3]{2}|P[0-4]{2})?$/;
 
 /**
- * 
  * @param coords WGS84 (EPSG:4326) GPS coordinates
  * @returns (X,Y) coordinates in PUWG 1992 (EPSG:2180)
  */
@@ -81,7 +80,7 @@ export function grid_is_valid(grid: string): boolean {
 export function grid_normalize(grid: string, sep: string = ""): string {
 	const m = GRID_REGEX.exec(grid.toUpperCase().replaceAll(/\s+/g, ""));
 	if (!m || !m.groups || !m.groups.letters)
-		throw new Error(`Invalid ATPOL grid string: ${grid}`);
+		throw new Error(`[ATPOL.grid_normalize] Invalid ATPOL grid string: ${grid}`);
 	const groups = m.groups;
 	let new_grid = `${groups.letters}${sep}${groups.digits!.match(/.{2}/g)?.join(sep) || ""}`;
 	if (groups.division) {
@@ -123,13 +122,13 @@ export function xy_to_grid(coords: XY, length: number = 8): {
 
 export function grid_to_xy(grid: string, xoffset: number = 0, yoffset: number = 0): XY {
 	if (!grid_is_valid(grid))
-		throw new Error(`Invalid ATPOL grid string: ${grid}`);
+		throw new Error(`[ATPOL.grid_to_xy] Invalid ATPOL grid string: ${grid}`);
 	grid = grid.toUpperCase().replaceAll(/\s+/g, "");
 	if (!(xoffset >= 0 && xoffset <= 1 && yoffset >= 0 && yoffset <= 1))
-		throw new Error(`Invalid ATPOL offsets: ${JSON.stringify({ xoffset, yoffset })}`);
+		throw new Error(`[ATPOL.grid_to_xy] Invalid ATPOL offsets: ${JSON.stringify({ xoffset, yoffset })}`);
 
 	const { letters, digits, division } = GRID_REGEX.exec(grid.toUpperCase().replaceAll(/\s+/g, ""))!.groups!;
-	
+
 	let xs = String.fromCharCode(letters!.charCodeAt(0) - 17);
 	let ys = String.fromCharCode(letters!.charCodeAt(1) - 17);
 
@@ -145,9 +144,9 @@ export function grid_to_xy(grid: string, xoffset: number = 0, yoffset: number = 
 
 	if (division) {
 		const square_size = {
-			"P": 0.2, // 1/5
-			"C": 0.25, // 1/4
-			"D": 0.5, // 1/2
+			P: 0.2, // 1/5
+			C: 0.25, // 1/4
+			D: 0.5, // 1/2
 		}[division[0]!]!;
 		const div_x = parseInt(division[2]!);
 		const div_y = parseInt(division[1]!);
@@ -156,7 +155,7 @@ export function grid_to_xy(grid: string, xoffset: number = 0, yoffset: number = 
 		yoffset = square_size * (div_y + yoffset);
 	}
 
-	const km = 10 ** (2 - digits!.length/2);
+	const km = 10 ** (2 - digits!.length / 2);
 	const x = parseInt(xs) / 1000 + km * xoffset;
 	const y = parseInt(ys) / 1000 + km * yoffset;
 	return { x, y };
@@ -185,7 +184,7 @@ export function grid_to_latlon_bounds(grid: string): Bounds_LatLon {
 		sw: xy_to_latlon(bounds.sw),
 		se: xy_to_latlon(bounds.se),
 		center: xy_to_latlon(bounds.center),
-	}
+	};
 }
 
 /**
@@ -196,15 +195,15 @@ export function grid_to_square_side_in_meters(grid: string): number {
 	if (!grid_is_valid(grid))
 		throw new Error(`Invalid ATPOL grid string: ${grid}`);
 	grid = grid.toUpperCase().replaceAll(/\s+/g, "");
-	const { letters, digits, division } = GRID_REGEX.exec(grid.toUpperCase().replaceAll(/\s+/g, ""))!.groups!;
-	//const km = 10 ** (2 - digits!.length/2); // less accurate
-	//const metres = 100000 / (10 ** (digits!.length/2));
-	const metres = 10 ** (5 - digits!.length/2);
+	const { _letters, digits, division } = GRID_REGEX.exec(grid.toUpperCase().replaceAll(/\s+/g, ""))!.groups!;
+	// const km = 10 ** (2 - digits!.length/2); // less accurate
+	// const metres = 100000 / (10 ** (digits!.length/2));
+	const metres = 10 ** (5 - digits!.length / 2);
 	if (division) {
 		const square_size = {
-			"P": 0.2, // 1/5
-			"C": 0.25, // 1/4
-			"D": 0.5, // 1/2
+			P: 0.2, // 1/5
+			C: 0.25, // 1/4
+			D: 0.5, // 1/2
 		}[division[0]!]!;
 		return square_size * metres;
 	}
@@ -227,7 +226,7 @@ export function grid_to_square_side_in_km(grid: string): number {
 export function grid_to_coordinate_uncertainty_in_meters(grid: string): number {
 	const square_side_in_meters = grid_to_square_side_in_meters(grid);
 	const a = square_side_in_meters / 2;
-    return Math.ceil(Math.sqrt(Math.pow(a, 2) + Math.pow(a, 2)));
+	return Math.ceil(Math.sqrt(Math.pow(a, 2) + Math.pow(a, 2)));
 }
 
 /**
