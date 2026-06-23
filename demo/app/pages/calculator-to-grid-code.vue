@@ -598,9 +598,11 @@ function downloadFromPreview() {
 								</div>
 								<div class="p-3 bg-elevated rounded-lg text-sm text-center">
 									<span class="text-muted text-xs uppercase tracking-wide">Pełny adres standardowy (do 10 m):</span>
-									<div class="font-mono font-bold text-lg mt-1">
-										{{ gridFullDisplay }}
-									</div>
+									<GridCodeDisplay
+										:code="gridFull ?? ''"
+										:display="gridFullDisplay"
+										text-class="font-bold text-lg mt-1"
+									/>
 								</div>
 							</div>
 						</UCard>
@@ -613,9 +615,11 @@ function downloadFromPreview() {
 				<div class="text-xs text-muted uppercase tracking-wide mb-1">
 					Kod wybranego kwadratu
 				</div>
-				<div class="font-mono font-extrabold text-2xl text-primary">
-					{{ gridSelectedDisplay }}
-				</div>
+				<GridCodeDisplay
+					:code="gridSelectedNormalized"
+					:display="gridSelectedDisplay"
+					text-class="font-extrabold text-2xl text-primary"
+				/>
 				<div class="text-sm text-muted mt-1">
 					{{ sideLabel }}
 				</div>
