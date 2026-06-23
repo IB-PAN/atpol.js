@@ -1,6 +1,6 @@
 <script setup>
 import { ATPOL } from "../../../main.ts";
-import { dmsToDd } from "~/utils/coord-utils";
+import { dmsToDd, parseDmsString } from "~/utils/coord-utils";
 import { generateKMLString, generateGeoJSONString, downloadKML, downloadGeoJSON, downloadSHPZip } from "~/utils/atpol-export";
 
 useSeoMeta({
@@ -16,6 +16,7 @@ const form = reactive({
 		lat: { deg: "", min: "", sec: "" },
 		lon: { deg: "", min: "", sec: "" },
 	},
+	dms_str: { lat: "", lon: "" },
 	gridSize: "10km",
 });
 
@@ -108,13 +109,18 @@ const latDD = computed(() => {
 		const n = parseFloat(s);
 		return isNaN(n) ? null : n;
 	}
-	const degStr = form.dms.lat.deg.trim();
-	if (!degStr) return null;
-	const deg = parseFloat(degStr.replace(/,/g, "."));
-	if (isNaN(deg)) return null;
-	const min = parseFloat(form.dms.lat.min.trim().replace(/,/g, ".")) || 0;
-	const sec = parseFloat(form.dms.lat.sec.trim().replace(/,/g, ".")) || 0;
-	return dmsToDd(deg, min, sec);
+	if (mode.value === "dms") {
+		const degStr = form.dms.lat.deg.trim();
+		if (!degStr) return null;
+		const deg = parseFloat(degStr.replace(/,/g, "."));
+		if (isNaN(deg)) return null;
+		const min = parseFloat(form.dms.lat.min.trim().replace(/,/g, ".")) || 0;
+		const sec = parseFloat(form.dms.lat.sec.trim().replace(/,/g, ".")) || 0;
+		return dmsToDd(deg, min, sec);
+	}
+	const s = form.dms_str.lat.trim();
+	if (!s) return null;
+	return parseDmsString(s);
 });
 
 const lonDD = computed(() => {
@@ -124,19 +130,27 @@ const lonDD = computed(() => {
 		const n = parseFloat(s);
 		return isNaN(n) ? null : n;
 	}
-	const degStr = form.dms.lon.deg.trim();
-	if (!degStr) return null;
-	const deg = parseFloat(degStr.replace(/,/g, "."));
-	if (isNaN(deg)) return null;
-	const min = parseFloat(form.dms.lon.min.trim().replace(/,/g, ".")) || 0;
-	const sec = parseFloat(form.dms.lon.sec.trim().replace(/,/g, ".")) || 0;
-	return dmsToDd(deg, min, sec);
+	if (mode.value === "dms") {
+		const degStr = form.dms.lon.deg.trim();
+		if (!degStr) return null;
+		const deg = parseFloat(degStr.replace(/,/g, "."));
+		if (isNaN(deg)) return null;
+		const min = parseFloat(form.dms.lon.min.trim().replace(/,/g, ".")) || 0;
+		const sec = parseFloat(form.dms.lon.sec.trim().replace(/,/g, ".")) || 0;
+		return dmsToDd(deg, min, sec);
+	}
+	const s = form.dms_str.lon.trim();
+	if (!s) return null;
+	return parseDmsString(s);
 });
 
 const hasInput = computed(() => {
 	if (mode.value === "dd") return form.dd.lat.trim() !== "" || form.dd.lon.trim() !== "";
-	const { lat, lon } = form.dms;
-	return !!(lat.deg.trim() || lat.min.trim() || lat.sec.trim() || lon.deg.trim() || lon.min.trim() || lon.sec.trim());
+	if (mode.value === "dms") {
+		const { lat, lon } = form.dms;
+		return !!(lat.deg.trim() || lat.min.trim() || lat.sec.trim() || lon.deg.trim() || lon.min.trim() || lon.sec.trim());
+	}
+	return form.dms_str.lat.trim() !== "" || form.dms_str.lon.trim() !== "";
 });
 
 const isValid = computed(() => latDD.value !== null && lonDD.value !== null);
@@ -293,6 +307,13 @@ function downloadFromPreview() {
 						:variant="mode === 'dms' ? 'solid' : 'outline'"
 						@click="mode = 'dms'"
 					/>
+					<UButton
+						label="Ciąg znaków (DMS)"
+						size="sm"
+						:color="mode === 'dms_str' ? 'primary' : 'neutral'"
+						:variant="mode === 'dms_str' ? 'solid' : 'outline'"
+						@click="mode = 'dms_str'"
+					/>
 				</div>
 
 				<!-- DD inputs -->
@@ -362,7 +383,7 @@ function downloadFromPreview() {
 
 				<!-- DMS inputs -->
 				<div
-					v-else
+					v-else-if="mode === 'dms'"
 					class="flex flex-col gap-4"
 				>
 					<div>
@@ -421,6 +442,71 @@ function downloadFromPreview() {
 							</UFormField>
 						</div>
 					</div>
+				</div>
+
+				<!-- String inputs -->
+				<div
+					v-else
+					class="grid sm:grid-cols-2 gap-4"
+				>
+					<UFormField
+						label="Szerokość geograficzna (φ)"
+						hint="np. 52°15′0″"
+					>
+						<UInput
+							v-model="form.dms_str.lat"
+							placeholder="52°15′0″"
+							class="w-full font-mono"
+						>
+							<template
+								v-if="form.dms_str.lat"
+								#trailing
+							>
+								<UTooltip
+									text="Wyczyść"
+									:delay-duration="0"
+								>
+									<UButton
+										icon="i-lucide-x"
+										size="xs"
+										color="neutral"
+										variant="ghost"
+										aria-label="Wyczyść"
+										@click="form.dms_str.lat = ''"
+									/>
+								</UTooltip>
+							</template>
+						</UInput>
+					</UFormField>
+					<UFormField
+						label="Długość geograficzna (λ)"
+						hint="np. 21°0′0″"
+					>
+						<UInput
+							v-model="form.dms_str.lon"
+							placeholder="21°0′0″"
+							class="w-full font-mono"
+						>
+							<template
+								v-if="form.dms_str.lon"
+								#trailing
+							>
+								<UTooltip
+									text="Wyczyść"
+									:delay-duration="0"
+								>
+									<UButton
+										icon="i-lucide-x"
+										size="xs"
+										color="neutral"
+										variant="ghost"
+										aria-label="Wyczyść"
+										@click="form.dms_str.lon = ''"
+									/>
+								</UTooltip>
+							</template>
+						</UInput>
+					</UFormField>
 				</div>
 
 				<!-- Grid size -->
