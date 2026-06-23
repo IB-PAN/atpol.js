@@ -66,16 +66,6 @@ const rows = computed(() => {
 	];
 });
 
-const wktPolygon = computed(() => {
-	if (!isValid.value) return "";
-	try { return ATPOL.grid_to_polygonWKT(code.value); } catch { return ""; }
-});
-
-const wktCentroid = computed(() => {
-	if (!isValid.value) return "";
-	try { return ATPOL.grid_to_centroidWKT(code.value); } catch { return ""; }
-});
-
 // ---- File preview modal ----
 
 const previewOpen = ref(false);
@@ -328,10 +318,7 @@ function downloadFromPreview() {
 			</div>
 
 			<!-- Darwin Core WKT -->
-			<DarwinCoreFields
-				:wkt-polygon="wktPolygon"
-				:wkt-centroid="wktCentroid"
-			/>
+			<DarwinCoreFields :atpol-code="codeNormalized" />
 		</template>
 
 		<!-- File preview modal -->

@@ -189,28 +189,6 @@ const bounds = computed(() => {
 	try { return ATPOL.grid_to_latlon_bounds(gridSelected.value); } catch { return null; }
 });
 
-const wktPolygon = computed(() => {
-	if (!gridSelected.value) return "";
-	try { return ATPOL.grid_to_polygonWKT(gridSelected.value); } catch { return ""; }
-});
-
-const wktCentroid = computed(() => {
-	if (!gridSelected.value) return "";
-	try { return ATPOL.grid_to_centroidWKT(gridSelected.value); } catch { return ""; }
-});
-
-const mapsUrl = computed(() => {
-	if (latDD.value === null || lonDD.value === null) return "";
-	return `https://maps.google.com/?q=${latDD.value.toFixed(6)},${lonDD.value.toFixed(6)}`;
-});
-
-const osmUrl = computed(() => {
-	if (latDD.value === null || lonDD.value === null || !gridSelected.value) return "";
-	const km = ATPOL.grid_to_square_side_in_km(gridSelected.value);
-	const zoom = Math.min(18, Math.max(6, 14 - Math.round(Math.log2(Math.max(km, 0.001)))));
-	return `https://www.openstreetmap.org/?mlat=${latDD.value.toFixed(6)}&mlon=${lonDD.value.toFixed(6)}&zoom=${zoom}`;
-});
-
 // ---- File preview ----
 
 const previewOpen = ref(false);
@@ -543,30 +521,6 @@ function downloadFromPreview() {
 				class="mb-4"
 			/>
 
-			<!-- Map links -->
-			<div class="flex gap-3 mb-3">
-				<UButton
-					:to="mapsUrl"
-					target="_blank"
-					icon="i-simple-icons-googlemaps"
-					label="Mapy Google"
-					color="error"
-					class="flex-1"
-					size="lg"
-					external
-				/>
-				<UButton
-					:to="osmUrl"
-					target="_blank"
-					icon="i-simple-icons-openstreetmap"
-					label="OpenStreetMap"
-					color="success"
-					class="flex-1"
-					size="lg"
-					external
-				/>
-			</div>
-
 			<!-- Downloads -->
 			<div class="flex gap-3 mb-4">
 				<UButton
@@ -597,10 +551,7 @@ function downloadFromPreview() {
 			</div>
 
 			<!-- Darwin Core WKT -->
-			<DarwinCoreFields
-				:wkt-polygon="wktPolygon"
-				:wkt-centroid="wktCentroid"
-			/>
+			<DarwinCoreFields :atpol-code="gridSelectedNormalized" />
 		</template>
 
 		<!-- File preview modal -->
