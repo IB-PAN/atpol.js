@@ -625,6 +625,12 @@ function downloadFromPreview() {
 				</div>
 			</div>
 
+			<!-- Bounds table -->
+			<AtpolBoundsTable
+				:bounds="bounds"
+				class="mb-4"
+			/>
+
 			<!-- Map -->
 			<AtpolMap
 				:bounds="bounds"

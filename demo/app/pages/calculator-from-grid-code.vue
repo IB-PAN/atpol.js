@@ -9,16 +9,6 @@ useSeoMeta({
 
 const code = ref("");
 
-function toDMS(decimal, isLat) {
-	const abs = Math.abs(decimal);
-	const deg = Math.floor(abs);
-	const minFull = (abs - deg) * 60;
-	const min = Math.floor(minFull);
-	const sec = ((minFull - min) * 60).toFixed(2).padStart(5, "0");
-	const dir = isLat ? (decimal >= 0 ? "N" : "S") : (decimal >= 0 ? "E" : "W");
-	return `${deg}° ${min}' ${sec}" ${dir}`;
-}
-
 function formatSideLabel(grid) {
 	const m = ATPOL.grid_to_square_side_in_meters(grid);
 	const sizeStr = m >= 1000 ? `${m / 1000} x ${m / 1000} km` : `${m} x ${m} m`;
@@ -52,18 +42,6 @@ const result = computed(() => {
 		console.error(err);
 		return null;
 	}
-});
-
-const rows = computed(() => {
-	if (!result.value) return [];
-	const { bounds } = result.value;
-	return [
-		{ label: "ŚRODEK (Centrum)", point: bounds.center, isCenter: true },
-		{ label: "NW (Górny Lewy)", point: bounds.nw },
-		{ label: "NE (Górny Prawy)", point: bounds.ne },
-		{ label: "SE (Dolny Prawy)", point: bounds.se },
-		{ label: "SW (Dolny Lewy)", point: bounds.sw },
-	];
 });
 
 // ---- File preview modal ----
@@ -220,44 +198,10 @@ function downloadFromPreview() {
 				Rozmiar kwadratu: {{ result.sideLabel }}
 			</div>
 
-			<UCard class="mb-4">
-				<div class="overflow-x-auto">
-					<table class="w-full text-sm">
-						<thead>
-							<tr class="border-b border-default">
-								<th class="text-left py-2 px-3 text-muted font-medium">
-									Punkt
-								</th>
-								<th class="text-center py-2 px-3 text-muted font-medium">
-									Szerokość (φ)
-								</th>
-								<th class="text-center py-2 px-3 text-muted font-medium">
-									Długość (λ)
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr
-								v-for="row in rows"
-								:key="row.label"
-								:class="['border-b border-default last:border-0', row.isCenter && 'bg-success/10']"
-							>
-								<td class="py-2 px-3 font-medium whitespace-nowrap">
-									{{ row.label }}
-								</td>
-								<td class="py-2 px-3 text-center">
-									<span class="font-mono font-bold text-primary block">{{ row.point.lat.toFixed(6) }}</span>
-									<span class="text-xs text-muted block mt-0.5">{{ toDMS(row.point.lat, true) }}</span>
-								</td>
-								<td class="py-2 px-3 text-center">
-									<span class="font-mono font-bold text-primary block">{{ row.point.lon.toFixed(6) }}</span>
-									<span class="text-xs text-muted block mt-0.5">{{ toDMS(row.point.lon, false) }}</span>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</UCard>
+			<AtpolBoundsTable
+				:bounds="result.bounds"
+				class="mb-4"
+			/>
 
 			<AtpolMap
 				:bounds="result.bounds"

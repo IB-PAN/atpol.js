@@ -4,19 +4,11 @@ import "leaflet/dist/leaflet.css";
 import { FullScreen } from "leaflet.fullscreen";
 import "leaflet.fullscreen/dist/Control.FullScreen.css";
 
-type LatLon = { lat: number; lon: number };
-
-interface Bounds {
-	nw: LatLon;
-	ne: LatLon;
-	se: LatLon;
-	sw: LatLon;
-	center: LatLon;
-}
+import type { ATPOL } from "../../../main.ts";
 
 const props = defineProps<{
-	bounds: Bounds | null;
-	marker?: LatLon | null;
+	bounds: ATPOL.Bounds_LatLon | null;
+	marker?: ATPOL.LatLon | null;
 }>();
 
 const mapEl = useTemplateRef<HTMLElement>("mapEl");
