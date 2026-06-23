@@ -11,9 +11,9 @@ const code = ref("");
 
 function formatSideLabel(grid) {
 	const m = ATPOL.grid_to_square_side_in_meters(grid);
-	const sizeStr = m >= 1000 ? `${m / 1000} x ${m / 1000} km` : `${m} x ${m} m`;
-	const divMatch = grid.toUpperCase().replace(/\s/g, "").match(/([DCP])\d{2}$/);
-	return divMatch ? `${sizeStr} (typ ${divMatch[1].toLowerCase()})` : sizeStr;
+	const div = ATPOL.grid_get_division_type(grid)?.toLowerCase();
+	const sizeStr = m >= 1000 ? `${m / 1000} × ${m / 1000} km` : `${m} × ${m} m`;
+	return div ? `${sizeStr} (typ ${div})` : sizeStr;
 }
 
 const isValid = computed(() => code.value.trim() !== "" && ATPOL.grid_is_valid(code.value));

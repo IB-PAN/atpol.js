@@ -266,3 +266,8 @@ export function grid_to_centroidWKT(grid: string): string {
 	const bounds = grid_to_latlon_bounds(grid);
 	return `POINT (${bounds.center.lon} ${bounds.center.lat})`;
 }
+
+export function grid_get_division_type(grid: string): null | "D" | "C" | "P" {
+	const divMatch = grid_normalize(grid).match(/([dcp])\d{2}$/)?.[1]?.toUpperCase() || null;
+	return divMatch as null | "D" | "C" | "P";
+}

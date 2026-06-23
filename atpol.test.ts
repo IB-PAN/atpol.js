@@ -201,3 +201,10 @@ test("Parse and re-stringify grid", () => {
 	expect(parseAndRestringifyGrid("EF25c32", 4, "C")).toBe("EF25c32");
 	expect(parseAndRestringifyGrid("EF25p43", 4, "P")).toBe("EF25p43");
 });
+
+test("Get grid division type", () => {
+	expect(ATPOL.grid_get_division_type("EF25")).toBe(null);
+	expect(ATPOL.grid_get_division_type("EF25d10")).toBe("D");
+	expect(ATPOL.grid_get_division_type("EF25c32")).toBe("C");
+	expect(ATPOL.grid_get_division_type("EF25p43")).toBe("P");
+});
