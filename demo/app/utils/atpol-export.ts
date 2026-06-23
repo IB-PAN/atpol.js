@@ -6,23 +6,23 @@ export function generateKMLString(normalizedCode: string, bounds: Bounds_LatLon,
 	const { center, nw, ne, se, sw } = bounds;
 	const pointPlacemark = inputPoint
 		? [
-			`    <Placemark>`,
-			`      <name>Wpisany punkt</name>`,
-			`      <description>Współrzędne punktu:&#10;Lat (Szer): ${inputPoint.lat}&#10;Lon (Dł): ${inputPoint.lon}</description>`,
-			`      <Point>`,
-			`        <coordinates>${inputPoint.lon},${inputPoint.lat},0</coordinates>`,
-			`      </Point>`,
-			`    </Placemark>`,
-		]
+				`    <Placemark>`,
+				`      <name>Wpisany punkt</name>`,
+				`      <description>Współrzędne punktu:&#10;Lat (Szer): ${inputPoint.lat}&#10;Lon (Dł): ${inputPoint.lon}</description>`,
+				`      <Point>`,
+				`        <coordinates>${inputPoint.lon},${inputPoint.lat},0</coordinates>`,
+				`      </Point>`,
+				`    </Placemark>`,
+			]
 		: [
-			`    <Placemark>`,
-			`      <name>Środek kwadratu</name>`,
-			`      <description>Środek dla: ${normalizedCode}</description>`,
-			`      <Point>`,
-			`        <coordinates>${center.lon},${center.lat},0</coordinates>`,
-			`      </Point>`,
-			`    </Placemark>`,
-		];
+				`    <Placemark>`,
+				`      <name>Środek kwadratu</name>`,
+				`      <description>Środek dla: ${normalizedCode}</description>`,
+				`      <Point>`,
+				`        <coordinates>${center.lon},${center.lat},0</coordinates>`,
+				`      </Point>`,
+				`    </Placemark>`,
+			];
 	return [
 		`<?xml version="1.0" encoding="UTF-8"?>`,
 		`<kml xmlns="http://www.opengis.net/kml/2.2">`,
@@ -143,7 +143,7 @@ function generateSHP(bounds: Bounds_LatLon): Uint8Array {
 	const buf = new Uint8Array(236);
 	const v = new DataView(buf.buffer);
 	writeShpFileHeader(v, 118, xmin, ymin, xmax, ymax); // 236/2=118 words
-	v.setInt32(100, 1, false);  // record number (1-based, big-endian)
+	v.setInt32(100, 1, false); // record number (1-based, big-endian)
 	v.setInt32(104, 64, false); // content length in 16-bit words (128/2)
 	let o = 108;
 	v.setInt32(o, 5, true); o += 4;
@@ -187,7 +187,7 @@ function generateDBF(normalizedCode: string): Uint8Array {
 	v.setInt16(10, recordSize, true);
 	"ATPOL".split("").forEach((c, i) => { buf[32 + i] = c.charCodeAt(0); });
 	buf[42] = 0x43; // field type 'C'
-	buf[47] = 10;   // field length
+	buf[47] = 10; // field length
 	buf[64] = 0x0D; // header terminator
 	buf[headerSize] = 0x20; // not-deleted flag
 	for (let i = 0; i < 10; i++) buf[headerSize + 1 + i] = code.charCodeAt(i);

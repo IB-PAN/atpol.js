@@ -113,7 +113,10 @@ function downloadFromPreview() {
 	<div class="max-w-2xl">
 		<div class="mb-6">
 			<div class="flex items-center gap-2 mb-1">
-				<UIcon name="i-lucide-compass" class="text-primary size-6 shrink-0" />
+				<UIcon
+					name="i-lucide-compass"
+					class="text-primary size-6 shrink-0"
+				/>
 				<h1 class="text-2xl font-bold">
 					Kalkulator – kod kwadratu ATPOL na współrzędne
 				</h1>
@@ -135,8 +138,14 @@ function downloadFromPreview() {
 						class="w-full sm:w-64 font-mono text-lg"
 						autofocus
 					>
-						<template v-if="code" #trailing>
-							<UTooltip text="Wyczyść" :delay-duration="0">
+						<template
+							v-if="code"
+							#trailing
+						>
+							<UTooltip
+								text="Wyczyść"
+								:delay-duration="0"
+							>
 								<UButton
 									icon="i-lucide-x"
 									size="xs"
@@ -156,7 +165,12 @@ function downloadFromPreview() {
 					</p>
 					<div class="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-muted">
 						<div class="flex items-center gap-2">
-							<UBadge label="Standardowe" size="xs" color="neutral" variant="subtle" />
+							<UBadge
+								label="Standardowe"
+								size="xs"
+								color="neutral"
+								variant="subtle"
+							/>
 							<span>
 								<code class="font-mono">EF</code>,
 								<code class="font-mono">EF25</code>,
@@ -164,7 +178,12 @@ function downloadFromPreview() {
 							</span>
 						</div>
 						<div class="flex items-center gap-2">
-							<UBadge label="Niestandardowe" size="xs" color="primary" variant="subtle" />
+							<UBadge
+								label="Niestandardowe"
+								size="xs"
+								color="primary"
+								variant="subtle"
+							/>
 							<span>
 								<code class="font-mono">EF25d11</code>,
 								<code class="font-mono">EF25c33</code>,
@@ -177,9 +196,15 @@ function downloadFromPreview() {
 		</UCard>
 
 		<!-- Empty state -->
-		<UCard v-if="!code.trim()" variant="subtle">
+		<UCard
+			v-if="!code.trim()"
+			variant="subtle"
+		>
 			<div class="text-center py-10 text-muted">
-				<UIcon name="i-lucide-crosshair" class="size-12 mx-auto mb-3 opacity-25" />
+				<UIcon
+					name="i-lucide-crosshair"
+					class="size-12 mx-auto mb-3 opacity-25"
+				/>
 				<p class="font-medium">
 					Tutaj pojawią się wyniki
 				</p>
@@ -303,7 +328,10 @@ function downloadFromPreview() {
 			</div>
 
 			<!-- Darwin Core WKT -->
-			<DarwinCoreFields :wkt-polygon="wktPolygon" :wkt-centroid="wktCentroid" />
+			<DarwinCoreFields
+				:wkt-polygon="wktPolygon"
+				:wkt-centroid="wktCentroid"
+			/>
 		</template>
 
 		<!-- File preview modal -->

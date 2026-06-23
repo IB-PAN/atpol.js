@@ -1,43 +1,43 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: [
-    '@nuxt/eslint',
-    '@nuxt/ui',
-    '@nuxt/scripts',
-    '@nuxt/a11y',
-    '@nuxt/hints'
-  ],
+	modules: [
+		"@nuxt/eslint",
+		"@nuxt/ui",
+		"@nuxt/scripts",
+		"@nuxt/a11y",
+		"@nuxt/hints",
+	],
 
-  devtools: {
-    enabled: true
-  },
+	devtools: {
+		enabled: true,
+	},
 
-  css: ['~/assets/css/main.css'],
+	css: ["~/assets/css/main.css"],
 
-  routeRules: {
-    '/': { prerender: true },
-    '/kalkulator-wprost': { prerender: true },
-    '/kalkulator-odwrotny': { prerender: true },
-    '/konwerter': { prerender: true }
-  },
+	routeRules: {
+		"/": { prerender: true },
+		"/kalkulator-wprost": { prerender: true },
+		"/kalkulator-odwrotny": { prerender: true },
+		"/konwerter": { prerender: true },
+	},
 
-  compatibilityDate: '2025-01-15',
+	compatibilityDate: "2025-01-15",
 
-  eslint: {
-    config: {
-      stylistic: {
-        commaDangle: 'only-multiline',
-        braceStyle: '1tbs',
-        semi: true,
-        quotes: 'double',
-        indent: 'tab'
-      }
-    }
-  },
+	eslint: {
+		config: {
+			stylistic: {
+				commaDangle: "always-multiline",
+				braceStyle: "1tbs",
+				semi: true,
+				quotes: "double",
+				indent: "tab",
+			},
+		},
+	},
 
-  icon: {
-    clientBundle: {
-      scan: true
-    }
-  }
-})
+	icon: {
+		clientBundle: {
+			scan: true,
+		},
+	},
+});

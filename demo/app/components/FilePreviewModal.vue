@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	"update:open": [value: boolean];
-	download: [];
+	"download": [];
 }>();
 
 const copiedFields = reactive(new Set<string>());
@@ -40,7 +40,10 @@ async function copyText(key: string, text: string) {
 							class="text-xs font-medium text-success bg-success/15 border border-success/30 px-1.5 py-0.5 rounded"
 						>Skopiowano!</span>
 					</Transition>
-					<UTooltip text="Kopiuj do schowka" :delay-duration="0">
+					<UTooltip
+						text="Kopiuj do schowka"
+						:delay-duration="0"
+					>
 						<UButton
 							:icon="copiedFields.has('preview') ? 'i-lucide-check' : 'i-lucide-copy'"
 							:color="copiedFields.has('preview') ? 'success' : 'neutral'"
@@ -52,7 +55,10 @@ async function copyText(key: string, text: string) {
 					</UTooltip>
 				</div>
 				<div class="overflow-auto max-h-[65vh]">
-					<highlightjs :language="props.language" :code="props.content" />
+					<highlightjs
+						:language="props.language"
+						:code="props.content"
+					/>
 				</div>
 			</div>
 		</template>

@@ -254,7 +254,10 @@ function downloadFromPreview() {
 	<div class="max-w-2xl">
 		<div class="mb-6">
 			<div class="flex items-center gap-2 mb-1">
-				<UIcon name="i-lucide-map-pin" class="text-primary size-6 shrink-0" />
+				<UIcon
+					name="i-lucide-map-pin"
+					class="text-primary size-6 shrink-0"
+				/>
 				<h1 class="text-2xl font-bold">
 					Kalkulator – współrzędne na kod kwadratu ATPOL
 				</h1>
@@ -288,7 +291,9 @@ function downloadFromPreview() {
 						<template v-if="gpsStatus.state === 'success'">
 							Pobrano lokalizację. Dokładność: <strong>{{ gpsStatus.accuracy }} m</strong>
 						</template>
-						<template v-else>{{ gpsStatus.text }}</template>
+						<template v-else>
+							{{ gpsStatus.text }}
+						</template>
 					</p>
 				</div>
 
@@ -313,21 +318,64 @@ function downloadFromPreview() {
 				</div>
 
 				<!-- DD inputs -->
-				<div v-if="mode === 'dd'" class="grid sm:grid-cols-2 gap-4">
-					<UFormField label="Szerokość geograficzna (φ)" hint="np. 52.2500">
-						<UInput v-model="form.dd.lat" placeholder="52.2500" class="w-full font-mono">
-							<template v-if="form.dd.lat" #trailing>
-								<UTooltip text="Wyczyść" :delay-duration="0">
-									<UButton icon="i-lucide-x" size="xs" color="neutral" variant="ghost" aria-label="Wyczyść" @click="form.dd.lat = ''" />
+				<div
+					v-if="mode === 'dd'"
+					class="grid sm:grid-cols-2 gap-4"
+				>
+					<UFormField
+						label="Szerokość geograficzna (φ)"
+						hint="np. 52.2500"
+					>
+						<UInput
+							v-model="form.dd.lat"
+							placeholder="52.2500"
+							class="w-full font-mono"
+						>
+							<template
+								v-if="form.dd.lat"
+								#trailing
+							>
+								<UTooltip
+									text="Wyczyść"
+									:delay-duration="0"
+								>
+									<UButton
+										icon="i-lucide-x"
+										size="xs"
+										color="neutral"
+										variant="ghost"
+										aria-label="Wyczyść"
+										@click="form.dd.lat = ''"
+									/>
 								</UTooltip>
 							</template>
 						</UInput>
 					</UFormField>
-					<UFormField label="Długość geograficzna (λ)" hint="np. 21.0000">
-						<UInput v-model="form.dd.lon" placeholder="21.0000" class="w-full font-mono">
-							<template v-if="form.dd.lon" #trailing>
-								<UTooltip text="Wyczyść" :delay-duration="0">
-									<UButton icon="i-lucide-x" size="xs" color="neutral" variant="ghost" aria-label="Wyczyść" @click="form.dd.lon = ''" />
+					<UFormField
+						label="Długość geograficzna (λ)"
+						hint="np. 21.0000"
+					>
+						<UInput
+							v-model="form.dd.lon"
+							placeholder="21.0000"
+							class="w-full font-mono"
+						>
+							<template
+								v-if="form.dd.lon"
+								#trailing
+							>
+								<UTooltip
+									text="Wyczyść"
+									:delay-duration="0"
+								>
+									<UButton
+										icon="i-lucide-x"
+										size="xs"
+										color="neutral"
+										variant="ghost"
+										aria-label="Wyczyść"
+										@click="form.dd.lon = ''"
+									/>
 								</UTooltip>
 							</template>
 						</UInput>
@@ -335,20 +383,35 @@ function downloadFromPreview() {
 				</div>
 
 				<!-- DMS inputs -->
-				<div v-else class="flex flex-col gap-4">
+				<div
+					v-else
+					class="flex flex-col gap-4"
+				>
 					<div>
 						<p class="text-sm font-medium mb-2">
 							Szerokość geograficzna (φ)
 						</p>
 						<div class="grid grid-cols-3 gap-2">
 							<UFormField label="Stopnie (°)">
-								<UInput v-model="form.dms.lat.deg" placeholder="52" class="w-full font-mono" />
+								<UInput
+									v-model="form.dms.lat.deg"
+									placeholder="52"
+									class="w-full font-mono"
+								/>
 							</UFormField>
 							<UFormField label="Minuty (')">
-								<UInput v-model="form.dms.lat.min" placeholder="15" class="w-full font-mono" />
+								<UInput
+									v-model="form.dms.lat.min"
+									placeholder="15"
+									class="w-full font-mono"
+								/>
 							</UFormField>
-							<UFormField label='Sekundy (")'>
-								<UInput v-model="form.dms.lat.sec" placeholder="0.0" class="w-full font-mono" />
+							<UFormField label="Sekundy (&quot;)">
+								<UInput
+									v-model="form.dms.lat.sec"
+									placeholder="0.0"
+									class="w-full font-mono"
+								/>
 							</UFormField>
 						</div>
 					</div>
@@ -358,13 +421,25 @@ function downloadFromPreview() {
 						</p>
 						<div class="grid grid-cols-3 gap-2">
 							<UFormField label="Stopnie (°)">
-								<UInput v-model="form.dms.lon.deg" placeholder="21" class="w-full font-mono" />
+								<UInput
+									v-model="form.dms.lon.deg"
+									placeholder="21"
+									class="w-full font-mono"
+								/>
 							</UFormField>
 							<UFormField label="Minuty (')">
-								<UInput v-model="form.dms.lon.min" placeholder="0" class="w-full font-mono" />
+								<UInput
+									v-model="form.dms.lon.min"
+									placeholder="0"
+									class="w-full font-mono"
+								/>
 							</UFormField>
-							<UFormField label='Sekundy (")'>
-								<UInput v-model="form.dms.lon.sec" placeholder="0.0" class="w-full font-mono" />
+							<UFormField label="Sekundy (&quot;)">
+								<UInput
+									v-model="form.dms.lon.sec"
+									placeholder="0.0"
+									class="w-full font-mono"
+								/>
 							</UFormField>
 						</div>
 					</div>
@@ -382,9 +457,15 @@ function downloadFromPreview() {
 		</UCard>
 
 		<!-- Empty state -->
-		<UCard v-if="!hasInput" variant="subtle">
+		<UCard
+			v-if="!hasInput"
+			variant="subtle"
+		>
 			<div class="text-center py-10 text-muted">
-				<UIcon name="i-lucide-map" class="size-12 mx-auto mb-3 opacity-25" />
+				<UIcon
+					name="i-lucide-map"
+					class="size-12 mx-auto mb-3 opacity-25"
+				/>
 				<p class="font-medium">
 					Tutaj pojawią się wyniki
 				</p>
@@ -422,25 +503,37 @@ function downloadFromPreview() {
 					<div class="grid sm:grid-cols-2 gap-3">
 						<div class="p-3 bg-elevated rounded-lg text-sm">
 							<span class="text-muted text-xs">Współrzędna X:</span>
-							<div class="font-mono font-bold text-primary text-base mt-0.5">{{ xy.x.toFixed(3) }} m</div>
+							<div class="font-mono font-bold text-primary text-base mt-0.5">
+								{{ xy.x.toFixed(3) }} m
+							</div>
 						</div>
 						<div class="p-3 bg-elevated rounded-lg text-sm">
 							<span class="text-muted text-xs">Współrzędna Y:</span>
-							<div class="font-mono font-bold text-primary text-base mt-0.5">{{ xy.y.toFixed(3) }} m</div>
+							<div class="font-mono font-bold text-primary text-base mt-0.5">
+								{{ xy.y.toFixed(3) }} m
+							</div>
 						</div>
 					</div>
 					<div class="p-3 bg-elevated rounded-lg text-sm text-center">
 						<span class="text-muted text-xs uppercase tracking-wide">Pełny adres standardowy (do 10 m):</span>
-						<div class="font-mono font-bold text-lg mt-1">{{ gridFullDisplay }}</div>
+						<div class="font-mono font-bold text-lg mt-1">
+							{{ gridFullDisplay }}
+						</div>
 					</div>
 				</div>
 			</UCard>
 
 			<!-- Selected grid code (prominent) -->
 			<div class="mb-3 px-3 py-4 bg-primary/10 border border-primary/20 rounded-lg text-center">
-				<div class="text-xs text-muted uppercase tracking-wide mb-1">Kod wybranego kwadratu</div>
-				<div class="font-mono font-extrabold text-2xl text-primary">{{ gridSelectedDisplay }}</div>
-				<div class="text-sm text-muted mt-1">{{ sideLabel }}</div>
+				<div class="text-xs text-muted uppercase tracking-wide mb-1">
+					Kod wybranego kwadratu
+				</div>
+				<div class="font-mono font-extrabold text-2xl text-primary">
+					{{ gridSelectedDisplay }}
+				</div>
+				<div class="text-sm text-muted mt-1">
+					{{ sideLabel }}
+				</div>
 			</div>
 
 			<!-- Map -->
@@ -504,7 +597,10 @@ function downloadFromPreview() {
 			</div>
 
 			<!-- Darwin Core WKT -->
-			<DarwinCoreFields :wkt-polygon="wktPolygon" :wkt-centroid="wktCentroid" />
+			<DarwinCoreFields
+				:wkt-polygon="wktPolygon"
+				:wkt-centroid="wktCentroid"
+			/>
 		</template>
 
 		<!-- File preview modal -->
