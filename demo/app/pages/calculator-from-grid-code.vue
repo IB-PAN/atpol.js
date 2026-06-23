@@ -1,5 +1,5 @@
 <script setup>
-import * as ATPOL from "../../../main.ts";
+import { ATPOL } from "../../../main.ts";
 import { generateKMLString, generateGeoJSONString, downloadKML, downloadGeoJSON, downloadSHPZip } from "~/utils/atpol-export";
 
 useSeoMeta({

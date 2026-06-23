@@ -1,7 +1,6 @@
 <script setup lang="ts">
-defineProps<{
-	wktPolygon: string;
-	wktCentroid: string;
+import { ATPOL } from "../../../main.ts";
+
 }>();
 
 const copiedFields = reactive(new Set<string>());

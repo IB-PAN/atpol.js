@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import * as ATPOL from "./main";
+import { ATPOL } from "./main.ts";
 
 test("Grid validity", () => {
 	expect(ATPOL.grid_is_valid("ED")).toBeTrue();
@@ -18,7 +18,7 @@ test("Grid validity", () => {
 	expect(ATPOL.grid_is_valid("ED262720p30")).toBeTrue();
 	expect(ATPOL.grid_is_valid("ED26272061")).toBeTrue();
 	expect(ATPOL.grid_is_valid("ED2627206133")).toBeTrue();
-	
+
 	expect(ATPOL.grid_is_valid("ED2627d22")).toBeFalse();
 	expect(ATPOL.grid_is_valid("ED2627c44")).toBeFalse();
 	expect(ATPOL.grid_is_valid("ED2627p55")).toBeFalse();
@@ -66,8 +66,8 @@ test("Grid to lat-lon coordinate conversion compatibility", () => {
 	expect(ATPOL.grid_to_latlon("EG00", 0, 0)).toMatchObject({ lat: 49.75533994502857, lon: 19.970803446537847 });
 	expect(ATPOL.grid_to_xy("EG", 0, 0)).toMatchObject({ x: 400, y: 600 });
 	expect(ATPOL.grid_to_latlon("EG", 0, 0)).toMatchObject({ lat: 49.75533994502857, lon: 19.970803446537847 });
-	expect(ATPOL.grid_to_xy("EG00", 1*0.2, 3*0.2)).toMatchObject({ x: 402, y: 606 }); // EG00P31
-	expect(ATPOL.grid_to_latlon("EG00", 1*0.2, 3*0.2)).toMatchObject({ lat: 49.701388209139274, lon: 19.99739586213447 }); // EG00P31
+	expect(ATPOL.grid_to_xy("EG00", 1 * 0.2, 3 * 0.2)).toMatchObject({ x: 402, y: 606 }); // EG00P31
+	expect(ATPOL.grid_to_latlon("EG00", 1 * 0.2, 3 * 0.2)).toMatchObject({ lat: 49.701388209139274, lon: 19.99739586213447 }); // EG00P31
 
 	expect(ATPOL.grid_to_latlon_bounds("EG00").nw).toMatchObject(ATPOL.grid_to_latlon_bounds("EG").nw);
 	expect(ATPOL.grid_to_latlon_bounds("EG0000p00").nw).toMatchObject(ATPOL.grid_to_latlon_bounds("EG").nw);
