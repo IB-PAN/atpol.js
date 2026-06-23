@@ -1,6 +1,15 @@
 <script setup>
 const { app: { baseURL } } = useRuntimeConfig();
 
+if (import.meta.client && window.location.hostname === "ib-pan.github.io") {
+  useScriptPlausibleAnalytics({
+    scriptInput: {
+      src: "https://botany.edu.pl/pa/js/pa-d8BECNQSzuTGL_7n2oI7x.js",
+    },
+    endpoint: "https://botany.edu.pl/pa/api/event",
+  });
+}
+
 useHead({
   titleTemplate: t => t ? `${t} — atpol.js` : "atpol.js",
   htmlAttrs: { lang: "pl" },
