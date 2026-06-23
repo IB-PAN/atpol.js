@@ -10,14 +10,14 @@ const groups = [
 	{
 		label: "Kalkulatory ATPOL",
 		items: [
-			{ label: "Kod ATPOL → Współrzędne", icon: "i-lucide-compass", to: "/kalkulator-odwrotny" },
-			{ label: "Współrzędne → Kod ATPOL", icon: "i-lucide-map-pin", to: "/kalkulator-wprost" },
+			{ label: "Kod ATPOL → Współrzędne", icon: "i-lucide-compass", to: "/calculator-from-grid-code" },
+			{ label: "Współrzędne → Kod ATPOL", icon: "i-lucide-map-pin", to: "/calculator-to-grid-code" },
 		],
 	},
 	{
 		label: "Narzędzia",
 		items: [
-			{ label: "Konwerter DD/DMS", icon: "i-lucide-arrow-left-right", to: "/konwerter" },
+			{ label: "Konwerter DD/DMS", icon: "i-lucide-arrow-left-right", to: "/converter" },
 		],
 	},
 ];

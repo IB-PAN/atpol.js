@@ -16,9 +16,9 @@ export default defineNuxtConfig({
 
 	routeRules: {
 		"/": { prerender: true },
-		"/kalkulator-wprost": { prerender: true },
-		"/kalkulator-odwrotny": { prerender: true },
-		"/konwerter": { prerender: true },
+		"/calculator-to-grid-code": { prerender: true },
+		"/calculator-from-grid-code": { prerender: true },
+		"/converter": { prerender: true },
 	},
 
 	compatibilityDate: "2025-01-15",

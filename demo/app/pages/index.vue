@@ -6,19 +6,19 @@ useSeoMeta({
 
 const tools = [
 	{
-		to: "/kalkulator-odwrotny",
+		to: "/calculator-from-grid-code",
 		icon: "i-lucide-compass",
 		title: "Kod ATPOL → Współrzędne",
 		description: "Uzyskaj współrzędne centrum i wierzchołków kwadratu ATPOL na podstawie jego kodu.",
 	},
 	{
-		to: "/kalkulator-wprost",
+		to: "/calculator-to-grid-code",
 		icon: "i-lucide-map-pin",
 		title: "Współrzędne → Kod ATPOL",
 		description: "Znajdź kod kwadratu ATPOL na podstawie współrzędnych geograficznych.",
 	},
 	{
-		to: "/konwerter",
+		to: "/converter",
 		icon: "i-lucide-arrow-left-right",
 		title: "Konwerter DD/DMS",
 		description: "Konwertuj współrzędne geograficzne między formatem dziesiętnym (DD) a stopniami, minutami i sekundami (DMS).",
