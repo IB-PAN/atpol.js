@@ -89,7 +89,7 @@ export function grid_normalize(grid: string, sep: string = ""): string {
 	return new_grid;
 }
 
-export function xy_to_grid(coords: XY, length: number = 8): {
+export function xy_to_grid(coords: XY, length: number = 8, div: null | "D" | "C" | "P" = null): {
 	grid: string;
 	xoffset: number;
 	yoffset: number;
@@ -99,25 +99,38 @@ export function xy_to_grid(coords: XY, length: number = 8): {
 		throw new Error(`[ATPOL.xy_to_grid] Invalid grid code length requested: ${length}`);
 	if (!(x >= 0 && x <= 700 && y >= 0 && y <= 700))
 		throw new Error(`[ATPOL.xy_to_grid] Invalid parameters: ${JSON.stringify({ x, y })}`);
+	if (!(div === null || ["D", "C", "P".includes(div)]))
+		throw new Error(`[ATPOL.xy_to_grid] Invalid division requested: ${div}`);
 
 	const xs = (1e15 + Math.round(x * 1000) + "").slice(-6);
 	const ys = (1e15 + Math.round(y * 1000) + "").slice(-6);
 
-	let grid = String.fromCharCode(xs.charCodeAt(0) + 17, ys.charCodeAt(0) + 17);
+	let grid_full = String.fromCharCode(xs.charCodeAt(0) + 17, ys.charCodeAt(0) + 17);
 	for (let i = 1; i < 6; i++) {
-		grid = grid + ys[i] + xs[i];
+		grid_full += ys[i]! + xs[i]!;
+	}
+	let grid = grid_full.substring(0, length);
+
+	let xoffset_str = (1e15 + Math.round(x * 1000000) + "").slice(-9);
+	let yoffset_str = (1e15 + Math.round(y * 1000000) + "").slice(-9);
+	xoffset_str = "0." + xoffset_str.slice(-9 + length / 2);
+	yoffset_str = "0." + yoffset_str.slice(-9 + length / 2);
+
+	const xoffset = parseFloat(xoffset_str);
+	const yoffset = parseFloat(yoffset_str);
+
+	if (typeof div === "string") {
+		const div_count = {
+			D: 2,
+			C: 5,
+			P: 5,
+		}[div];
+		const div_y = Math.min(div_count - 1, Math.floor(yoffset * div_count));
+		const div_x = Math.min(div_count - 1, Math.floor(xoffset * div_count));
+		grid += `${div.toLowerCase()}${div_y}${div_x}`;
 	}
 
-	let xoffset = (1e15 + Math.round(x * 1000000) + "").slice(-9);
-	let yoffset = (1e15 + Math.round(y * 1000000) + "").slice(-9);
-	xoffset = "0." + xoffset.slice(-9 + length / 2);
-	yoffset = "0." + yoffset.slice(-9 + length / 2);
-
-	return {
-		grid: grid.substring(0, length),
-		xoffset: parseFloat(xoffset),
-		yoffset: parseFloat(yoffset),
-	};
+	return { grid, xoffset, yoffset };
 }
 
 export function grid_to_xy(grid: string, xoffset: number = 0, yoffset: number = 0): XY {

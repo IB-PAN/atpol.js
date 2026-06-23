@@ -48,33 +48,30 @@ const gridSizes = [
 const GRID_CONFIG = {
 	"100km": { length: 2 },
 	"10km": { length: 4 },
-	"5km": { length: 4, div: "D", count: 2 },
-	"2.5km": { length: 4, div: "C", count: 4 },
-	"2km": { length: 4, div: "P", count: 5 },
+	"5km": { length: 4, div: "D" },
+	"2.5km": { length: 4, div: "C" },
+	"2km": { length: 4, div: "P" },
 	"1km": { length: 6 },
-	"500m": { length: 6, div: "D", count: 2 },
-	"250m": { length: 6, div: "C", count: 4 },
-	"200m": { length: 6, div: "P", count: 5 },
+	"500m": { length: 6, div: "D" },
+	"250m": { length: 6, div: "C" },
+	"200m": { length: 6, div: "P" },
 	"100m": { length: 8 },
-	"50m": { length: 8, div: "D", count: 2 },
-	"25m": { length: 8, div: "C", count: 4 },
-	"20m": { length: 8, div: "P", count: 5 },
+	"50m": { length: 8, div: "D" },
+	"25m": { length: 8, div: "C" },
+	"20m": { length: 8, div: "P" },
 	"10m": { length: 10 },
 	"1m": { length: 12 },
 };
 
 function computeGridCode(xy, gridSize) {
 	const cfg = GRID_CONFIG[gridSize];
-	const { grid, xoffset, yoffset } = ATPOL.xy_to_grid(xy, cfg.length);
-	if (!cfg.div) return grid;
-	const div_y = Math.min(cfg.count - 1, Math.floor(yoffset * cfg.count));
-	const div_x = Math.min(cfg.count - 1, Math.floor(xoffset * cfg.count));
-	return `${grid}${cfg.div.toLowerCase()}${div_y}${div_x}`;
+	const { grid } = ATPOL.xy_to_grid(xy, cfg.length, cfg.div);
+	return grid;
 }
 
 function formatSideLabel(grid) {
 	const m = ATPOL.grid_to_square_side_in_meters(grid);
-	const sizeStr = m >= 1000 ? `${m / 1000} x ${m / 1000} km` : `${m} x ${m} m`;
+	const sizeStr = m >= 1000 ? `${m / 1000} × ${m / 1000} km` : `${m} × ${m} m`;
 	const divMatch = grid.toUpperCase().replace(/\s/g, "").match(/([DCP])\d{2}$/);
 	return divMatch ? `${sizeStr} (typ ${divMatch[1].toLowerCase()})` : sizeStr;
 }

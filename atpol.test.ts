@@ -192,3 +192,12 @@ test("Coords to grid", () => {
 		expect(ATPOL.xy_to_grid(xy_out, 8).yoffset).toBeCloseTo(yoffset_expected, 4);
 	}
 });
+
+test("Parse and re-stringify grid", () => {
+	const parseAndRestringifyGrid = (grid: string, length: number, div: null | "D" | "C" | "P" = null) =>
+		ATPOL.xy_to_grid(ATPOL.grid_to_xy(grid), length, div).grid;
+	expect(parseAndRestringifyGrid("EF25", 4, null)).toBe("EF25");
+	expect(parseAndRestringifyGrid("EF25d10", 4, "D")).toBe("EF25d10");
+	expect(parseAndRestringifyGrid("EF25c32", 4, "C")).toBe("EF25c32");
+	expect(parseAndRestringifyGrid("EF25p43", 4, "P")).toBe("EF25p43");
+});
