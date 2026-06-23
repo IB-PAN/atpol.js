@@ -576,7 +576,7 @@ function downloadFromPreview() {
 					class="w-full justify-start text-muted text-xs group"
 					:ui="{ leadingIcon: 'group-data-[state=open]:rotate-90 transition-transform' }"
 				>
-					Szczegóły (współrzędne XY, pełny adres)
+					Szczegóły kodu (współrzędne XY, pełny adres)
 				</UButton>
 				<template #content>
 					<div class="px-px pb-px">
@@ -626,10 +626,26 @@ function downloadFromPreview() {
 			</div>
 
 			<!-- Bounds table -->
-			<AtpolBoundsTable
-				:bounds="bounds"
-				class="mb-4"
-			/>
+			<UCollapsible class="mb-4">
+				<UButton
+					variant="ghost"
+					color="neutral"
+					size="sm"
+					leading-icon="i-lucide-chevron-right"
+					class="w-full justify-start text-muted text-xs group"
+					:ui="{ leadingIcon: 'group-data-[state=open]:rotate-90 transition-transform' }"
+				>
+					Zasięg kwadratu (współrzędne punktów granicznych)
+				</UButton>
+				<template #content>
+					<div class="px-px pb-px">
+						<AtpolBoundsTable
+							:bounds="bounds"
+							class="mt-2"
+						/>
+					</div>
+				</template>
+			</UCollapsible>
 
 			<!-- Map -->
 			<AtpolMap
