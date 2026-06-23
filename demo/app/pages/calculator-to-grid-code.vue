@@ -570,30 +570,46 @@ function downloadFromPreview() {
 		<!-- Results -->
 		<template v-else-if="xy && gridSelected && bounds">
 			<!-- XY coords + full address -->
-			<UCard class="mb-4">
-				<div class="flex flex-col gap-3">
-					<div class="grid sm:grid-cols-2 gap-3">
-						<div class="p-3 bg-elevated rounded-lg text-sm">
-							<span class="text-muted text-xs">Współrzędna X:</span>
-							<div class="font-mono font-bold text-primary text-base mt-0.5">
-								{{ xy.x.toFixed(3) }} m
+			<UCollapsible class="mb-4">
+				<UButton
+					variant="ghost"
+					color="neutral"
+					size="sm"
+					leading-icon="i-lucide-chevron-right"
+					class="w-full justify-start text-muted text-xs group"
+					:ui="{ leadingIcon: 'group-data-[state=open]:rotate-90 transition-transform' }"
+				>
+					Szczegóły (współrzędne XY, pełny adres)
+				</UButton>
+				<template #content>
+					<div class="px-px pb-px">
+						<UCard class="mt-2">
+							<div class="flex flex-col gap-3">
+								<div class="grid sm:grid-cols-2 gap-3">
+									<div class="p-3 bg-elevated rounded-lg text-sm">
+										<span class="text-muted text-xs">Współrzędna X:</span>
+										<div class="font-mono font-bold text-primary text-base mt-0.5">
+											{{ xy.x.toFixed(3) }} m
+										</div>
+									</div>
+									<div class="p-3 bg-elevated rounded-lg text-sm">
+										<span class="text-muted text-xs">Współrzędna Y:</span>
+										<div class="font-mono font-bold text-primary text-base mt-0.5">
+											{{ xy.y.toFixed(3) }} m
+										</div>
+									</div>
+								</div>
+								<div class="p-3 bg-elevated rounded-lg text-sm text-center">
+									<span class="text-muted text-xs uppercase tracking-wide">Pełny adres standardowy (do 10 m):</span>
+									<div class="font-mono font-bold text-lg mt-1">
+										{{ gridFullDisplay }}
+									</div>
+								</div>
 							</div>
-						</div>
-						<div class="p-3 bg-elevated rounded-lg text-sm">
-							<span class="text-muted text-xs">Współrzędna Y:</span>
-							<div class="font-mono font-bold text-primary text-base mt-0.5">
-								{{ xy.y.toFixed(3) }} m
-							</div>
-						</div>
+						</UCard>
 					</div>
-					<div class="p-3 bg-elevated rounded-lg text-sm text-center">
-						<span class="text-muted text-xs uppercase tracking-wide">Pełny adres standardowy (do 10 m):</span>
-						<div class="font-mono font-bold text-lg mt-1">
-							{{ gridFullDisplay }}
-						</div>
-					</div>
-				</div>
-			</UCard>
+				</template>
+			</UCollapsible>
 
 			<!-- Selected grid code (prominent) -->
 			<div class="mb-3 px-3 py-4 bg-primary/10 border border-primary/20 rounded-lg text-center">
