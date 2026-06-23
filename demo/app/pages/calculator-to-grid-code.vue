@@ -21,23 +21,27 @@ const form = reactive({
 });
 
 const gridSizes = [
-	{ type: "label", label: "Siatka Standardowa" },
+	{ type: "label", label: "Siatka standardowa" },
 	{ label: "100×100 km", value: "100km" },
 	{ label: "10×10 km", value: "10km" },
 	{ label: "1×1 km", value: "1km" },
 	{ label: "100×100 m", value: "100m" },
-	{ label: "10×10 m (max)", value: "10m" },
+	{ label: "10×10 m", value: "10m" },
+	{ label: "1×1 m", value: "1m" },
 	{ type: "separator" },
 	{ type: "label", label: "Nietypowy: 10×10 km" },
 	{ label: "5×5 km (typ d)", value: "5km" },
+	{ label: "2.5×2.5 km (typ c)", value: "2.5km" },
 	{ label: "2×2 km (typ p)", value: "2km" },
 	{ type: "separator" },
 	{ type: "label", label: "Nietypowy: 1×1 km" },
 	{ label: "500×500 m (typ d)", value: "500m" },
+	{ label: "250×250 m (typ c)", value: "250m" },
 	{ label: "200×200 m (typ p)", value: "200m" },
 	{ type: "separator" },
 	{ type: "label", label: "Nietypowy: 100×100 m" },
 	{ label: "50×50 m (typ d)", value: "50m" },
+	{ label: "25×25 m (typ c)", value: "25m" },
 	{ label: "20×20 m (typ p)", value: "20m" },
 ];
 
@@ -45,14 +49,18 @@ const GRID_CONFIG = {
 	"100km": { length: 2 },
 	"10km": { length: 4 },
 	"5km": { length: 4, div: "D", count: 2 },
+	"2.5km": { length: 4, div: "C", count: 4 },
 	"2km": { length: 4, div: "P", count: 5 },
 	"1km": { length: 6 },
 	"500m": { length: 6, div: "D", count: 2 },
+	"250m": { length: 6, div: "C", count: 4 },
 	"200m": { length: 6, div: "P", count: 5 },
 	"100m": { length: 8 },
 	"50m": { length: 8, div: "D", count: 2 },
+	"25m": { length: 8, div: "C", count: 4 },
 	"20m": { length: 8, div: "P", count: 5 },
 	"10m": { length: 10 },
+	"1m": { length: 12 },
 };
 
 function computeGridCode(xy, gridSize) {

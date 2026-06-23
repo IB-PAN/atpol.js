@@ -14,7 +14,7 @@ const coordinateUncertaintyInMeters = computed(() => ATPOL.grid_to_coordinate_un
 
 const georeferenceProtocol = computed(() => {
 	const m = ATPOL.grid_to_square_side_in_meters(props.atpolCode);
-	const sizeStr = m >= 1000 ? `${m / 1000} x ${m / 1000} km` : `${m} x ${m} m`;
+	const sizeStr = m >= 1000 ? `${m / 1000}×${m / 1000} km` : `${m}×${m} m`;
 	return `Coordinates represent the centroid of an ATPOL ${sizeStr} grid`;
 });
 
