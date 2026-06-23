@@ -174,8 +174,8 @@ test("Coords to grid", () => {
 		const bounds_DF69 = ATPOL.grid_to_xy_bounds("DF69");
 		expect(ATPOL.grid_to_xy("DF69", 0.512031, 0.5032166).x).toBeCloseTo(xy_out.x, 6);
 		expect(ATPOL.grid_to_xy("DF69", 0.512031, 0.5032166).y).toBeCloseTo(xy_out.y, 6);
-		const xoffset_expected =(xy_out.x - bounds_DF69.nw.x) / ATPOL.grid_to_square_side_in_km("DF69");
-		const yoffset_expected =(xy_out.y - bounds_DF69.nw.y) / ATPOL.grid_to_square_side_in_km("DF69");
+		const xoffset_expected = (xy_out.x - bounds_DF69.nw.x) / ATPOL.grid_to_square_side_in_km("DF69");
+		const yoffset_expected = (xy_out.y - bounds_DF69.nw.y) / ATPOL.grid_to_square_side_in_km("DF69");
 		expect(ATPOL.xy_to_grid(xy_out, 4).grid).toBe("DF69");
 		expect(ATPOL.xy_to_grid(xy_out, 4).xoffset).toBeCloseTo(xoffset_expected, 6);
 		expect(ATPOL.xy_to_grid(xy_out, 4).yoffset).toBeCloseTo(yoffset_expected, 6);
@@ -185,8 +185,8 @@ test("Coords to grid", () => {
 		const coords: ATPOL.LatLon = { lat: 50.069000, lon: 19.909200 };
 		const xy_out = ATPOL.latlon_to_xy(coords);
 		const bounds_DF695501 = ATPOL.grid_to_xy_bounds("DF695501");
-		const xoffset_expected =(xy_out.x - bounds_DF695501.nw.x) / ATPOL.grid_to_square_side_in_km("DF695501");
-		const yoffset_expected =(xy_out.y - bounds_DF695501.nw.y) / ATPOL.grid_to_square_side_in_km("DF695501");
+		const xoffset_expected = (xy_out.x - bounds_DF695501.nw.x) / ATPOL.grid_to_square_side_in_km("DF695501");
+		const yoffset_expected = (xy_out.y - bounds_DF695501.nw.y) / ATPOL.grid_to_square_side_in_km("DF695501");
 		expect(ATPOL.xy_to_grid(xy_out, 8).grid).toBe("DF695501");
 		expect(ATPOL.xy_to_grid(xy_out, 8).xoffset).toBeCloseTo(xoffset_expected, 4);
 		expect(ATPOL.xy_to_grid(xy_out, 8).yoffset).toBeCloseTo(yoffset_expected, 4);
