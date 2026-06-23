@@ -1,4 +1,7 @@
-import type { Bounds_LatLon, LatLon } from "../../../main.ts";
+import type { ATPOL } from "../../../main";
+
+type LatLon = ATPOL.LatLon;
+type Bounds_LatLon = ATPOL.Bounds_LatLon;
 
 // ---- KML ----
 

@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { FullScreen } from "leaflet.fullscreen";
 import "leaflet.fullscreen/dist/Control.FullScreen.css";
 
-import type { ATPOL } from "../../../main.ts";
+import type { ATPOL } from "../../../main";
 
 const props = defineProps<{
 	bounds: ATPOL.Bounds_LatLon | null;
@@ -57,7 +57,7 @@ onUnmounted(() => {
 	leafletMarker = null;
 });
 
-function drawPolygon(bounds: Bounds) {
+function drawPolygon(bounds: ATPOL.Bounds_LatLon) {
 	if (!leafletMap) return;
 
 	leafletPolygon?.remove();
@@ -75,7 +75,7 @@ function drawPolygon(bounds: Bounds) {
 	leafletMap.fitBounds(leafletPolygon.getBounds(), { padding: [28, 28] });
 }
 
-function drawMarker(latlon: LatLon) {
+function drawMarker(latlon: ATPOL.LatLon) {
 	if (!leafletMap) return;
 
 	leafletMarker?.remove();

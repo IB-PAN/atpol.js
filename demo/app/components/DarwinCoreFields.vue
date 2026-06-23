@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ATPOL } from "../../../main.ts";
+import { ATPOL } from "../../../main";
 
 const props = defineProps<{
 	atpolCode: string;

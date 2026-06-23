@@ -1,4 +1,4 @@
-import { ATPOL } from "../../../main.ts";
+import { ATPOL } from "../../../main";
 
 export default defineNuxtPlugin(() => {
 	window.ATPOL = ATPOL;

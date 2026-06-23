@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ATPOL } from "../../../main.ts";
+import type { ATPOL } from "../../../main";
 
 const props = defineProps<{
 	bounds: ATPOL.Bounds_LatLon | null;
