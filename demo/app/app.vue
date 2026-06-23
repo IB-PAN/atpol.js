@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 const { app: { baseURL } } = useRuntimeConfig();
 
 if (import.meta.client && window.location.hostname === "ib-pan.github.io") {
@@ -38,11 +38,19 @@ useHead({
 					variant="ghost"
 				/>
 			</template>
+
+			<template #body>
+				<div class="flex flex-col gap-4 p-3">
+					<NavLinks />
+				</div>
+			</template>
 		</UHeader>
 
 		<UMain>
 			<div class="flex">
-				<SidebarNav />
+				<aside class="hidden lg:flex flex-col w-56 shrink-0 border-r border-default sticky top-16 h-[calc(100dvh-4rem)] overflow-y-auto p-3 gap-4">
+					<NavLinks />
+				</aside>
 				<div class="flex-1 min-w-0 p-6 lg:p-8">
 					<NuxtPage />
 				</div>
