@@ -21,6 +21,15 @@ export default defineNuxtConfig({
 		"/calculator-to-grid-code/": { prerender: true },
 		"/calculator-from-grid-code/": { prerender: true },
 		"/converter/": { prerender: true },
+		"/docs/": { prerender: true },
+	},
+
+	vite: {
+		server: {
+			fs: {
+				allow: [".."],
+			},
+		},
 	},
 
 	compatibilityDate: "2025-01-15",

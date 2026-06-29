@@ -5,6 +5,7 @@ const groups = [
 	{
 		items: [
 			{ label: "Strona główna", icon: "i-lucide-house", to: "/" },
+			{ label: "Dokumentacja biblioteki", icon: "i-lucide-book-open", to: "/docs/" },
 		],
 	},
 	{

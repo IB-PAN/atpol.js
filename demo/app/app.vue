@@ -31,6 +31,14 @@ useHead({
 			<template #right>
 				<UColorModeButton />
 				<UButton
+					to="https://www.npmjs.com/package/@ib-pan/atpol"
+					target="_blank"
+					icon="i-simple-icons-npm"
+					aria-label="npm"
+					color="neutral"
+					variant="ghost"
+				/>
+				<UButton
 					to="https://github.com/IB-PAN/atpol.js"
 					target="_blank"
 					icon="i-simple-icons-github"
