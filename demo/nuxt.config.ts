@@ -8,6 +8,8 @@ export default defineNuxtConfig({
 		"@nuxt/hints",
 	],
 
+	ssr: false,
+
 	devtools: {
 		enabled: true,
 	},
@@ -38,9 +40,22 @@ export default defineNuxtConfig({
 	icon: {
 		mode: "css",
 		cssLayer: "base",
-		provider: "none",
+		provider: "iconify",
 		clientBundle: {
-			scan: true,
+			// Automatically includes statically-detected icon usages
+			scan: {
+				globInclude: ["**\/*.{vue,js,ts,jsx,tsx,md,mdc,mdx}"],
+			},
+			// Keep explicit entries for dynamic icon names
+			icons: [
+				"lucide:loader-circle",
+				"lucide:chevron-down",
+				"lucide:chevron-right",
+				"lucide:chevron-left",
+				"lucide:moon",
+				"lucide:sun",
+				"lucide:menu",
+			],
 		},
 		serverBundle: false,
 	},
