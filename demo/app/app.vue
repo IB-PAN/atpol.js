@@ -1,14 +1,15 @@
 <script setup lang="ts">
 const { app: { baseURL } } = useRuntimeConfig();
 
-if (import.meta.client && window.location.hostname === "ib-pan.github.io") {
-	useScriptPlausibleAnalytics({
-		scriptInput: {
-			src: "https://botany.edu.pl/pa/js/pa-d8BECNQSzuTGL_7n2oI7x.js",
-		},
-		endpoint: "https://botany.edu.pl/pa/api/event",
-	});
-}
+useScriptPlausible({
+	scriptSrc: "https://botany.edu.pl/pa/js/pa-d8BECNQSzuTGL_7n2oI7x.js",
+	domain: "ib-pan.github.io",
+	endpoint: "https://botany.edu.pl/pa/api/event",
+	fileExtensions: ["geojson", "kml", "zip"],
+	scriptOptions: {
+		trigger: "onNuxtReady",
+	},
+});
 
 useHead({
 	titleTemplate: t => t ? `${t} — atpol.js` : "atpol.js",
