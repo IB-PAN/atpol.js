@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ddToDmsString, parseDmsString, dmsToDd } from "~/utils/coord-utils";
 
 useSeoMeta({
@@ -6,8 +6,8 @@ useSeoMeta({
 	description: "Konwertuj współrzędne geograficzne między formatem stopni dziesiętnych (DD) a stopniami, minutami i sekundami (DMS).",
 });
 
-const copiedFields = reactive(new Set());
-async function copyText(key, text) {
+const copiedFields = reactive(new Set<string>());
+async function copyText(key: string, text: string) {
 	await navigator.clipboard.writeText(text);
 	copiedFields.add(key);
 	setTimeout(() => copiedFields.delete(key), 2000);

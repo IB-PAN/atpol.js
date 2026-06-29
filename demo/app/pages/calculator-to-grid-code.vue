@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ATPOL } from "../../../main";
 import { dmsToDd, parseDmsString } from "~/utils/coord-utils";
 import { generateKMLString, generateGeoJSONString, downloadKML, downloadGeoJSON, downloadSHPZip } from "~/utils/atpol-export";
@@ -17,7 +17,7 @@ const form = reactive({
 		lon: { deg: "", min: "", sec: "" },
 	},
 	dms_str: { lat: "", lon: "" },
-	gridSize: "10km",
+	gridSize: "10km" as keyof typeof GRID_CONFIG,
 });
 
 const gridSizes = [
@@ -45,7 +45,7 @@ const gridSizes = [
 	{ label: "20×20 m (typ p)", value: "20m" },
 ];
 
-const GRID_CONFIG = {
+const GRID_CONFIG: { [gridSize: string]: { length: number; div?: "D" | "C" | "P" } } = {
 	"100km": { length: 2 },
 	"10km": { length: 4 },
 	"5km": { length: 4, div: "D" },
@@ -63,13 +63,13 @@ const GRID_CONFIG = {
 	"1m": { length: 12 },
 };
 
-function computeGridCode(xy, gridSize) {
-	const cfg = GRID_CONFIG[gridSize];
+function computeGridCode(xy: ATPOL.XY, gridSize: keyof typeof GRID_CONFIG) {
+	const cfg = GRID_CONFIG[gridSize] ?? GRID_CONFIG["1m"]!;
 	const { grid } = ATPOL.xy_to_grid(xy, cfg.length, cfg.div);
 	return grid;
 }
 
-function formatSideLabel(grid) {
+function formatSideLabel(grid: string) {
 	const m = ATPOL.grid_to_square_side_in_meters(grid);
 	const div = ATPOL.grid_get_division_type(grid)?.toLowerCase();
 	const sizeStr = m >= 1000 ? `${m / 1000} × ${m / 1000} km` : `${m} × ${m} m`;
@@ -94,7 +94,7 @@ function getLocation() {
 			gpsStatus.value = { state: "success", text: "", accuracy: Math.round(pos.coords.accuracy) };
 		},
 		(err) => {
-			const msgs = {
+			const msgs: Record<number, string> = {
 				1: "Użytkownik zablokował dostęp do lokalizacji.",
 				2: "Sygnał GPS niedostępny.",
 				3: "Przekroczono czas oczekiwania na GPS.",
@@ -162,7 +162,7 @@ const isValid = computed(() => latDD.value !== null && lonDD.value !== null);
 
 const xyRaw = computed(() => {
 	if (!isValid.value) return null;
-	return ATPOL.latlon_to_xy({ lat: latDD.value, lon: lonDD.value });
+	return ATPOL.latlon_to_xy({ lat: latDD.value!, lon: lonDD.value! });
 });
 
 const xy = computed(() => {

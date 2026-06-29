@@ -39,7 +39,7 @@ const X_ZERO = 330;
 const Y_ZERO = 350;
 
 // Input needs to be upper-cased and have whitespace removed
-export const GRID_REGEX = /^(?<letters>[A-G]{2})(?<digits>(?:[0-9]{2}){0,5})(?<division>D[0-1]{2}|C[0-3]{2}|P[0-4]{2})?$/;
+export const GRID_REGEX: RegExp = /^(?<letters>[A-G]{2})(?<digits>(?:[0-9]{2}){0,5})(?<division>D[0-1]{2}|C[0-3]{2}|P[0-4]{2})?$/;
 
 /**
  * @param coords WGS84 (EPSG:4326) GPS coordinates

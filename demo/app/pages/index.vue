@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 useSeoMeta({
 	title: "Kalkulatory ATPOL",
 	description: "Narzędzia do pracy z siatką ATPOL oparte na bibliotece atpol.js.",

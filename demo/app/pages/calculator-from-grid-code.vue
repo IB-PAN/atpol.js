@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ATPOL } from "../../../main";
 import { generateKMLString, generateGeoJSONString, downloadKML, downloadGeoJSON, downloadSHPZip } from "~/utils/atpol-export";
 
@@ -9,7 +9,7 @@ useSeoMeta({
 
 const code = ref("");
 
-function formatSideLabel(grid) {
+function formatSideLabel(grid: string) {
 	const m = ATPOL.grid_to_square_side_in_meters(grid);
 	const div = ATPOL.grid_get_division_type(grid)?.toLowerCase();
 	const sizeStr = m >= 1000 ? `${m / 1000} × ${m / 1000} km` : `${m} × ${m} m`;
