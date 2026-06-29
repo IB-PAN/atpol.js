@@ -251,7 +251,7 @@ export function grid_to_coordinate_uncertainty_in_meters(grid: string): number {
 }
 
 /**
- * Get a WKT with the bounding box of the ATPOL square (use in footprintWKT in DarwinCore).
+ * Get a WKT with the bounding box of the ATPOL square (use in footprintWKT in Darwin Core).
  * Counter-clockwise as recommended by the RFC.
  * @param grid ATPOL grid code
  * @returns WKT (Well-known Text) string

@@ -309,7 +309,7 @@ ATPOL.grid_to_coordinate_uncertainty_in_meters("ED26p13") //  1415
 
 ### `grid_to_polygonWKT(grid)`
 
-Returns a WKT `POLYGON` string representing the bounding box, suitable for use as `footprintWKT` in DarwinCore. Vertices are listed counter-clockwise (NW → SW → SE → NE → NW) as recommended by the OGC RFC.
+Returns a WKT `POLYGON` string representing the bounding box, suitable for use as `footprintWKT` in Darwin Core. Vertices are listed counter-clockwise (NW → SW → SE → NE → NW) as recommended by the OGC RFC.
 
 ```ts
 ATPOL.grid_to_polygonWKT("DF97p21")
@@ -320,7 +320,7 @@ ATPOL.grid_to_polygonWKT("DF97p21")
 
 ### `grid_to_centroidWKT(grid)`
 
-Returns a WKT `POINT` string for the center of the grid square, suitable for use as `footprintWKT` or to derive `decimalLatitude`/`decimalLongitude` in DarwinCore.
+Returns a WKT `POINT` string for the center of the grid square, suitable for use as `footprintWKT` or to derive `decimalLatitude`/`decimalLongitude` in Darwin Core.
 
 ```ts
 ATPOL.grid_to_centroidWKT("DF97p21")
@@ -331,7 +331,7 @@ ATPOL.grid_to_centroidWKT("DF97p21")
 
 ### `grid_to_darwincore_fields(grid)`
 
-Returns a `DarwinCoreFields` object with all key DarwinCore location fields filled in for the given ATPOL grid square. All values are strings, ready to be inserted directly into a Darwin Core record.
+Returns a `DarwinCoreFields` object with all key Darwin Core location fields filled in for the given ATPOL grid square. All values are strings, ready to be inserted directly into a Darwin Core record.
 
 | Field | Description |
 |-------|-------------|
