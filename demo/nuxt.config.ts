@@ -16,9 +16,9 @@ export default defineNuxtConfig({
 
 	routeRules: {
 		"/": { prerender: true },
-		"/calculator-to-grid-code": { prerender: true },
-		"/calculator-from-grid-code": { prerender: true },
-		"/converter": { prerender: true },
+		"/calculator-to-grid-code/": { prerender: true },
+		"/calculator-from-grid-code/": { prerender: true },
+		"/converter/": { prerender: true },
 	},
 
 	compatibilityDate: "2025-01-15",
@@ -36,8 +36,12 @@ export default defineNuxtConfig({
 	},
 
 	icon: {
+		mode: "css",
+		cssLayer: "base",
+		provider: "none",
 		clientBundle: {
 			scan: true,
 		},
+		serverBundle: false,
 	},
 });
