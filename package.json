@@ -13,6 +13,10 @@
     }
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IB-PAN/atpol.js"
+  },
   "files": [
     "dist",
     "README.md",
