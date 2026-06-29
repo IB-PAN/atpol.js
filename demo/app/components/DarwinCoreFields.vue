@@ -20,9 +20,7 @@ type SeparatorItem = {
 type Item = FieldItem | SeparatorItem;
 
 const fields = computed<Item[]>(() => {
-	const bounds = ATPOL.grid_to_latlon_bounds(props.atpolCode);
-	const m = ATPOL.grid_to_square_side_in_meters(props.atpolCode);
-	const sizeStr = m >= 1000 ? `${m / 1000}×${m / 1000} km` : `${m}×${m} m`;
+	const dc = ATPOL.grid_to_darwincore_fields(props.atpolCode);
 
 	return [
 		{
@@ -30,41 +28,41 @@ const fields = computed<Item[]>(() => {
 			key: "footprintWKT",
 			caption: "Poligon (obrys kwadratu)",
 			tooltip: "Wypełnienie tego pola w rekordzie Darwin Core umożliwia GBIF-owi rozpoznanie oraz wyświetlenie na mapie wskazanego faktycznego obszaru (zamiast pinezki z punktem centralnym i kołem o promieniu niedokładności).",
-			value: ATPOL.grid_to_polygonWKT(props.atpolCode),
+			value: dc.footprintWKT,
 		},
 		{
 			type: "field",
 			key: "footprintSRS",
 			caption: "Układ odniesienia (dot. pola footprintWKT)",
 			tooltip: "EPSG:4326 odpowiada układowi WGS84 — standardowemu układowi stosowanemu w GPS i większości danych geograficznych.",
-			value: "EPSG:4326",
+			value: dc.footprintSRS,
 		},
 		{ type: "separator" },
 		{
 			type: "field",
 			key: "decimalLatitude",
 			caption: "Szerokość geograficzna środka",
-			value: bounds.center.lat.toString(),
+			value: dc.decimalLatitude,
 		},
 		{
 			type: "field",
 			key: "decimalLongitude",
 			caption: "Długość geograficzna środka",
-			value: bounds.center.lon.toString(),
+			value: dc.decimalLongitude,
 		},
 		{
 			type: "field",
 			key: "geodeticDatum",
 			caption: "Układ odniesienia (dot. pól decimalLatitude i decimalLongitude)",
 			tooltip: "EPSG:4326 odpowiada układowi WGS84 — standardowemu układowi stosowanemu w GPS i większości danych geograficznych.",
-			value: "EPSG:4326",
+			value: dc.geodeticDatum,
 		},
 		{
 			type: "field",
 			key: "coordinateUncertaintyInMeters",
 			caption: "Promień wokół środka w metrach",
 			tooltip: "To pole w połączeniu ze współrzędnymi środka pozwala na zakreślenie obszaru obejmującego dany kwadrat ATPOL. Stanowi uproszczoną alternatywę dla prawdziwego obrysu podanego w polu footprintWKT, pełniąc funkcję uzupełniającą (nie każdy użytkownik danych będzie potrafił skorzystać z pól footprint).",
-			value: ATPOL.grid_to_coordinate_uncertainty_in_meters(props.atpolCode).toString(),
+			value: dc.coordinateUncertaintyInMeters,
 		},
 		{ type: "separator" },
 		{
@@ -72,23 +70,23 @@ const fields = computed<Item[]>(() => {
 			key: "verbatimCoordinates",
 			caption: "Oryginalne współrzędne",
 			tooltip: "W tym polu podajemy surowy kod ATPOL.",
-			value: props.atpolCode,
+			value: dc.verbatimCoordinates,
 		},
 		{
 			type: "field",
 			key: "verbatimCoordinateSystem",
 			caption: "System oryginalnych współrzędnych",
-			value: "ATPOL",
+			value: dc.verbatimCoordinateSystem,
 		},
 		{
 			type: "field",
 			key: "georeferenceProtocol",
-			value: `Coordinates represent the centroid of an ATPOL ${sizeStr} grid`,
+			value: dc.georeferenceProtocol,
 		},
 		{
 			type: "field",
 			key: "georeferenceSources",
-			value: "ATPOL (Polish geobotanical grid)",
+			value: dc.georeferenceSources,
 		},
 	];
 });

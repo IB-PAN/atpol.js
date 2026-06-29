@@ -279,3 +279,39 @@ export function grid_get_division_type(grid: string): null | "D" | "C" | "P" {
 	const divMatch = grid_normalize(grid).match(/([dcp])\d{2}$/)?.[1]?.toUpperCase() || null;
 	return divMatch as null | "D" | "C" | "P";
 }
+
+export interface DarwinCoreFields {
+	footprintWKT: string;
+	footprintSRS: string;
+	decimalLatitude: string;
+	decimalLongitude: string;
+	geodeticDatum: string;
+	coordinateUncertaintyInMeters: string;
+	verbatimCoordinates: string;
+	verbatimCoordinateSystem: string;
+	georeferenceProtocol: string;
+	georeferenceSources: string;
+}
+
+/**
+ * Returns a set of Darwin Core fields describing the location of the given ATPOL grid square.
+ * All values are strings, ready to be inserted into a Darwin Core record.
+ * @param grid ATPOL grid code
+ */
+export function grid_to_darwincore_fields(grid: string): DarwinCoreFields {
+	const bounds = grid_to_latlon_bounds(grid);
+	const m = grid_to_square_side_in_meters(grid);
+	const sizeStr = m >= 1000 ? `${m / 1000}×${m / 1000} km` : `${m}×${m} m`;
+	return {
+		footprintWKT: grid_to_polygonWKT(grid),
+		footprintSRS: "EPSG:4326",
+		decimalLatitude: bounds.center.lat.toString(),
+		decimalLongitude: bounds.center.lon.toString(),
+		geodeticDatum: "EPSG:4326",
+		coordinateUncertaintyInMeters: grid_to_coordinate_uncertainty_in_meters(grid).toString(),
+		verbatimCoordinates: grid,
+		verbatimCoordinateSystem: "ATPOL",
+		georeferenceProtocol: `Coordinates represent the centroid of an ATPOL ${sizeStr} grid`,
+		georeferenceSources: "ATPOL (Polish geobotanical grid)",
+	};
+}

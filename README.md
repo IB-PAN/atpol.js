@@ -292,7 +292,7 @@ ATPOL.grid_to_square_side_in_km("ED2627206133")  // 0.001
 
 ### `grid_to_coordinate_uncertainty_in_meters(grid)`
 
-Returns the radius of the **smallest circle circumscribing** the grid square (i.e. the distance from the center to a corner). This is the value to use as `coordinateUncertaintyInMeters` in DarwinCore records when a grid code is the only location information.
+Returns the radius of the **smallest circle circumscribing** the grid square (i.e. the distance from the center to a corner). This is the value to use as `coordinateUncertaintyInMeters` in Darwin Core records when a grid code is the only location information.
 
 ```ts
 ATPOL.grid_to_coordinate_uncertainty_in_meters("ED")      // 70711
@@ -325,6 +325,41 @@ Returns a WKT `POINT` string for the center of the grid square, suitable for use
 ```ts
 ATPOL.grid_to_centroidWKT("DF97p21")
 // "POINT (19.596942067739906 49.80270857490112)"
+```
+
+---
+
+### `grid_to_darwincore_fields(grid)`
+
+Returns a `DarwinCoreFields` object with all key DarwinCore location fields filled in for the given ATPOL grid square. All values are strings, ready to be inserted directly into a Darwin Core record.
+
+| Field | Description |
+|-------|-------------|
+| `footprintWKT` | WKT polygon of the square's bounding box (see `grid_to_polygonWKT`) |
+| `footprintSRS` | `"EPSG:4326"` |
+| `decimalLatitude` | Latitude of the square's centroid |
+| `decimalLongitude` | Longitude of the square's centroid |
+| `geodeticDatum` | `"EPSG:4326"` |
+| `coordinateUncertaintyInMeters` | Radius of the circumscribed circle (see `grid_to_coordinate_uncertainty_in_meters`) |
+| `verbatimCoordinates` | The original ATPOL grid code as passed in |
+| `verbatimCoordinateSystem` | `"ATPOL"` |
+| `georeferenceProtocol` | Human-readable note about the centroid and square size |
+| `georeferenceSources` | `"ATPOL (Polish geobotanical grid)"` |
+
+```ts
+ATPOL.grid_to_darwincore_fields("EF25p44")
+// {
+//   footprintWKT: "POLYGON ((20.79964292570421 50.39018677093136, 20.798947347955973 50.37227361671613, 20.827044160538623 50.3718268689209, 20.827750593067336 50.38973984253578, 20.79964292570421 50.39018677093136))",
+//   footprintSRS: "EPSG:4326",
+//   decimalLatitude: "50.38100760114409",
+//   decimalLongitude: "20.813346256816548",
+//   geodeticDatum: "EPSG:4326",
+//   coordinateUncertaintyInMeters: "1415",
+//   verbatimCoordinates: "EF25p44",
+//   verbatimCoordinateSystem: "ATPOL",
+//   georeferenceProtocol: "Coordinates represent the centroid of an ATPOL 2×2 km grid",
+//   georeferenceSources: "ATPOL (Polish geobotanical grid)",
+// }
 ```
 
 ---
