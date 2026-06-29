@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SelectItem } from "#ui/types";
 import { ATPOL } from "../../../main";
 import { dmsToDd, parseDmsString } from "~/utils/coord-utils";
 import { generateKMLString, generateGeoJSONString, downloadKML, downloadGeoJSON, downloadSHPZip } from "~/utils/atpol-export";
@@ -20,7 +21,7 @@ const form = reactive({
 	gridSize: "10km" as keyof typeof GRID_CONFIG,
 });
 
-const gridSizes = [
+const gridSizes: SelectItem[] = [
 	{ type: "label", label: "Siatka standardowa" },
 	{ label: "100×100 km", value: "100km" },
 	{ label: "10×10 km", value: "10km" },
@@ -43,9 +44,9 @@ const gridSizes = [
 	{ label: "50×50 m (typ d)", value: "50m" },
 	{ label: "25×25 m (typ c)", value: "25m" },
 	{ label: "20×20 m (typ p)", value: "20m" },
-];
+] as const;
 
-const GRID_CONFIG: { [gridSize: string]: { length: number; div?: "D" | "C" | "P" } } = {
+const GRID_CONFIG = {
 	"100km": { length: 2 },
 	"10km": { length: 4 },
 	"5km": { length: 4, div: "D" },
@@ -61,11 +62,11 @@ const GRID_CONFIG: { [gridSize: string]: { length: number; div?: "D" | "C" | "P"
 	"20m": { length: 8, div: "P" },
 	"10m": { length: 10 },
 	"1m": { length: 12 },
-};
+} as const satisfies Record<string, { length: number; div?: "D" | "C" | "P" }>;
 
 function computeGridCode(xy: ATPOL.XY, gridSize: keyof typeof GRID_CONFIG) {
-	const cfg = GRID_CONFIG[gridSize] ?? GRID_CONFIG["1m"]!;
-	const { grid } = ATPOL.xy_to_grid(xy, cfg.length, cfg.div);
+	const cfg = GRID_CONFIG[gridSize];
+	const { grid } = ATPOL.xy_to_grid(xy, cfg.length, "div" in cfg ? cfg.div : null);
 	return grid;
 }
 

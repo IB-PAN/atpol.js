@@ -258,7 +258,10 @@ function createZip(files: { name: string; data: Uint8Array | string }[]): Uint8A
 	const all = [...localParts, ...cdParts, eocd];
 	const out = new Uint8Array(all.reduce((s, a) => s + a.length, 0));
 	let p = 0;
-	for (const a of all) { out.set(a, p); p += a.length; }
+	for (const a of all) {
+		out.set(a, p);
+		p += a.length;
+	}
 	return out;
 }
 

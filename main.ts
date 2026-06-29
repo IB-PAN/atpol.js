@@ -1,1 +1,1 @@
-export * as ATPOL from "./atpol.ts";
+export * as ATPOL from "./atpol";

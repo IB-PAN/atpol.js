@@ -6,7 +6,6 @@ const props = defineProps<{
 }>();
 
 const wktPolygon = computed(() => ATPOL.grid_to_polygonWKT(props.atpolCode));
-const wktCentroid = computed(() => ATPOL.grid_to_centroidWKT(props.atpolCode));
 const bounds = computed(() => ATPOL.grid_to_latlon_bounds(props.atpolCode));
 const decimalLatitude = computed(() => bounds.value.center.lat.toString());
 const decimalLongitude = computed(() => bounds.value.center.lon.toString());
