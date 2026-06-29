@@ -178,6 +178,14 @@ export function grid_to_latlon(grid: string, xoffset: number = 0, yoffset: numbe
 	return xy_to_latlon(grid_to_xy(grid, xoffset, yoffset));
 }
 
+export function latlon_to_grid(coords: LatLon, length: number = 8, div: null | "D" | "C" | "P" = null): {
+	grid: string;
+	xoffset: number;
+	yoffset: number;
+} {
+	return xy_to_grid(latlon_to_xy(coords), length, div);
+}
+
 export function grid_to_xy_bounds(grid: string): Bounds_XY {
 	const nw = grid_to_xy(grid, 0, 0);
 	const ne = grid_to_xy(grid, 1, 0);

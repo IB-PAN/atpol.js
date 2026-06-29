@@ -209,6 +209,23 @@ const result = ATPOL.xy_to_grid(xy, 4);
 
 ---
 
+### `latlon_to_grid(coords, length?, div?)`
+
+Shortcut for `xy_to_grid(latlon_to_xy(coords), length, div)` — converts WGS84 coordinates directly to a grid code without an intermediate `latlon_to_xy` call. Parameters and return value are identical to `xy_to_grid`.
+
+```ts
+ATPOL.latlon_to_grid({ lat: 50.069, lon: 19.909 })
+// { grid: "DF695501", xoffset: ..., yoffset: ... }  — 100 m square (default length 8)
+
+ATPOL.latlon_to_grid({ lat: 50.069, lon: 19.909 }, 4)
+// { grid: "DF69", xoffset: 0.512, yoffset: 0.503 }  — 10 km square
+
+ATPOL.latlon_to_grid({ lat: 50.069, lon: 19.909 }, 4, "P")
+// { grid: "DF69p43", xoffset: ..., yoffset: ... }  — fifths division
+```
+
+---
+
 ### `grid_to_xy_bounds(grid)`
 
 Returns the bounding box of a grid square as ATPOL XY coordinates.

@@ -162,6 +162,8 @@ test("Coords to grid", () => {
 		expect(xy_out.x).toBeCloseTo(xy.x, 6);
 		expect(xy_out.y).toBeCloseTo(xy.y, 6);
 
+		expect(ATPOL.latlon_to_grid(coords)).toMatchObject(ATPOL.xy_to_grid(xy));
+
 		expect(ATPOL.xy_to_grid(xy_out, 12).grid).toBe("DF6955013220");
 		expect(ATPOL.xy_to_grid(xy_out, 10).grid).toBe("DF69550132");
 		expect(ATPOL.xy_to_grid(xy_out).grid).toBe("DF695501");
