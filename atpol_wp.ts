@@ -152,3 +152,35 @@ export function grid_to_coordinate_uncertainty_in_meters(grid: string): number {
 	const square_side_in_meters = grid_to_square_side_in_meters(grid);
 	return Math.ceil(Math.sqrt(Math.pow(square_side_in_meters, 2) + Math.pow(square_side_in_meters, 2)));
 }
+
+/**
+ * Returns a WKT `POLYGON` with the bounding box of the WP ATPOL square (use in `footprintWKT` in Darwin Core).
+ * @param grid WP ATPOL grid code
+ * @returns WKT (Well-known Text) string
+ */
+export function grid_to_polygonWKT(grid: string): string {
+	return ATPOL.latlon_bounds_to_polygonWKT(grid_to_latlon_bounds(grid));
+}
+
+/**
+ * Returns a set of Darwin Core fields describing the location of the given WP ATPOL grid square.
+ * All values are strings, ready to be inserted into a Darwin Core record.
+ * @param grid WP ATPOL grid code
+ */
+export function grid_to_darwincore_fields(grid: string): ATPOL.DarwinCoreFields {
+	const bounds = grid_to_latlon_bounds(grid);
+	const m = grid_to_square_side_in_meters(grid);
+	const sizeStr = m >= 1000 ? `${m / 1000}×${m / 1000} km` : `${m}×${m} m`;
+	return {
+		footprintWKT: grid_to_polygonWKT(grid),
+		footprintSRS: "EPSG:4326",
+		decimalLatitude: bounds.center.lat.toString(),
+		decimalLongitude: bounds.center.lon.toString(),
+		geodeticDatum: "EPSG:4326",
+		coordinateUncertaintyInMeters: grid_to_coordinate_uncertainty_in_meters(grid).toString(),
+		verbatimCoordinates: grid,
+		verbatimCoordinateSystem: "ATPOL-WP",
+		georeferenceProtocol: `Coordinates represent the centroid of an ATPOL (Wojciech Paul variant) ${sizeStr} grid`,
+		georeferenceSources: "ATPOL (Polish geobotanical grid), Wojciech Paul division variant",
+	};
+}

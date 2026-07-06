@@ -316,6 +316,8 @@ ATPOL.grid_to_polygonWKT("DF97p21")
 // "POLYGON ((19.58317163873754 49.811734287228084, 19.582948996344328 49.79382827146329, 19.61070719646412 49.793681290336835, 19.610940439413625 49.81158724644106, 19.58317163873754 49.811734287228084))"
 ```
 
+Internally this resolves the grid code to a `Bounds_LatLon` and delegates to `ATPOL.latlon_bounds_to_polygonWKT(bounds)`, which builds the same WKT `POLYGON` string directly from a bounding box — useful if you already have bounds (e.g. from `grid_to_latlon_bounds`, or from the [WP variant](#wojciech-paul-wp-grid-variant) below) and want to skip re-parsing the grid code.
+
 ---
 
 ### `grid_to_centroidWKT(grid)`
@@ -476,6 +478,35 @@ Returns the length of the **diagonal** of the WP grid square (the distance betwe
 ```ts
 ATPOL.WP.grid_to_coordinate_uncertainty_in_meters("ED26/0")  // 7072
 // side = 5000 m, diagonal = ceil(√(5000² + 5000²)) = 7072
+```
+
+### `ATPOL.WP.grid_to_polygonWKT(grid)`
+
+Returns a WKT `POLYGON` string for the bounding box of the WP grid square, suitable for use as `footprintWKT` in Darwin Core.
+
+```ts
+ATPOL.WP.grid_to_polygonWKT("ED26/0")
+// "POLYGON ((20.904326569294952 52.25372711625628, 20.90241062601651 52.20891083107226, 20.975544926279625 52.20771542086615, 20.97753445281693 52.25253050998201, 20.904326569294952 52.25372711625628))"
+```
+
+### `ATPOL.WP.grid_to_darwincore_fields(grid)`
+
+Returns a `DarwinCoreFields` object for the given WP grid square — mirrors `ATPOL.grid_to_darwincore_fields`, with `verbatimCoordinateSystem` set to `"ATPOL-WP"` and the `georeferenceProtocol`/`georeferenceSources` text noting the Wojciech Paul division variant.
+
+```ts
+ATPOL.WP.grid_to_darwincore_fields("ED26/000")
+// {
+//   footprintWKT: "POLYGON ((20.904326569294952 52.25372711625628, 20.903847221854292 52.24252307482466, 20.92214495789876 52.24222822728583, 20.922628908037723 52.2534321949979, 20.904326569294952 52.25372711625628))",
+//   footprintSRS: "EPSG:4326",
+//   decimalLatitude: "52.24797800844594",
+//   decimalLongitude: "20.913236914271433",
+//   geodeticDatum: "EPSG:4326",
+//   coordinateUncertaintyInMeters: "1768",
+//   verbatimCoordinates: "ED26/000",
+//   verbatimCoordinateSystem: "ATPOL-WP",
+//   georeferenceProtocol: "Coordinates represent the centroid of an ATPOL (Wojciech Paul variant) 1.25×1.25 km grid",
+//   georeferenceSources: "ATPOL (Polish geobotanical grid), Wojciech Paul division variant",
+// }
 ```
 
 ### `ATPOL.WP.GRID_REGEX`

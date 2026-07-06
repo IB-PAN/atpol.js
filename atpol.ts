@@ -253,13 +253,12 @@ export function grid_to_coordinate_uncertainty_in_meters(grid: string): number {
 }
 
 /**
- * Get a WKT with the bounding box of the ATPOL square (use in footprintWKT in Darwin Core).
+ * Get a WKT with the given bounding box (use in footprintWKT in Darwin Core).
  * Counter-clockwise as recommended by the RFC.
- * @param grid ATPOL grid code
+ * @param bounds bounding box in WGS84 coordinates
  * @returns WKT (Well-known Text) string
  */
-export function grid_to_polygonWKT(grid: string): string {
-	const bounds = grid_to_latlon_bounds(grid);
+export function latlon_bounds_to_polygonWKT(bounds: Bounds_LatLon): string {
 	const polygon_str_arr: string[] = [];
 	polygon_str_arr.push(`${bounds.nw.lon} ${bounds.nw.lat}`);
 	polygon_str_arr.push(`${bounds.sw.lon} ${bounds.sw.lat}`);
@@ -270,6 +269,16 @@ export function grid_to_polygonWKT(grid: string): string {
 	// https://polygon.clearsky.vision/wkt-validator
 	// https://wktmap.com/
 	return `POLYGON ((${polygon_str_arr.join(", ")}))`;
+}
+
+/**
+ * Get a WKT with the bounding box of the ATPOL square (use in footprintWKT in Darwin Core).
+ * Counter-clockwise as recommended by the RFC.
+ * @param grid ATPOL grid code
+ * @returns WKT (Well-known Text) string
+ */
+export function grid_to_polygonWKT(grid: string): string {
+	return latlon_bounds_to_polygonWKT(grid_to_latlon_bounds(grid));
 }
 
 export function grid_to_centroidWKT(grid: string): string {

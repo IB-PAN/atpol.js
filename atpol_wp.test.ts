@@ -102,3 +102,17 @@ test("1.25 x 1.25 km grid matching (upper-left corner)", () => {
 	expect(ATPOL.WP.grid_to_xy_bounds("GF91/230").nw).toMatchObject(ATPOL.grid_to_xy_bounds("GF91c32").nw);
 	expect(ATPOL.WP.grid_to_xy_bounds("GF91/220").nw).toMatchObject(ATPOL.grid_to_xy_bounds("GF91c33").nw);
 });
+
+test("Darwin Core fields", () => {
+	const fields = ATPOL.WP.grid_to_darwincore_fields("ED26/000");
+	expect(fields.footprintWKT).toBe("POLYGON ((20.904326569294952 52.25372711625628, 20.903847221854292 52.24252307482466, 20.92214495789876 52.24222822728583, 20.922628908037723 52.2534321949979, 20.904326569294952 52.25372711625628))");
+	expect(fields.footprintSRS).toBe("EPSG:4326");
+	expect(fields.decimalLatitude).toBe("52.24797800844594");
+	expect(fields.decimalLongitude).toBe("20.913236914271433");
+	expect(fields.geodeticDatum).toBe("EPSG:4326");
+	expect(fields.coordinateUncertaintyInMeters).toBe("1768");
+	expect(fields.verbatimCoordinates).toBe("ED26/000");
+	expect(fields.verbatimCoordinateSystem).toBe("ATPOL-WP");
+	expect(fields.georeferenceProtocol).toBe("Coordinates represent the centroid of an ATPOL (Wojciech Paul variant) 1.25×1.25 km grid");
+	expect(fields.georeferenceSources).toBe("ATPOL (Polish geobotanical grid), Wojciech Paul division variant");
+});
