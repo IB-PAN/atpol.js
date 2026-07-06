@@ -20,7 +20,9 @@ type SeparatorItem = {
 type Item = FieldItem | SeparatorItem;
 
 const fields = computed<Item[]>(() => {
-	const dc = ATPOL.grid_to_darwincore_fields(props.atpolCode);
+	const dc = ATPOL.WP.grid_is_valid(props.atpolCode)
+		? ATPOL.WP.grid_to_darwincore_fields(props.atpolCode)
+		: ATPOL.grid_to_darwincore_fields(props.atpolCode);
 
 	return [
 		{

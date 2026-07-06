@@ -9,19 +9,37 @@ useSeoMeta({
 
 const code = ref("");
 
-function formatSideLabel(grid: string) {
-	const m = ATPOL.grid_to_square_side_in_meters(grid);
-	const div = ATPOL.grid_get_division_type(grid)?.toLowerCase();
+// A grid code is either a standard ATPOL code, or a Wojciech Paul (WP)
+// variant (base code + "/" + division digits) - the WP prefix never appears
+// in the `code` field itself, only in the URL hash.
+const isWP = computed(() => code.value.trim() !== "" && ATPOL.WP.grid_is_valid(code.value));
+
+function formatSideLabel(grid: string, wp: boolean) {
+	const m = (wp ? ATPOL.WP : ATPOL).grid_to_square_side_in_meters(grid);
 	const sizeStr = m >= 1000 ? `${m / 1000} × ${m / 1000} km` : `${m} × ${m} m`;
-	return div ? `${sizeStr} (typ ${div})` : sizeStr;
+	if (wp) {
+		const superscriptNumber = (number: number) => [...(number | 0).toString()].map(n => "⁰¹²³⁴⁵⁶⁷⁸⁹"[parseInt(n)]).join("");
+
+		const base = grid.split("/")[0]!;
+		const m_base = ATPOL.grid_to_square_side_in_meters(base);
+		const sizeStr_base = m >= 1000 ? `${m_base / 1000} km` : `${m_base} m`;
+		const division_multiplier = m_base / m;
+		const power = Math.log(division_multiplier) / Math.log(2);
+		const power_display = `2${superscriptNumber(power)}`;
+
+		return `${sizeStr}\n(wariant podziału Wojciecha Paula – podział ${sizeStr_base} na ${power_display})`;
+	} else {
+		const div = ATPOL.grid_get_division_type(grid)?.toLowerCase();
+		return div ? `${sizeStr} (typ ${div})` : sizeStr;
+	}
 }
 
-const isValid = computed(() => code.value.trim() !== "" && ATPOL.grid_is_valid(code.value));
+const isValid = computed(() => code.value.trim() !== "" && (isWP.value || ATPOL.grid_is_valid(code.value)));
 
 const codeNormalized = computed(() => {
 	if (!isValid.value) return "";
 	try {
-		return ATPOL.grid_normalize(code.value);
+		return (isWP.value ? ATPOL.WP : ATPOL).grid_normalize(code.value);
 	} catch {
 		return code.value.toUpperCase().replace(/\s/g, "");
 	}
@@ -30,10 +48,11 @@ const codeNormalized = computed(() => {
 const result = computed(() => {
 	if (!isValid.value) return null;
 	try {
-		const bounds = ATPOL.grid_to_latlon_bounds(code.value);
-		const sideLabel = formatSideLabel(code.value);
+		const wp = isWP.value;
+		const bounds = (wp ? ATPOL.WP : ATPOL).grid_to_latlon_bounds(code.value);
+		const sideLabel = formatSideLabel(code.value, wp);
 		const { center } = bounds;
-		const km = ATPOL.grid_to_square_side_in_km(code.value);
+		const km = (wp ? ATPOL.WP : ATPOL).grid_to_square_side_in_km(code.value);
 		const zoom = Math.min(18, Math.max(6, 14 - Math.round(Math.log2(Math.max(km, 0.001)))));
 		const mapsUrl = `https://maps.google.com/?q=${center.lat.toFixed(6)},${center.lon.toFixed(6)}`;
 		const osmUrl = `https://www.openstreetmap.org/?mlat=${center.lat.toFixed(6)}&mlon=${center.lon.toFixed(6)}&zoom=${zoom}`;
@@ -43,6 +62,46 @@ const result = computed(() => {
 		return null;
 	}
 });
+
+// ---- URL hash sync ----
+// WP codes are stored in the hash with a "WP:" prefix (e.g. "#WP:ED26/000")
+// so they can be told apart from standard codes (e.g. "#EF25p44") on load.
+// The prefix is never part of the `code` field itself.
+
+function codeFromHash(): string {
+	const raw = window.location.hash.slice(1);
+	if (!raw) return "";
+	let decoded = raw;
+	try { decoded = decodeURIComponent(raw); } catch { /* keep raw if malformed */ }
+	return decoded.toUpperCase().startsWith("WP:") ? decoded.slice(3) : decoded;
+}
+
+function applyHashToCode() {
+	const fromHash = codeFromHash();
+	if (fromHash !== code.value) code.value = fromHash;
+}
+
+function updateHashFromCode() {
+	const trimmed = code.value.trim();
+	const { pathname, search } = window.location;
+	if (!trimmed) {
+		history.replaceState(null, "", `${pathname}${search}`);
+		return;
+	}
+	const prefix = ATPOL.WP.grid_is_valid(trimmed) ? "WP:" : "";
+	history.replaceState(null, "", `${pathname}${search}#${prefix}${trimmed}`);
+}
+
+onMounted(() => {
+	applyHashToCode();
+	window.addEventListener("hashchange", applyHashToCode);
+});
+
+onBeforeUnmount(() => {
+	window.removeEventListener("hashchange", applyHashToCode);
+});
+
+watch(code, updateHashFromCode);
 
 // ---- File preview modal ----
 
@@ -194,7 +253,7 @@ function downloadFromPreview() {
 
 		<!-- Results -->
 		<template v-else-if="result">
-			<div class="mb-3 px-3 py-2 bg-primary/10 border border-primary/20 rounded-lg text-sm font-semibold text-primary text-center">
+			<div class="mb-3 px-3 py-2 bg-primary/10 border border-primary/20 rounded-lg text-sm font-semibold text-primary text-center whitespace-pre-wrap">
 				Rozmiar kwadratu: {{ result.sideLabel }}
 			</div>
 
