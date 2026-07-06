@@ -82,14 +82,13 @@ function applyHashToCode() {
 }
 
 function updateHashFromCode() {
-	const trimmed = code.value.trim();
 	const { pathname, search } = window.location;
-	if (!trimmed) {
+	if (!isValid.value) {
 		history.replaceState(null, "", `${pathname}${search}`);
 		return;
 	}
-	const prefix = ATPOL.WP.grid_is_valid(trimmed) ? "WP:" : "";
-	history.replaceState(null, "", `${pathname}${search}#${prefix}${trimmed}`);
+	const prefix = isWP.value ? "WP:" : "";
+	history.replaceState(null, "", `${pathname}${search}#${prefix}${codeNormalized.value}`);
 }
 
 onMounted(() => {
