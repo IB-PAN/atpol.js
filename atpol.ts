@@ -1,3 +1,5 @@
+export * as WP from "./atpol_wp";
+
 /**
  * WGS84
  * EPSG:4326

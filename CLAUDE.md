@@ -7,8 +7,10 @@ TypeScript library implementing the **ATPOL botanical grid system** — a coordi
 ```
 /                   ← library root (npm package @ib-pan/atpol)
   atpol.ts          ← all library implementation
+  atpol_wp.ts       ← Wojciech Paul (WP) grid variant, exposed as ATPOL.WP
   main.ts           ← public entry: re-exports everything as ATPOL namespace
   atpol.test.ts     ← Bun test suite
+  atpol_wp.test.ts  ← Bun test suite for the WP grid variant
   bunup.config.ts   ← build config (bunup, outputs ESM + CJS + .d.ts to dist/)
 demo/               ← standalone Nuxt web app (separate npm workspace)
   app/
@@ -43,6 +45,7 @@ demo/               ← standalone Nuxt web app (separate npm workspace)
 - `grid_to_square_side_in_meters`, `grid_to_square_side_in_km`, `grid_to_coordinate_uncertainty_in_meters`
 - `grid_to_polygonWKT`, `grid_to_centroidWKT` — WKT strings (for Darwin Core `footprintWKT`)
 - `grid_to_darwincore_fields` — returns a complete `DarwinCoreFields` object (all strings, ready for GBIF/Darwin Core records)
+- `WP.*` (`atpol_wp.ts`) — Wojciech Paul grid variant: a non-divided base ATPOL code + `/` + digits `0-3` that recursively quarter the square (clockwise from NW). Mirrors the core `grid_to_xy`/`grid_to_latlon`/`*_bounds`/`*_square_side_*` API, built on top of `ATPOL.grid_to_xy`.
 
 ### Build & test
 

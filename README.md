@@ -394,6 +394,96 @@ const m = ATPOL.GRID_REGEX.exec("ED262720P11");
 
 ---
 
+## Wojciech Paul (WP) grid variant
+
+`ATPOL.WP` implements a custom recursive division scheme (attributed to Wojciech Paul) built on top of the standard, **non-divided** ATPOL grid code (letters + up to 5 digit pairs, no `d`/`c`/`p` suffix).
+
+A WP grid code is a base grid code followed by a slash and one or more **division digits** (`0`-`3`). Each division digit halves the current square and selects one of its four quadrants, in clockwise order starting from the NW corner:
+
+```
+      0 │ 1
+      ──┼──
+      3 │ 2
+```
+
+Further digits repeat the halving on the resulting sub-square, so the division part can grow arbitrarily long (each extra digit halves the side length again).
+
+```
+ED26/032
+^^ ^^ ^^^
+│  │  └── division digits: 0 (NW) → 3 (SW of that) → 2 (SE of that)
+│  └───── base ATPOL grid code (10 km square)
+└──────── letter pair (100 km square)
+```
+
+Example: `ED26/0` is the NW quarter of `ED26` (a 5 km square), equivalent to `ED26d00`. `ED26/032` is a 1.25 km square nested three levels deep.
+
+### `ATPOL.WP.grid_is_valid(grid)`
+
+Returns `true` if the string is a valid WP ATPOL grid code (a valid base grid code, a slash, and one or more `0`-`3` digits).
+
+```ts
+ATPOL.WP.grid_is_valid("GF91/0")    // true
+ATPOL.WP.grid_is_valid("GF91/032")  // true
+ATPOL.WP.grid_is_valid("GF91/44")   // false — 4 is not a valid quadrant digit
+ATPOL.WP.grid_is_valid("GF91")      // false — missing division part
+```
+
+### `ATPOL.WP.grid_normalize(grid)`
+
+Strips whitespace and uppercases the letter/digit part of a WP ATPOL grid code. Throws if the input is invalid.
+
+```ts
+ATPOL.WP.grid_normalize("gf91 / 032")  // "GF91/032"
+```
+
+### `ATPOL.WP.grid_to_xy(grid, xoffset?, yoffset?)`
+
+Converts a WP ATPOL grid code to an ATPOL XY point. The base grid code (before the slash) is resolved with `ATPOL.grid_to_xy`; each division digit then narrows down into one quadrant of the remaining square. `xoffset`/`yoffset` (0-1, default 0) position the point within the final, most subdivided square — `(0.5, 0.5)` gives its center.
+
+```ts
+ATPOL.WP.grid_to_xy("GF91/0")          // NW corner of the NW quarter of GF91
+ATPOL.WP.grid_to_xy("GF91/0", 0.5, 0.5)  // center of that same square
+```
+
+### `ATPOL.WP.grid_to_latlon(grid, xoffset?, yoffset?)`
+
+Like `grid_to_xy`, but returns WGS84 coordinates directly.
+
+### `ATPOL.WP.grid_to_xy_bounds(grid)` / `ATPOL.WP.grid_to_latlon_bounds(grid)`
+
+Return the bounding box (all four corners plus center) of a WP grid square, as ATPOL XY or WGS84 coordinates respectively — mirrors `ATPOL.grid_to_xy_bounds` / `ATPOL.grid_to_latlon_bounds`.
+
+```ts
+ATPOL.WP.grid_to_xy_bounds("GF91/0")  // matches ATPOL.grid_to_xy_bounds("GF91d00")
+```
+
+### `ATPOL.WP.grid_to_square_side_in_meters(grid)` / `ATPOL.WP.grid_to_square_side_in_km(grid)`
+
+Return the side length of a WP grid square. Every division digit after the slash halves the side length of the base grid code.
+
+```ts
+ATPOL.WP.grid_to_square_side_in_km("ED26")        // n/a — base codes have no division part
+ATPOL.WP.grid_to_square_side_in_km("ED26/0")      // 5
+ATPOL.WP.grid_to_square_side_in_km("ED26/00")     // 2.5
+ATPOL.WP.grid_to_square_side_in_km("ED26/000")    // 1.25
+```
+
+### `ATPOL.WP.grid_to_coordinate_uncertainty_in_meters(grid)`
+
+Returns the length of the **diagonal** of the WP grid square (the distance between two opposite corners). Note this is twice the "radius from center" value returned by `ATPOL.grid_to_coordinate_uncertainty_in_meters` for the main grid variant.
+
+```ts
+ATPOL.WP.grid_to_coordinate_uncertainty_in_meters("ED26/0")  // 7072
+// side = 5000 m, diagonal = ceil(√(5000² + 5000²)) = 7072
+```
+
+### `ATPOL.WP.GRID_REGEX`
+
+The compiled `RegExp` used internally to parse and validate WP grid codes. Named capture groups: `letters`, `digits`, `division`. Expects the input to be already uppercased and stripped of whitespace.
+
+---
+
 ## Types
 
 ```ts

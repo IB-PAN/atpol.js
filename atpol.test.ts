@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { ATPOL } from "./main.ts";
+import { ATPOL } from "./main";
 
 test("Grid validity", () => {
 	expect(ATPOL.grid_is_valid("ED")).toBeTrue();
