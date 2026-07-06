@@ -193,5 +193,7 @@ export function grid_to_darwincore_fields(grid: string): ATPOL.DarwinCoreFields 
 		verbatimCoordinateSystem: "ATPOL-WP",
 		georeferenceProtocol: `Coordinates represent the centroid of an ATPOL (Wojciech Paul variant) ${sizeStr} grid (ATPOL base ${sizeStr_base} grid divided by ${power_display})`,
 		georeferenceSources: `ATPOL (Polish geobotanical grid), Wojciech Paul division variant, reference: https://ib-pan.github.io/atpol.js/calculator-from-grid-code/#WP:${grid_normalized}`,
+		sampleSizeValue: (m >= 1000 ? m / 1000 : m).toString(),
+		sampleSizeUnit: m >= 1000 ? "km²" : "m²", // square kilometre / square metre
 	};
 }

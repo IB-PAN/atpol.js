@@ -94,6 +94,19 @@ const fields = computed<Item[]>(() => {
 			value: dc.georeferenceSources,
 			long: true,
 		},
+		{ type: "separator" },
+		{
+			type: "field",
+			key: "sampleSizeValue",
+			caption: "Wielkość próby",
+			value: dc.sampleSizeValue,
+		},
+		{
+			type: "field",
+			key: "sampleSizeUnit",
+			caption: "Jednostka wielkości próby",
+			value: dc.sampleSizeUnit,
+		},
 	];
 });
 

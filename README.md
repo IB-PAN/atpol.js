@@ -347,6 +347,8 @@ Returns a `DarwinCoreFields` object with all key Darwin Core location fields fil
 | `verbatimCoordinateSystem` | `"ATPOL"` |
 | `georeferenceProtocol` | Human-readable note about the centroid and square size |
 | `georeferenceSources` | `"ATPOL (Polish geobotanical grid)"` |
+| `sampleSizeValue` | Side length of the square, in the unit given by `sampleSizeUnit` |
+| `sampleSizeUnit` | `"km²"` if the square side is ≥ 1000 m, otherwise `"m²"` |
 
 ```ts
 ATPOL.grid_to_darwincore_fields("EF25p44")
@@ -361,6 +363,8 @@ ATPOL.grid_to_darwincore_fields("EF25p44")
 //   verbatimCoordinateSystem: "ATPOL",
 //   georeferenceProtocol: "Coordinates represent the centroid of an ATPOL 2×2 km grid",
 //   georeferenceSources: "ATPOL (Polish geobotanical grid)",
+//   sampleSizeValue: "2",
+//   sampleSizeUnit: "km²",
 // }
 ```
 
@@ -506,6 +510,8 @@ ATPOL.WP.grid_to_darwincore_fields("ED26/000")
 //   verbatimCoordinateSystem: "ATPOL-WP",
 //   georeferenceProtocol: "Coordinates represent the centroid of an ATPOL (Wojciech Paul variant) 1.25×1.25 km grid",
 //   georeferenceSources: "ATPOL (Polish geobotanical grid), Wojciech Paul division variant",
+//   sampleSizeValue: "1.25",
+//   sampleSizeUnit: "km²",
 // }
 ```
 
