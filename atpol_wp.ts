@@ -162,6 +162,8 @@ export function grid_to_polygonWKT(grid: string): string {
 	return ATPOL.latlon_bounds_to_polygonWKT(grid_to_latlon_bounds(grid));
 }
 
+const superscriptNumber = (number: number) => [...(number | 0).toString()].map(n => "⁰¹²³⁴⁵⁶⁷⁸⁹"[parseInt(n)]).join("");
+
 /**
  * Returns a set of Darwin Core fields describing the location of the given WP ATPOL grid square.
  * All values are strings, ready to be inserted into a Darwin Core record.
@@ -171,6 +173,15 @@ export function grid_to_darwincore_fields(grid: string): ATPOL.DarwinCoreFields 
 	const bounds = grid_to_latlon_bounds(grid);
 	const m = grid_to_square_side_in_meters(grid);
 	const sizeStr = m >= 1000 ? `${m / 1000}×${m / 1000} km` : `${m}×${m} m`;
+	const grid_normalized = grid_normalize(grid);
+
+	const base = grid_normalized.split("/")[0]!;
+	const m_base = ATPOL.grid_to_square_side_in_meters(base);
+	const sizeStr_base = m >= 1000 ? `${m_base / 1000}×${m_base / 1000} km` : `${m_base}×${m_base} m`;
+	const division_multiplier = m_base / m;
+	const power = Math.log(division_multiplier) / Math.log(2);
+	const power_display = `2${superscriptNumber(power)}`;
+
 	return {
 		footprintWKT: grid_to_polygonWKT(grid),
 		footprintSRS: "EPSG:4326",
@@ -180,7 +191,7 @@ export function grid_to_darwincore_fields(grid: string): ATPOL.DarwinCoreFields 
 		coordinateUncertaintyInMeters: grid_to_coordinate_uncertainty_in_meters(grid).toString(),
 		verbatimCoordinates: grid,
 		verbatimCoordinateSystem: "ATPOL-WP",
-		georeferenceProtocol: `Coordinates represent the centroid of an ATPOL (Wojciech Paul variant) ${sizeStr} grid`,
-		georeferenceSources: "ATPOL (Polish geobotanical grid), Wojciech Paul division variant",
+		georeferenceProtocol: `Coordinates represent the centroid of an ATPOL (Wojciech Paul variant) ${sizeStr} grid (ATPOL base ${sizeStr_base} grid divided by ${power_display})`,
+		georeferenceSources: `ATPOL (Polish geobotanical grid), Wojciech Paul division variant, reference: https://ib-pan.github.io/atpol.js/calculator-from-grid-code/#WP:${grid_normalized}`,
 	};
 }

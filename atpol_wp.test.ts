@@ -113,6 +113,6 @@ test("Darwin Core fields", () => {
 	expect(fields.coordinateUncertaintyInMeters).toBe("1768");
 	expect(fields.verbatimCoordinates).toBe("ED26/000");
 	expect(fields.verbatimCoordinateSystem).toBe("ATPOL-WP");
-	expect(fields.georeferenceProtocol).toBe("Coordinates represent the centroid of an ATPOL (Wojciech Paul variant) 1.25×1.25 km grid");
-	expect(fields.georeferenceSources).toBe("ATPOL (Polish geobotanical grid), Wojciech Paul division variant");
+	expect(fields.georeferenceProtocol).toBe("Coordinates represent the centroid of an ATPOL (Wojciech Paul variant) 1.25×1.25 km grid (ATPOL base 10×10 km grid divided by 2³)");
+	expect(fields.georeferenceSources).toBe("ATPOL (Polish geobotanical grid), Wojciech Paul division variant, reference: https://ib-pan.github.io/atpol.js/calculator-from-grid-code/#WP:ED26/000");
 });

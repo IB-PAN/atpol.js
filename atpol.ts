@@ -313,6 +313,7 @@ export function grid_to_darwincore_fields(grid: string): DarwinCoreFields {
 	const bounds = grid_to_latlon_bounds(grid);
 	const m = grid_to_square_side_in_meters(grid);
 	const sizeStr = m >= 1000 ? `${m / 1000}×${m / 1000} km` : `${m}×${m} m`;
+	const grid_normalized = grid_normalize(grid);
 	return {
 		footprintWKT: grid_to_polygonWKT(grid),
 		footprintSRS: "EPSG:4326",
@@ -323,6 +324,6 @@ export function grid_to_darwincore_fields(grid: string): DarwinCoreFields {
 		verbatimCoordinates: grid,
 		verbatimCoordinateSystem: "ATPOL",
 		georeferenceProtocol: `Coordinates represent the centroid of an ATPOL ${sizeStr} grid`,
-		georeferenceSources: "ATPOL (Polish geobotanical grid)",
+		georeferenceSources: `ATPOL (Polish geobotanical grid), reference: https://ib-pan.github.io/atpol.js/calculator-from-grid-code/#${grid_normalized}`,
 	};
 }
