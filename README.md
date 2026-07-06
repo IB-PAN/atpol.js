@@ -338,10 +338,10 @@ Returns a `DarwinCoreFields` object with all key Darwin Core location fields fil
 | Field | Description |
 |-------|-------------|
 | `footprintWKT` | WKT polygon of the square's bounding box (see `grid_to_polygonWKT`) |
-| `footprintSRS` | `"EPSG:4326"` |
+| `footprintSRS` | `"EPSG:4326"` (WGS84) |
 | `decimalLatitude` | Latitude of the square's centroid |
 | `decimalLongitude` | Longitude of the square's centroid |
-| `geodeticDatum` | `"EPSG:4326"` |
+| `geodeticDatum` | `"EPSG:4326"` (WGS84) |
 | `coordinateUncertaintyInMeters` | Radius of the circumscribed circle (see `grid_to_coordinate_uncertainty_in_meters`) |
 | `verbatimCoordinates` | The original ATPOL grid code as passed in |
 | `verbatimCoordinateSystem` | `"ATPOL"` |

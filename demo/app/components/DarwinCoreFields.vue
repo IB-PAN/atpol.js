@@ -11,6 +11,7 @@ type FieldItem = {
 	caption?: string;
 	tooltip?: string;
 	value: string;
+	long?: boolean;
 };
 
 type SeparatorItem = {
@@ -31,6 +32,7 @@ const fields = computed<Item[]>(() => {
 			caption: "Poligon (obrys kwadratu)",
 			tooltip: "Wypełnienie tego pola w rekordzie Darwin Core umożliwia GBIF-owi rozpoznanie oraz wyświetlenie na mapie wskazanego faktycznego obszaru (zamiast pinezki z punktem centralnym i kołem o promieniu niedokładności).",
 			value: dc.footprintWKT,
+			long: true,
 		},
 		{
 			type: "field",
@@ -84,11 +86,13 @@ const fields = computed<Item[]>(() => {
 			type: "field",
 			key: "georeferenceProtocol",
 			value: dc.georeferenceProtocol,
+			long: true,
 		},
 		{
 			type: "field",
 			key: "georeferenceSources",
 			value: dc.georeferenceSources,
+			long: true,
 		},
 	];
 });
@@ -150,7 +154,12 @@ async function copyText(key: string, text: string) {
 						</UTooltip>
 					</div>
 					<div class="flex items-center gap-2">
+						<div
+							v-if="item.long"
+							class="flex-1 min-w-0 font-mono text-xs bg-elevated border border-default rounded-md px-3 py-2 text-foreground whitespace-pre-wrap break-words"
+						>{{ item.value }}</div>
 						<input
+							v-else
 							:value="item.value"
 							readonly
 							class="flex-1 min-w-0 font-mono text-xs bg-elevated border border-default rounded-md px-3 py-2 text-foreground outline-none overflow-x-hidden whitespace-nowrap text-ellipsis focus:overflow-x-auto"
