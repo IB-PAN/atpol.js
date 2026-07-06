@@ -33,10 +33,10 @@ const baseMaps = {
 	}),
 };
 
-onMounted(() => {
-	if (!mapEl.value) return;
+function initMap(el: HTMLElement) {
+	if (leafletMap) return;
 
-	leafletMap = L.map(mapEl.value, { center: [52, 19], zoom: 6 });
+	leafletMap = L.map(el, { center: [52, 19], zoom: 6 });
 
 	leafletMap.attributionControl.setPrefix(false);
 
@@ -48,7 +48,16 @@ onMounted(() => {
 
 	if (props.bounds) drawPolygon(props.bounds);
 	if (props.marker) drawMarker(props.marker);
-});
+}
+
+// Watch the ref instead of using onMounted: when this component is created
+// as a side effect of the parent's own onMounted (e.g. applying a grid code
+// from the URL hash right after the page mounts), this component's onMounted
+// can fire before the template ref is actually bound, silently skipping map
+// creation for good. Watching the ref fires as soon as it's actually set.
+watch(mapEl, (el) => {
+	if (el) initMap(el);
+}, { immediate: true });
 
 onUnmounted(() => {
 	leafletMap?.remove();
