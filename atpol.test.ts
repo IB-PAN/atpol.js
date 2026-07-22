@@ -222,7 +222,7 @@ test("Darwin Core fields", () => {
 	expect(fields.verbatimCoordinates).toBe("EF25p44");
 	expect(fields.verbatimCoordinateSystem).toBe("ATPOL");
 	expect(fields.georeferenceProtocol).toBe("Coordinates represent the centroid of an ATPOL 2×2 km grid");
-	expect(fields.georeferenceSources).toBe("ATPOL (Polish geobotanical grid), reference: https://ib-pan.github.io/atpol.js/calculator-from-grid-code/#EF25p44");
+	expect(fields.georeferenceSources).toBe("ATPOL (Polish geobotanical grid), reference: https://botany.edu.pl/atpol-grid-code/EF25p44");
 	expect(fields.sampleSizeValue).toBe("2");
 	expect(fields.sampleSizeUnit).toBe("km²");
 });

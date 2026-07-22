@@ -326,7 +326,7 @@ export function grid_to_darwincore_fields(grid: string): DarwinCoreFields {
 		verbatimCoordinates: grid,
 		verbatimCoordinateSystem: "ATPOL",
 		georeferenceProtocol: `Coordinates represent the centroid of an ATPOL ${sizeStr} grid`,
-		georeferenceSources: `ATPOL (Polish geobotanical grid), reference: https://ib-pan.github.io/atpol.js/calculator-from-grid-code/#${grid_normalized}`,
+		georeferenceSources: `ATPOL (Polish geobotanical grid), reference: https://botany.edu.pl/atpol-grid-code/${grid_normalized}`,
 		sampleSizeValue: (m >= 1000 ? m / 1000 : m).toString(),
 		sampleSizeUnit: m >= 1000 ? "km²" : "m²", // square kilometre / square metre
 	};
