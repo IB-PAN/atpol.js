@@ -1207,31 +1207,49 @@ L.AtpolGrid = L.MetricGrid.extend({
 				const unx = ux / uLen, uny = uy / uLen;
 				const vnx = vx / vLen, vny = vy / vLen;
 
-				// Position as distances from the NW corner along those two
-				// edges, starting at one padding in from each.
-				let alongU = pad;
-				let alongV = pad;
+				// start one padding in from the NW corner along both edges
+				let lx = nw.x + (unx * pad) + (vnx * pad);
+				let ly = nw.y + (uny * pad) + (vny * pad);
 
-				// The text is drawn horizontally while the edges are not, so
-				// also clear whatever each edge leans into across the text's
-				// own extent: the top edge where it rises to the right, and
-				// the left edge where it leans right on the way down.
-				if (uny < 0) alongV += -uny * width;
-				if (vnx > 0) alongU += vnx * textHeight;
+				// Slide along the edges to bring the label on canvas, so a
+				// square running off the edge still gets labelled. Done before
+				// the clearance below, which only ever moves down and right.
+				if (lx < 0 && unx > 0) {
+					const t = -lx / unx;
+					lx = 0;
+					ly += uny * t;
+				}
+				if (ly < 0 && vny > 0) {
+					const t = -ly / vny;
+					lx += vnx * t;
+					ly = 0;
+				}
 
-				// Slide the label further along the edges to bring it on
-				// canvas, so a square running off the edge still gets labelled.
-				const offX = nw.x + (unx * alongU) + (vnx * alongV);
-				const offY = nw.y + (uny * alongU) + (vny * alongV);
-				if (offX < 0 && unx > 0) alongU += -offX / unx;
-				if (offY < 0 && vny > 0) alongV += -offY / vny;
+				// The text box is screen-aligned but the square is not, so the
+				// two are squared up by measuring perpendicular to the square's
+				// own top and left edges and pushing the box in until the worst
+				// of its corners clears both by a padding. Nudging each axis
+				// slightly disturbs the other, so two passes settle it.
+				for (let pass = 0; pass < 2; pass += 1) {
+					let dTop = Infinity;
+					let dLeft = Infinity;
+					for (const cx of [lx, lx + width]) {
+						for (const cy of [ly, ly + textHeight]) {
+							// signed distances, positive towards the interior
+							dTop = Math.min(dTop, (unx * (cy - nw.y)) - (uny * (cx - nw.x)));
+							dLeft = Math.min(dLeft, (vny * (cx - nw.x)) - (vnx * (cy - nw.y)));
+						}
+					}
+					if (dLeft < pad && vny > 0) lx += (pad - dLeft) / vny;
+					if (dTop < pad && unx > 0) ly += (pad - dTop) / unx;
+				}
 
-				// ...but never past the far edge of the square itself
+				// ...and having moved, it must still not reach the square's
+				// far edges
+				const alongU = ((lx - nw.x) * unx) + ((ly - nw.y) * uny);
+				const alongV = ((lx - nw.x) * vnx) + ((ly - nw.y) * vny);
 				if ((alongU + width + pad) > uLen) continue;
 				if ((alongV + textHeight + pad) > vLen) continue;
-
-				const lx = nw.x + (unx * alongU) + (vnx * alongV);
-				const ly = nw.y + (uny * alongU) + (vny * alongV);
 				if (lx > canvas.width || ly > canvas.height) continue;
 
 				if (o.labelHalo) {
