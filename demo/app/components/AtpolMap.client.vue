@@ -43,6 +43,7 @@ let leafletPolygon: L.Polygon | null = null;
 let leafletMarker: L.CircleMarker | null = null;
 let hoverPolygon: L.Polygon | null = null;
 let hoverDiv: HTMLDivElement | null = null;
+let atpolGridLayer: L.Layer | null = null;
 
 const baseMaps = {
 	OpenStreetMap: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -102,7 +103,7 @@ function initMap(el: HTMLElement) {
 		emit("viewchange", { center: { lat: center.lat, lon: center.lng }, zoom: leafletMap.getZoom() });
 	});
 
-	if (props.drawAtpolGridLines) L.atpolGrid().addTo(leafletMap);
+	if (props.drawAtpolGridLines) atpolGridLayer = L.atpolGrid().addTo(leafletMap);
 
 	if (props.bounds) drawPolygon(props.bounds);
 	if (props.marker) drawMarker(props.marker);
@@ -124,6 +125,7 @@ onUnmounted(() => {
 	leafletMarker = null;
 	hoverPolygon = null;
 	hoverDiv = null;
+	atpolGridLayer = null;
 });
 
 function drawPolygon(bounds: ATPOL.Bounds_LatLon) {
@@ -176,6 +178,16 @@ watch(() => props.marker, (marker) => {
 	} else {
 		leafletMarker?.remove();
 		leafletMarker = null;
+	}
+});
+
+watch(() => props.drawAtpolGridLines, (draw) => {
+	if (!leafletMap) return;
+	if (draw) {
+		atpolGridLayer = L.atpolGrid().addTo(leafletMap);
+	} else {
+		atpolGridLayer?.remove();
+		atpolGridLayer = null;
 	}
 });
 

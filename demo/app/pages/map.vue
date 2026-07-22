@@ -36,6 +36,7 @@ function parseHash(hash: string): { center: ATPOL.LatLon; zoom: number; gridSize
 const fromHash = parseHash(route.hash);
 
 const gridSize = ref<GridSizeKey>(fromHash?.gridSize ?? DEFAULT_GRID_SIZE);
+const drawGridLines = ref(true);
 
 // Read once: AtpolMap only applies `initialView` when it creates its Leaflet
 // instance, not reactively.
@@ -112,33 +113,41 @@ function onSelect(payload: { grid: string }) {
 		</div>
 
 		<UCard class="mb-4 shrink-0">
-			<UFormField label="Wielkość siatki do zaznaczenia">
-				<div class="flex items-center gap-2">
-					<USelect
-						v-model="gridSize"
-						:items="gridSizes"
-						class="w-full sm:w-72"
-					/>
-					<UButton
-						icon="i-lucide-minus"
-						color="neutral"
-						variant="outline"
-						size="sm"
-						aria-label="Większy kwadrat siatki"
-						:disabled="!canShrinkGrid"
-						@click="stepGridSize(-1)"
-					/>
-					<UButton
-						icon="i-lucide-plus"
-						color="neutral"
-						variant="outline"
-						size="sm"
-						aria-label="Mniejszy kwadrat siatki"
-						:disabled="!canGrowGrid"
-						@click="stepGridSize(1)"
-					/>
-				</div>
-			</UFormField>
+			<div class="flex flex-wrap items-start justify-between gap-4">
+				<UFormField label="Wielkość siatki do zaznaczenia">
+					<div class="flex items-center gap-2">
+						<USelect
+							v-model="gridSize"
+							:items="gridSizes"
+							class="w-full sm:w-72"
+						/>
+						<UButton
+							icon="i-lucide-minus"
+							color="neutral"
+							variant="outline"
+							size="sm"
+							aria-label="Większy kwadrat siatki"
+							:disabled="!canShrinkGrid"
+							@click="stepGridSize(-1)"
+						/>
+						<UButton
+							icon="i-lucide-plus"
+							color="neutral"
+							variant="outline"
+							size="sm"
+							aria-label="Mniejszy kwadrat siatki"
+							:disabled="!canGrowGrid"
+							@click="stepGridSize(1)"
+						/>
+					</div>
+				</UFormField>
+				<UCheckbox
+					v-model="drawGridLines"
+					label="Siatka ATPOL na mapie"
+					description="Rysuj linie referencyjne 100/10/1 km&#10;(niezależne od wielkości wybranej obok)"
+					class="sm:self-center"
+				/>
+			</div>
 		</UCard>
 
 		<AtpolMap
@@ -146,7 +155,7 @@ function onSelect(payload: { grid: string }) {
 			:interactive="true"
 			:interactive-grid-length="gridLength"
 			:interactive-grid-div="gridDiv"
-			:draw-atpol-grid-lines="true"
+			:draw-atpol-grid-lines="drawGridLines"
 			:initial-view="initialView"
 			map-class="h-full w-full"
 			class="flex-1 min-h-0"
