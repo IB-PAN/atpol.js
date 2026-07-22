@@ -596,6 +596,7 @@ function downloadFromPreview() {
 			<AtpolMap
 				:bounds="bounds"
 				:marker="latDD !== null && lonDD !== null ? { lat: latDD, lon: lonDD } : null"
+				:draw-atpol-grid-lines="true"
 				class="mb-4"
 			/>
 

@@ -263,6 +263,7 @@ function downloadFromPreview() {
 
 			<AtpolMap
 				:bounds="result.bounds"
+				:draw-atpol-grid-lines="true"
 				class="mb-4"
 			/>
 
