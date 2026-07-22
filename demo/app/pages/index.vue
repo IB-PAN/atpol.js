@@ -96,14 +96,32 @@ const tools = [
 						href="http://maxbot.botany.pl/cgi-bin/pubs/data/article_pdf?id=4279"
 						target="blank"
 						class="underline"
-					>Siatka ATPOL w analitycznym ujęciu</a>
+					>Artykuł: Teoretyczna analiza i praktyczne konsekwencje przyjęcia modelowej
+						siatki ATPOL jako odwzorowania stożkowego definiującego
+						konwersję współrzędnych płaskich na elipsoidę WGS 84</a>
+				</li>
+				<li>
+					<a
+						href="https://worldbig.org/atpol/Podzialy_nietypowe.pdf"
+						target="blank"
+						class="underline"
+					>Przykładowe realizacje badań w oparciu o nietypowe podziały
+						siatek ATPOL w bazach i publikacjach</a>
 				</li>
 				<li>
 					<a
 						href="http://maxbot.botany.pl/cgi-bin/pubs/data/article_pdf?id=4302"
 						target="blank"
 						class="underline"
-					>Standaryzacja zapisu podziałów siatki ATPOL</a>
+					>Artykuł: Standaryzacja zapisu podziałów siatki ATPOL</a>
+				</li>
+				<li>
+					<a
+						href="https://www.researchgate.net/profile/Lukasz-Komsta-2/publication/301765938_ATPOL_geobotanical_grid_revisited_-_a_proposal_of_coordinate_conversion_algorithms/links/5726630108aee491cb3f0cfd/ATPOL-geobotanical-grid-revisited-a-proposal-of-coordinate-conversion-algorithms.pdf"
+						target="blank"
+						class="underline"
+					>Artykuł: Rewizja matematyczna siatki geobotanicznej ATPOL
+						– propozycja algorytmów konwersji współrzędnych</a>
 				</li>
 			</ul>
 		</div>
