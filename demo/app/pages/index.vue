@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useSeoMeta({
-	title: "Kalkulatory ATPOL",
+	title: "Narzędzia ATPOL",
 	description: "Narzędzia do pracy z siatką ATPOL oparte na bibliotece atpol.js.",
 });
 
@@ -41,7 +41,7 @@ const tools = [
 					class="text-primary size-8 shrink-0"
 				/>
 				<h1 class="text-3xl font-bold">
-					Kalkulatory ATPOL
+					Narzędzia ATPOL
 				</h1>
 			</div>
 			<p class="text-lg text-muted">
