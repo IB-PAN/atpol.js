@@ -60,7 +60,7 @@ const tools = [
 				ATPOL (<em>Atlas Rozmieszczenia Roślin Naczyniowych w Polsce</em>) to geobotaniczny system
 				kartograficzny opracowany dla obszaru Polski. Siatka ATPOL
 				dzieli terytorium Polski na hierarchiczne kwadraty o różnych rozmiarach — od 100×100 km
-				aż do 20×20 m — identyfikowane unikalnymi kodami alfanumerycznymi.
+				aż do 1×1 m — identyfikowane unikalnymi kodami alfanumerycznymi.
 			</p>
 			<p class="text-muted mb-3">
 				Biblioteka <strong>atpol.js</strong> udostępnia algorytmy ATPOL w TypeScript/JavaScript,
