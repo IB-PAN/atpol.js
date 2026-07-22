@@ -111,6 +111,16 @@ L.MetricGrid = L.Layer.extend({
 		return this;
 	},
 
+	// Resolves options.proj4ProjDef to an object with forward([lng,lat])->[x,y]
+	// and inverse([x,y])->[lng,lat]) methods.
+	// proj4ProjDef is normally a proj4 definition string, but grids using a
+	// projection proj4 doesn't implement (e.g. ATPOL's "ccon", see L.AtpolGrid)
+	// can instead supply such an object directly.
+	_getConverter: function () {
+		let proj = this.options.proj4ProjDef;
+		return (typeof proj === "string") ? proj4(proj) : proj;
+	},
+
 	// Private method to initialize a drawing canvas for the grid.
 	// No animation support (yet).
 	_initCanvas: function () {
@@ -138,7 +148,7 @@ L.MetricGrid = L.Layer.extend({
 	// lie outside of the clipping path.
 	_setClip: function (ctx) {
 		let map = this._map;
-		let proj = this.options.proj4ProjDef;
+		let conv = this._getConverter();
 		let i;
 
 		if (this.options.clip) {
@@ -162,7 +172,7 @@ L.MetricGrid = L.Layer.extend({
 
 				// interpolate a point along the line segment
 				function _interpolate(frac) {
-					return proj4(proj).inverse([x1 + (frac * dX), y1 + (frac * dY)]);
+					return conv.inverse([x1 + (frac * dX), y1 + (frac * dY)]);
 				}
 
 				// get set of Web Mercator line segments fitted to this segment with a maximum error of 1 pixel
@@ -454,7 +464,7 @@ L.MetricGrid = L.Layer.extend({
 				return;
 
 			let spacing = this._calcInterval();
-			let proj = this.options.proj4ProjDef;
+			let conv = this._getConverter();
 			let ctx = canvas.getContext("2d");
 
 			// set up canvas for drawing and writing
@@ -483,16 +493,16 @@ L.MetricGrid = L.Layer.extend({
 			let mapNE = mapB.getNorthEast();
 			let mapNW = mapB.getNorthWest();
 			let mapSE = mapB.getSouthEast();
-			let mapSWg = proj4(proj).forward([mapSW.lng, mapSW.lat]);
-			let mapNEg = proj4(proj).forward([mapNE.lng, mapNE.lat]);
-			let mapNWg = proj4(proj).forward([mapNW.lng, mapNW.lat]);
-			let mapSEg = proj4(proj).forward([mapSE.lng, mapSE.lat]);
+			let mapSWg = conv.forward([mapSW.lng, mapSW.lat]);
+			let mapNEg = conv.forward([mapNE.lng, mapNE.lat]);
+			let mapNWg = conv.forward([mapNW.lng, mapNW.lat]);
+			let mapSEg = conv.forward([mapSE.lng, mapSE.lat]);
 
 			// also the middles of the sides of the map
-			let mapSMg = proj4(proj).forward([mapB.getCenter().lng, mapB.getSouth()]);
-			let mapNMg = proj4(proj).forward([mapB.getCenter().lng, mapB.getNorth()]);
-			let mapWMg = proj4(proj).forward([mapB.getWest(), mapB.getCenter().lat]);
-			let mapEMg = proj4(proj).forward([mapB.getEast(), mapB.getCenter().lat]);
+			let mapSMg = conv.forward([mapB.getCenter().lng, mapB.getSouth()]);
+			let mapNMg = conv.forward([mapB.getCenter().lng, mapB.getNorth()]);
+			let mapWMg = conv.forward([mapB.getWest(), mapB.getCenter().lat]);
+			let mapEMg = conv.forward([mapB.getEast(), mapB.getCenter().lat]);
 
 			// extend grid bounds to enclose the map corners
 			let grdWx = Math.min(mapSWg[0], mapNWg[0]);
@@ -568,7 +578,7 @@ L.MetricGrid = L.Layer.extend({
 			for (let x = grdWx; x <= grdEx; x += d) {
 				// interpolate northings from top to bottom
 				function _interpolateY(frac) {
-					return proj4(proj).inverse([x, grdNy - (frac * h)]);
+					return conv.inverse([x, grdNy - (frac * h)]);
 				}
 
 				let pts = this._getPoints(_interpolateY, 1.0, map);
@@ -586,7 +596,7 @@ L.MetricGrid = L.Layer.extend({
 			for (let y = grdSy; y <= grdNy; y += d) {
 				// interpolate eastings from right to left
 				function _interpolateX(frac) {
-					return proj4(proj).inverse([grdEx - (frac * w), y]);
+					return conv.inverse([grdEx - (frac * w), y]);
 				}
 
 				let pts = this._getPoints(_interpolateX, 1.0, map);
@@ -611,7 +621,7 @@ L.MetricGrid = L.Layer.extend({
 			if (this.options.showAxisLabels.indexOf(d) >= 0) {
 				for (let x = grdWx; x <= grdEx; x += d) {
 					for (let y = grdSy; y <= grdNy; y += d) {
-						let ll = proj4(proj).inverse([x, y + d2]); // middle of vertical square edge
+						let ll = conv.inverse([x, y + d2]); // middle of vertical square edge
 						let s = map.latLngToContainerPoint(L.latLng(ll[1], ll[0])); // screen point
 
 						// check on screen and within grid bounds
@@ -645,7 +655,7 @@ L.MetricGrid = L.Layer.extend({
 			if (this.options.showAxisLabels.indexOf(d) >= 0) {
 				for (let y = grdSy; y <= grdNy; y += d) {
 					for (let x = grdWx; x <= grdEx; x += d) {
-						let ll = proj4(proj).inverse([x + d2, y]); // middle of horizontal square edge
+						let ll = conv.inverse([x + d2, y]); // middle of horizontal square edge
 						let s = map.latLngToContainerPoint(L.latLng(ll[1], ll[0])); // screen point
 
 						// check on screen and within grid bounds
@@ -680,7 +690,7 @@ L.MetricGrid = L.Layer.extend({
 			if (this.options.showSquareLabels.indexOf(d) >= 0) {
 				for (let y = grdSy; y <= grdNy; y += d) {
 					for (let x = grdWx; x <= grdEx; x += d) {
-						let ll = proj4(proj).inverse([x, y]); // bottom left corner of grid square
+						let ll = conv.inverse([x, y]); // bottom left corner of grid square
 						let s = map.latLngToContainerPoint(L.latLng(ll[1], ll[0]));
 
 						// check on screen and within grid bounds
