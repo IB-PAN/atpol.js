@@ -50,6 +50,25 @@ const gridConfig = computed(() => GRID_CONFIG[gridSize.value]);
 const gridLength = computed(() => gridConfig.value.length);
 const gridDiv = computed(() => "div" in gridConfig.value ? gridConfig.value.div : null);
 
+// Derived from the dropdown itself so the +/- order always matches what's shown.
+const sizeKeys = gridSizes.flatMap((item) => {
+	if (item && typeof item === "object" && "value" in item && typeof item.value === "string") {
+		return [item.value as GridSizeKey];
+	}
+	return [];
+});
+
+const sizeIndex = computed(() => sizeKeys.indexOf(gridSize.value));
+const canGrowGrid = computed(() => sizeIndex.value < sizeKeys.length - 1);
+const canShrinkGrid = computed(() => sizeIndex.value > 0);
+
+function stepGridSize(delta: number) {
+	const idx = sizeIndex.value + delta;
+	const next = sizeKeys[idx];
+	if (!next) return;
+	gridSize.value = next;
+}
+
 function updateHash() {
 	const { center, zoom } = currentView;
 	const hash = `#${center.lat.toFixed(5)},${center.lon.toFixed(5)},${zoom},${gridSize.value}`;
@@ -93,12 +112,32 @@ function onSelect(payload: { grid: string }) {
 		</div>
 
 		<UCard class="mb-4 shrink-0">
-			<UFormField label="Wielkość siatki">
-				<USelect
-					v-model="gridSize"
-					:items="gridSizes"
-					class="w-full sm:w-72"
-				/>
+			<UFormField label="Wielkość siatki do zaznaczenia">
+				<div class="flex items-center gap-2">
+					<USelect
+						v-model="gridSize"
+						:items="gridSizes"
+						class="w-full sm:w-72"
+					/>
+					<UButton
+						icon="i-lucide-minus"
+						color="neutral"
+						variant="outline"
+						size="sm"
+						aria-label="Większy kwadrat siatki"
+						:disabled="!canShrinkGrid"
+						@click="stepGridSize(-1)"
+					/>
+					<UButton
+						icon="i-lucide-plus"
+						color="neutral"
+						variant="outline"
+						size="sm"
+						aria-label="Mniejszy kwadrat siatki"
+						:disabled="!canGrowGrid"
+						@click="stepGridSize(1)"
+					/>
+				</div>
 			</UFormField>
 		</UCard>
 

@@ -65,6 +65,8 @@ export default defineNuxtConfig({
 				"lucide:moon",
 				"lucide:sun",
 				"lucide:menu",
+				"lucide:plus",
+				"lucide:minus",
 			],
 		},
 		serverBundle: false,
