@@ -18,6 +18,12 @@ const tools = [
 		description: "Znajdź kod kwadratu ATPOL na podstawie współrzędnych geograficznych.",
 	},
 	{
+		to: "/map/",
+		icon: "i-lucide-map",
+		title: "Mapa",
+		description: "Interaktywna mapa siatki ATPOL — najedź na kwadrat, aby zobaczyć jego kod, kliknij, aby przeliczyć go na współrzędne.",
+	},
+	{
 		to: "/converter/",
 		icon: "i-lucide-arrow-left-right",
 		title: "Konwerter DD/DMS",

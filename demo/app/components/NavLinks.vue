@@ -18,6 +18,7 @@ const groups = [
 	{
 		label: "Narzędzia",
 		items: [
+			{ label: "Mapa", icon: "i-lucide-map", to: "/map/" },
 			{ label: "Konwerter DD/DMS", icon: "i-lucide-arrow-left-right", to: "/converter/" },
 		],
 	},

@@ -21,6 +21,7 @@ export default defineNuxtConfig({
 		"/calculator-to-grid-code/": { prerender: true },
 		"/calculator-from-grid-code/": { prerender: true },
 		"/converter/": { prerender: true },
+		"/map/": { prerender: true },
 		"/docs/": { prerender: true },
 	},
 
