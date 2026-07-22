@@ -23,6 +23,7 @@
     "leaflet.fullscreen": "^5.3.1",
     "marked": "^18.0.5",
     "nuxt": "^4.4.8",
+    "proj4": "^2.20.9",
     "tailwindcss": "^4.3.1"
   },
   "devDependencies": {
