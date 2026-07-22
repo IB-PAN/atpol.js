@@ -4,8 +4,8 @@ import { gridSizes, GRID_CONFIG, type GridSizeKey } from "~/utils/grid-sizes";
 import AtpolMap from "~/components/AtpolMap.client.vue";
 
 useSeoMeta({
-	title: "Mapa",
-	description: "Interaktywna mapa siatki ATPOL — najedź na kwadrat, aby zobaczyć jego kod, kliknij, aby przeliczyć go na współrzędne.",
+	title: "Mapa ATPOL",
+	description: "Interaktywna mapa siatki ATPOL — najedź na kwadrat, aby zobaczyć jego kod; kliknij, aby przeliczyć go na współrzędne.",
 });
 
 const DEFAULT_CENTER: ATPOL.LatLon = { lat: 52, lon: 19 };

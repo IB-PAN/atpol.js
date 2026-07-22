@@ -58,3 +58,9 @@ export function formatSideLabel(grid: string) {
 	const sizeStr = m >= 1000 ? `${m / 1000} × ${m / 1000} km` : `${m} × ${m} m`;
 	return div ? `${sizeStr} (typ ${div})` : sizeStr;
 }
+
+export function gridCodeToGridSizeKey(grid: string, wp: boolean = false) {
+	const m = (wp ? ATPOL.WP : ATPOL).grid_to_square_side_in_meters(grid);
+	const sizeStr = m >= 1000 ? `${m / 1000}km` : `${m}m`;
+	return sizeStr as GridSizeKey;
+}
