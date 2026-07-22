@@ -1,8 +1,9 @@
 import { ATPOL } from "../../../main";
+
 declare global {
-    interface Window {
-        ATPOL: typeof ATPOL;
-    }
+	interface Window {
+		ATPOL: typeof ATPOL;
+	}
 }
 
 export default defineNuxtPlugin(() => {

@@ -170,7 +170,9 @@ async function copyText(key: string, text: string) {
 						<div
 							v-if="item.long"
 							class="flex-1 min-w-0 font-mono text-xs bg-elevated border border-default rounded-md px-3 py-2 text-foreground whitespace-pre-wrap break-words"
-						>{{ item.value }}</div>
+						>
+							{{ item.value }}
+						</div>
 						<input
 							v-else
 							:value="item.value"

@@ -54,7 +54,7 @@ export default defineNuxtConfig({
 		clientBundle: {
 			// Automatically includes statically-detected icon usages
 			scan: {
-				globInclude: ["**\/*.{vue,js,ts,jsx,tsx,md,mdc,mdx}"],
+				globInclude: ["**/*.{vue,js,ts,jsx,tsx,md,mdc,mdx}"],
 			},
 			// Keep explicit entries for dynamic icon names
 			icons: [

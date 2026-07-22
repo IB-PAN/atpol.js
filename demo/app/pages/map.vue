@@ -135,7 +135,7 @@ function onSelect(payload: { grid: string }) {
 
 		<UCard class="mb-4 shrink-0">
 			<div class="flex flex-wrap items-start justify-between gap-4">
-				<UFormField label="Wielkość siatki do zaznaczenia">
+				<UFormField label="Wielkość kwadratu do zaznaczenia">
 					<div class="flex items-center gap-2">
 						<USelect
 							v-model="gridSize"
@@ -147,7 +147,7 @@ function onSelect(payload: { grid: string }) {
 							color="neutral"
 							variant="outline"
 							size="sm"
-							aria-label="Większy kwadrat siatki"
+							aria-label="Większy kwadrat"
 							:disabled="!canShrinkGrid"
 							@click="stepGridSize(-1)"
 						/>
@@ -156,7 +156,7 @@ function onSelect(payload: { grid: string }) {
 							color="neutral"
 							variant="outline"
 							size="sm"
-							aria-label="Mniejszy kwadrat siatki"
+							aria-label="Mniejszy kwadrat"
 							:disabled="!canGrowGrid"
 							@click="stepGridSize(1)"
 						/>
@@ -165,7 +165,7 @@ function onSelect(payload: { grid: string }) {
 				<UCheckbox
 					v-model="drawGridLines"
 					label="Siatka ATPOL na mapie"
-					description="Rysuj linie referencyjne 100/10/1 km&#10;(niezależne od wielkości wybranej obok)"
+					description="Rysuj linie referencyjne 100/10/1 km"
 					class="sm:self-center"
 				/>
 			</div>
