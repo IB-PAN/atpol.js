@@ -3,6 +3,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { FullScreen } from "leaflet.fullscreen";
 import "leaflet.fullscreen/dist/Control.FullScreen.css";
+import "~/utils/Leaflet.MetricGrid.js";
 
 import { ATPOL } from "../../../main";
 
@@ -12,15 +13,20 @@ const props = withDefaults(defineProps<{
 	// Interactive mode: highlights the ATPOL square under the cursor, shows a
 	// GPS-coordinates/grid-code readout, and emits `hover`/`select` events.
 	interactive?: boolean;
-	gridLength?: number;
-	gridDiv?: null | "D" | "C" | "P";
+	interactiveGridLength?: number;
+	interactiveGridDiv?: null | "D" | "C" | "P";
+	// Draws the ATPOL 100km/10km/1km/100m grid lines over the whole map.
+	// Unrelated to interactiveGridLength/interactiveGridDiv, which only size
+	// the single hovered/selected square.
+	drawAtpolGridLines?: boolean;
 	initialView?: { center: ATPOL.LatLon; zoom: number };
 	mapClass?: string;
 }>(), {
 	marker: null,
 	interactive: false,
-	gridLength: 8,
-	gridDiv: null,
+	interactiveGridLength: 8,
+	interactiveGridDiv: null,
+	drawAtpolGridLines: false,
 	initialView: undefined,
 	mapClass: "h-72 w-full",
 });
@@ -95,6 +101,8 @@ function initMap(el: HTMLElement) {
 		const center = leafletMap.getCenter();
 		emit("viewchange", { center: { lat: center.lat, lon: center.lng }, zoom: leafletMap.getZoom() });
 	});
+
+	if (props.drawAtpolGridLines) L.atpolGrid().addTo(leafletMap);
 
 	if (props.bounds) drawPolygon(props.bounds);
 	if (props.marker) drawMarker(props.marker);
@@ -183,7 +191,7 @@ function updateHover(latlng: L.LatLng) {
 			clearHover();
 			return;
 		}
-		const { grid } = ATPOL.xy_to_grid(xy, props.gridLength, props.gridDiv);
+		const { grid } = ATPOL.xy_to_grid(xy, props.interactiveGridLength, props.interactiveGridDiv);
 		hoverState = { latlon, grid };
 		drawHoverPolygon(ATPOL.grid_to_latlon_bounds(grid));
 		renderHoverInfo(latlon, grid);

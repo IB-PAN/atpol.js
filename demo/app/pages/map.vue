@@ -105,8 +105,9 @@ function onSelect(payload: { grid: string }) {
 		<AtpolMap
 			:bounds="null"
 			:interactive="true"
-			:grid-length="gridLength"
-			:grid-div="gridDiv"
+			:interactive-grid-length="gridLength"
+			:interactive-grid-div="gridDiv"
+			:draw-atpol-grid-lines="true"
 			:initial-view="initialView"
 			map-class="h-full w-full"
 			class="flex-1 min-h-0"

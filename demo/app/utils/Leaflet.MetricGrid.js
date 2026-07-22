@@ -19,6 +19,8 @@
 import L from "leaflet";
 import proj4 from "proj4";
 
+import { ATPOL } from "../../../main";
+
 L.MetricGrid = L.Layer.extend({
 
 	options: {
@@ -863,4 +865,86 @@ L.UtmGrid = L.MetricGrid.extend({
 // constructor params are UTM zone 1..60 and boolean true for southern hemisphere
 L.utmGrid = function (zone, bSouth, options) {
 	return new L.UtmGrid(zone, bSouth, options);
+};
+
+/** Definitions for the ATPOL botanical grid used across Poland.
+*
+* ATPOL's projection (PROJ calls it "ccon", a central conic projection - see
+* https://proj.org/en/stable/operations/projections/ccon.html, whose own
+* example is this exact grid) isn't implemented by proj4js, so rather than
+* reimplementing its maths a second time, proj4ProjDef is set to a converter
+* object built directly from the library's own (already exact, tested)
+* ATPOL.latlon_to_xy / ATPOL.xy_to_latlon, scaled from km to m.
+*
+* ATPOL's own XY has y growing SOUTH from a NW origin, but _draw()/_setClip()
+* (shared with the British/Irish/UTM grids above) hard-code the opposite
+* assumption - that projected y grows NORTH - to work out which edge of the
+* current viewport is "south" vs "north" (e.g. grdSy = min y among the south
+* corners, grdNy = max y among the north corners). Left alone, ATPOL's
+* southward y makes south corners come out with the *larger* y, so grdSy
+* ends up bigger than grdNy: the horizontal-line loop (`for y = grdSy to
+* grdNy`) never runs, and the bounds clamp can early-return for perfectly
+* valid views. So this converter flips y to the northward convention the
+* base class expects (y' = 700000 - y), and bounds/clip/hundredKmSquareFunc
+* are expressed in that same flipped, metres-based system.
+*
+* Poland only covers part of the 700x700 km ATPOL square, so bounds/clip
+* restrict drawing to the 100 km squares BA-GA, AB-GB, AC-GC, AD-GD, AE-GE,
+* BF-GF, DG-GG.
+*
+* Only the grid's standard (non-subdivided) square sizes are drawn: 100 km,
+* 10 km, 1 km and 100 m - the same set the base class already limits itself
+* to via min/maxInterval. The D/C/P subdivisions (halves/quarters/fifths of
+* a square) aren't independent zoom levels of the grid, so they don't apply here.
+*/
+L.AtpolGrid = L.MetricGrid.extend({
+
+	options: {
+		proj4ProjDef: {
+			forward: function (lonlat) {
+				const xy = ATPOL.latlon_to_xy({ lon: lonlat[0], lat: lonlat[1] });
+				return [xy.x * 1000, 700000 - (xy.y * 1000)];
+			},
+			inverse: function (xy) {
+				const ll = ATPOL.xy_to_latlon({ x: xy[0] / 1000, y: (700000 - xy[1]) / 1000 });
+				return [ll.lon, ll.lat];
+			},
+		},
+		bounds: [[0, 0], [700000, 700000]],
+		clip: [
+			[100000, 700000], [700000, 700000], [700000, 0], [300000, 0],
+			[300000, 100000], [100000, 100000], [100000, 200000], [0, 200000],
+			[0, 600000], [100000, 600000], [100000, 700000],
+		],
+		minInterval: 100, // 100 m - smallest standard ATPOL square
+		maxInterval: 100000, // 100 km - largest standard ATPOL square
+		showSquareLabels: [100000],
+		// (e, n) is the loop's bottom-left (south-west) corner of the current
+		// 100 km square, in the flipped north-positive system - but ATPOL's own
+		// letters are anchored to a square's NW corner. Since this is only ever
+		// invoked for the 100 km square (showSquareLabels above), the square's
+		// north edge is a flat +100000 away from its south edge.
+		hundredKmSquareFunc: function (e, n) {
+			const x = e / 1000;
+			const y = 600 - (n / 1000);
+			if (!(x >= 0 && x <= 700 && y >= 0 && y <= 700)) return "--";
+			return ATPOL.xy_to_grid({ x, y }, 2).grid;
+		},
+		color: "#080",
+		weight: 2,
+		opacity: 0.7,
+		font: "600 11px ui-monospace, monospace",
+	},
+
+	// northings is in the flipped north-positive system (see proj4ProjDef
+	// above); un-flip back to ATPOL's true southward y before formatting, so
+	// digits shown match the real ATPOL code's northing digits.
+	_format_northings: function (northings, spacing) {
+		return this._formatEastOrNorth(700000 - northings, spacing);
+	},
+});
+
+// instance factory
+L.atpolGrid = function (options) {
+	return new L.AtpolGrid(options);
 };

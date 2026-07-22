@@ -32,4 +32,10 @@ declare module "leaflet" {
 		bringToFront(): this;
 		bringToBack(): this;
 	}
+
+	class AtpolGrid extends MetricGrid {
+		constructor(options?: Partial<MetricGridOptions>);
+	}
+
+	function atpolGrid(options?: Partial<MetricGridOptions>): AtpolGrid;
 }
