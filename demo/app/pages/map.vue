@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ATPOL } from "../../../main";
 import { gridSizes, GRID_CONFIG, type GridSizeKey } from "~/utils/grid-sizes";
+import AtpolMap from "~/components/AtpolMap.client.vue";
 
 useSeoMeta({
 	title: "Mapa",
@@ -47,6 +48,8 @@ const initialView = {
 
 let currentView = { ...initialView };
 
+const mapRef = useTemplateRef<InstanceType<typeof AtpolMap>>("mapRef");
+
 const gridConfig = computed(() => GRID_CONFIG[gridSize.value]);
 const gridLength = computed(() => gridConfig.value.length);
 const gridDiv = computed(() => "div" in gridConfig.value ? gridConfig.value.div : null);
@@ -70,9 +73,15 @@ function stepGridSize(delta: number) {
 	gridSize.value = next;
 }
 
+// Set whenever we write the hash ourselves, so the route.hash watcher below
+// can tell "we just navigated" apart from "the user edited the address bar"
+// and skip re-applying a change that already originated from this page.
+let lastWrittenHash: string | null = null;
+
 function updateHash() {
 	const { center, zoom } = currentView;
 	const hash = `#${center.lat.toFixed(5)},${center.lon.toFixed(5)},${zoom},${gridSize.value}`;
+	lastWrittenHash = hash;
 	navigateTo({ path: "/map/", hash }, { replace: true });
 }
 
@@ -87,6 +96,18 @@ watch(gridSize, updateHash);
 // with one (fresh load or restored via Back), leave it alone.
 onMounted(() => {
 	if (!route.hash) updateHash();
+});
+
+// React to the hash being changed by something other than updateHash() above
+// (typically the user editing it by hand in the address bar) by moving the
+// map and updating the grid-size dropdown to match.
+watch(() => route.hash, (hash) => {
+	if (hash === lastWrittenHash) return;
+	const parsed = parseHash(hash);
+	if (!parsed) return;
+	currentView = { center: parsed.center, zoom: parsed.zoom };
+	gridSize.value = parsed.gridSize;
+	mapRef.value?.setView(parsed.center, parsed.zoom);
 });
 
 function onSelect(payload: { grid: string }) {
@@ -151,6 +172,7 @@ function onSelect(payload: { grid: string }) {
 		</UCard>
 
 		<AtpolMap
+			ref="mapRef"
 			:bounds="null"
 			:interactive="true"
 			:interactive-grid-length="gridLength"

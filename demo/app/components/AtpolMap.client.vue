@@ -37,6 +37,15 @@ const emit = defineEmits<{
 	viewchange: [payload: { center: ATPOL.LatLon; zoom: number }];
 }>();
 
+// Lets the parent move the map programmatically (e.g. reacting to the URL
+// hash being edited by hand) without going through initialView, which only
+// applies once at map creation.
+defineExpose({
+	setView(center: ATPOL.LatLon, zoom: number) {
+		leafletMap?.setView([center.lat, center.lon], zoom);
+	},
+});
+
 const mapEl = useTemplateRef<HTMLElement>("mapEl");
 let leafletMap: L.Map | null = null;
 let leafletPolygon: L.Polygon | null = null;
