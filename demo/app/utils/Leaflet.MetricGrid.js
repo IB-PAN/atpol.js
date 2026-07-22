@@ -38,7 +38,9 @@ L.MetricGrid = L.Layer.extend({
 		opacity: 0.7,
 		weight: 2, // use 2 for best results, else label rub-out is less good (antialiased pixels)
 		color: "#00f",
-		font: "bold 16px Verdana",
+		fontSize: 16, // px, and the line height used to place and rub out labels
+		fontFamily: "Verdana",
+		fontWeight: "bold",
 		density: 1,
 		minInterval: 100, // minimum grid interval in metres
 		maxInterval: 100000, // maximum grid interval in metres, the bounds values should be multiples of this
@@ -368,6 +370,7 @@ L.MetricGrid = L.Layer.extend({
 
 		let a = map.latLngToContainerPoint(L.latLng(geoA[1], geoA[0]));
 		let b = map.latLngToContainerPoint(L.latLng(geoB[1], geoB[0]));
+		let endPoint = b;
 
 		let coords = [];
 		let geoStack = [geoB, geoA];
@@ -420,6 +423,14 @@ L.MetricGrid = L.Layer.extend({
 				geoStack.push(geoB, geoM, geoM, geoA);
 			}
 		}
+
+		// If the iteration budget ran out mid-fit the tail of the line would be
+		// missing, leaving a polyline that stops short of where it should end.
+		// Close it off rather than drawing a truncated line.
+		if (!fractions["1"]) {
+			coords.push(endPoint);
+		}
+
 		return coords;
 	},
 
@@ -475,19 +486,14 @@ L.MetricGrid = L.Layer.extend({
 			ctx.strokeStyle = this.options.color;
 			ctx.fillStyle = this.options.fontColor;
 
-			if (this.options.font) {
-				ctx.font = this.options.font;
-			}
+			ctx.font = this.options.fontWeight + " " + this.options.fontSize + "px " + this.options.fontFamily;
+
+			// the text height is simply the configured size - no need to dig it
+			// back out of a font shorthand, which is ambiguous anyway since a
+			// shorthand can lead with a numeric weight ("600 11px ...")
+			let txtHeight = this.options.fontSize;
 			let txtWidth = ctx.measureText("0").width;
-			let txtHeight;
-			let _font_frags = ctx.font.split(" ");
 			let i;
-			for (i = 0; i < _font_frags.length; i += 1) {
-				txtHeight = parseInt(_font_frags[i], 10);
-				if (!isNaN(txtHeight)) {
-					break;
-				}
-			}
 
 			// get bounds of map corners in grid projection
 			let mapB = map.getBounds();
@@ -867,80 +873,380 @@ L.utmGrid = function (zone, bSouth, options) {
 	return new L.UtmGrid(zone, bSouth, options);
 };
 
+/** The 100 km rows of the ATPOL grid that Poland actually reaches into.
+*
+* Indexed by row = y / 100 km (the code's *second* letter, A-G = 0-6); each
+* entry is the [first, last+1] column index (the code's *first* letter, A-G
+* = 0-6) covered by that row. So the covered squares are BA-GA, AB-GB, AC-GC,
+* AD-GD, AE-GE, BF-GF and DG-GG - the rest of the 700x700 km ATPOL square
+* falls outside Poland and is not drawn.
+*/
+const ATPOL_ROWS = [
+	[1, 7], // row A - y   0-100 km
+	[0, 7], // row B - y 100-200 km
+	[0, 7], // row C - y 200-300 km
+	[0, 7], // row D - y 300-400 km
+	[0, 7], // row E - y 400-500 km
+	[1, 7], // row F - y 500-600 km
+	[3, 7], // row G - y 600-700 km
+];
+
 /** Definitions for the ATPOL botanical grid used across Poland.
 *
 * ATPOL's projection (PROJ calls it "ccon", a central conic projection - see
 * https://proj.org/en/stable/operations/projections/ccon.html, whose own
 * example is this exact grid) isn't implemented by proj4js, so rather than
-* reimplementing its maths a second time, proj4ProjDef is set to a converter
-* object built directly from the library's own (already exact, tested)
-* ATPOL.latlon_to_xy / ATPOL.xy_to_latlon, scaled from km to m.
+* reimplementing its maths a second time, proj4ProjDef is a converter object
+* built directly from the library's own (already exact, tested)
+* ATPOL.latlon_to_xy / ATPOL.xy_to_latlon.
 *
-* ATPOL's own XY has y growing SOUTH from a NW origin, but _draw()/_setClip()
-* (shared with the British/Irish/UTM grids above) hard-code the opposite
-* assumption - that projected y grows NORTH - to work out which edge of the
-* current viewport is "south" vs "north" (e.g. grdSy = min y among the south
-* corners, grdNy = max y among the north corners). Left alone, ATPOL's
-* southward y makes south corners come out with the *larger* y, so grdSy
-* ends up bigger than grdNy: the horizontal-line loop (`for y = grdSy to
-* grdNy`) never runs, and the bounds clamp can early-return for perfectly
-* valid views. So this converter flips y to the northward convention the
-* base class expects (y' = 700000 - y), and bounds/clip/hundredKmSquareFunc
-* are expressed in that same flipped, metres-based system.
+* Unlike the metric grids above, this class draws itself (_draw below) rather
+* than reusing L.MetricGrid's drawing, because ATPOL differs from them in
+* three ways that the base class has no room for:
 *
-* Poland only covers part of the 700x700 km ATPOL square, so bounds/clip
-* restrict drawing to the 100 km squares BA-GA, AB-GB, AC-GC, AD-GD, AE-GE,
-* BF-GF, DG-GG.
+*  - its y axis grows SOUTH from a NW origin, where the base class assumes
+*    projected y grows north when working out which viewport edge is "south";
+*  - its squares are named from their NW corner, not their SW one;
+*  - its code is not "letters + eastings + northings" but letters followed by
+*    digit *pairs* that interleave one northing and one easting digit each
+*    (Warsaw is ED 26 27 42, not ED + "22" + "67"), so the base class's
+*    separate easting/northing axis labels cannot spell an ATPOL code at all.
+*
+* The base class's axis labelling also placed each label at the first grid
+* crossing it found on screen, which for tilted ATPOL lines jumps a whole
+* square between neighbouring columns, and punched a destination-out "rub out"
+* rectangle at every such spot - tearing gaps into the lines. This class
+* labels whole squares with their real code instead, so neither applies.
 *
 * Only the grid's standard (non-subdivided) square sizes are drawn: 100 km,
-* 10 km, 1 km and 100 m - the same set the base class already limits itself
-* to via min/maxInterval. The D/C/P subdivisions (halves/quarters/fifths of
-* a square) aren't independent zoom levels of the grid, so they don't apply here.
+* 10 km, 1 km and 100 m. The D/C/P subdivisions (halves/quarters/fifths of a
+* square) aren't independent zoom levels of the grid, so they don't apply here.
 */
 L.AtpolGrid = L.MetricGrid.extend({
 
 	options: {
+		// Kept in ATPOL's own units - km, x eastward, y southward from a NW
+		// origin - since _draw below is ATPOL-specific and works in them
+		// directly. No flipping to a north-positive system, no metres.
 		proj4ProjDef: {
 			forward: function (lonlat) {
 				const xy = ATPOL.latlon_to_xy({ lon: lonlat[0], lat: lonlat[1] });
-				return [xy.x * 1000, 700000 - (xy.y * 1000)];
+				return [xy.x, xy.y];
 			},
 			inverse: function (xy) {
-				const ll = ATPOL.xy_to_latlon({ x: xy[0] / 1000, y: (700000 - xy[1]) / 1000 });
+				const ll = ATPOL.xy_to_latlon({ x: xy[0], y: xy[1] });
 				return [ll.lon, ll.lat];
 			},
 		},
-		bounds: [[0, 0], [700000, 700000]],
-		clip: [
-			[100000, 700000], [700000, 700000], [700000, 0], [300000, 0],
-			[300000, 100000], [100000, 100000], [100000, 200000], [0, 200000],
-			[0, 600000], [100000, 600000], [100000, 700000],
-		],
-		minInterval: 100, // 100 m - smallest standard ATPOL square
-		maxInterval: 100000, // 100 km - largest standard ATPOL square
-		showSquareLabels: [100000],
-		// (e, n) is the loop's bottom-left (south-west) corner of the current
-		// 100 km square, in the flipped north-positive system - but ATPOL's own
-		// letters are anchored to a square's NW corner. Since this is only ever
-		// invoked for the 100 km square (showSquareLabels above), the square's
-		// north edge is a flat +100000 away from its south edge.
-		hundredKmSquareFunc: function (e, n) {
-			const x = e / 1000;
-			const y = 600 - (n / 1000);
-			if (!(x >= 0 && x <= 700 && y >= 0 && y <= 700)) return "--";
-			return ATPOL.xy_to_grid({ x, y }, 2).grid;
-		},
+
+		bounds: [[0, 0], [700, 700]], // km
+		region: ATPOL_ROWS,
+
+		// Standard ATPOL square sizes in km, coarsest first. Each step of 10
+		// adds one digit pair to the code (100 km = "ED", 10 km = "ED26", ...).
+		levels: [100, 10, 1, 0.1],
+
+		minCellPx: 40, // switch to a finer level once its squares are this big
+		minLabelCellPx: 30, // don't label squares smaller than this
+		labelPadding: 3,
+
 		color: "#080",
-		weight: 2,
+		weight: 1, // squares of the current level
+		majorWeight: 2, // squares of the enclosing 10x coarser level
 		opacity: 0.7,
-		font: "600 11px ui-monospace, monospace",
+		fontSize: 12,
+		fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+		fontWeight: "bold",
+		labelHalo: "rgba(255, 255, 255, 0.85)",
+		showLabels: true,
+		minZoom: 5,
 	},
 
-	// northings is in the flipped north-positive system (see proj4ProjDef
-	// above); un-flip back to ATPOL's true southward y before formatting, so
-	// digits shown match the real ATPOL code's northing digits.
-	_format_northings: function (northings, spacing) {
-		return this._formatEastOrNorth(700000 - northings, spacing);
+	// Kills float noise from accumulating multiples of e.g. 0.1 km
+	_atpolRound: function (v) {
+		return Math.round(v * 1e6) / 1e6;
+	},
+
+	// Screen position of an ATPOL (x, y) in km
+	_atpolPoint: function (x, y) {
+		const ll = this._getConverter().inverse([x, y]);
+		return this._map.latLngToContainerPoint(L.latLng(ll[1], ll[0]));
+	},
+
+	// The ATPOL km bounding box of the current viewport.
+	// The grid's meridians converge, so the box is found by sampling right
+	// round the viewport border rather than from its corners alone.
+	// Returns null when nothing of the grid is in view.
+	_atpolViewBox: function () {
+		const conv = this._getConverter();
+		const b = this._map.getBounds();
+
+		// Keep the sampled window inside the latitudes/longitudes where the
+		// conic projection still means something - far outside Poland its
+		// formulas keep returning numbers, just not useful ones.
+		const south = Math.max(b.getSouth(), 30);
+		const north = Math.min(b.getNorth(), 70);
+		const west = Math.max(b.getWest(), -10);
+		const east = Math.min(b.getEast(), 50);
+		if (north <= south || east <= west) return null;
+
+		let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+		const add = function (lon, lat) {
+			const p = conv.forward([lon, lat]);
+			if (p[0] < minX) minX = p[0];
+			if (p[0] > maxX) maxX = p[0];
+			if (p[1] < minY) minY = p[1];
+			if (p[1] > maxY) maxY = p[1];
+		};
+
+		const steps = 16;
+		for (let i = 0; i <= steps; i += 1) {
+			const f = i / steps;
+			add(west + ((east - west) * f), south);
+			add(west + ((east - west) * f), north);
+			add(west, south + ((north - south) * f));
+			add(east, south + ((north - south) * f));
+		}
+
+		const bounds = this.options.bounds;
+		minX = Math.max(minX, bounds[0][0]);
+		minY = Math.max(minY, bounds[0][1]);
+		maxX = Math.min(maxX, bounds[1][0]);
+		maxY = Math.min(maxY, bounds[1][1]);
+		if (maxX <= minX || maxY <= minY) return null;
+
+		return { minX, minY, maxX, maxY };
+	},
+
+	// Finest standard square size (km) whose squares are still big enough
+	// on screen to be worth drawing
+	_atpolCellKm: function () {
+		const mPerPx = this._mPerPx();
+		const levels = this.options.levels;
+		let chosen = levels[0];
+		for (let i = 0; i < levels.length; i += 1) {
+			if ((levels[i] * 1000 / mPerPx) < this.options.minCellPx) break;
+			chosen = levels[i];
+		}
+		return chosen;
+	},
+
+	// The y ranges (km) over which the vertical line at x km borders a square
+	// that is inside the grid's region, as a list of [y0, y1] spans
+	_atpolVerticalSpans: function (x) {
+		const rows = this.options.region;
+		const spans = [];
+		let start = null;
+
+		for (let r = 0; r < rows.length; r += 1) {
+			const on = (x >= rows[r][0] * 100) && (x <= rows[r][1] * 100);
+			if (on && start === null) {
+				start = r;
+			} else if (!on && start !== null) {
+				spans.push([start * 100, r * 100]);
+				start = null;
+			}
+		}
+		if (start !== null) spans.push([start * 100, rows.length * 100]);
+
+		return spans;
+	},
+
+	// Same for the horizontal line at y km. A line sitting exactly on a 100 km
+	// row boundary borders the rows on both sides of it, so it runs as far as
+	// the wider of the two.
+	_atpolHorizontalSpans: function (y) {
+		const rows = this.options.region;
+		const r = Math.floor(y / 100);
+		const onBoundary = Math.abs(y - (r * 100)) < 1e-9;
+
+		let lo = Infinity;
+		let hi = -Infinity;
+		for (const i of onBoundary ? [r - 1, r] : [r]) {
+			if (i < 0 || i >= rows.length) continue;
+			lo = Math.min(lo, rows[i][0]);
+			hi = Math.max(hi, rows[i][1]);
+		}
+
+		return (lo > hi) ? [] : [[lo * 100, hi * 100]];
+	},
+
+	// Is the square whose NW corner is (x, y) km inside the grid's region?
+	_atpolCellInRegion: function (x, y) {
+		const rows = this.options.region;
+		const r = Math.floor(y / 100);
+		if (r < 0 || r >= rows.length) return false;
+		return (x >= rows[r][0] * 100) && (x < rows[r][1] * 100);
+	},
+
+	// The full ATPOL code of the square whose NW corner is (x, y) km.
+	// Sampled at the square's centre so corner rounding can't tip it into a
+	// neighbour, and asked for exactly the digit pairs this level implies.
+	_atpolCellCode: function (x, y, cellKm) {
+		const length = 2 + (2 * Math.round(Math.log10(100 / cellKm)));
+		try {
+			return ATPOL.xy_to_grid({ x: x + (cellKm / 2), y: y + (cellKm / 2) }, length).grid;
+		} catch {
+			return "";
+		}
+	},
+
+	// Draws one grid line as a polyline fitted to its projected curve
+	_atpolStroke: function (ctx, ax, ay, bx, by) {
+		const conv = this._getConverter();
+		const pts = this._getPoints(function (frac) {
+			return conv.inverse([ax + ((bx - ax) * frac), ay + ((by - ay) * frac)]);
+		}, 0.5, this._map);
+
+		if (pts.length < 2) return;
+
+		ctx.beginPath();
+		ctx.moveTo(pts[0].x, pts[0].y);
+		for (let i = 1; i < pts.length; i += 1) {
+			ctx.lineTo(pts[i].x, pts[i].y);
+		}
+		ctx.stroke();
+	},
+
+	// Draws every grid line at multiples of step km that is in view, skipping
+	// those that are also multiples of 10 * step when skipMajor is set (those
+	// belong to the enclosing level and get drawn separately, thicker).
+	// Lines are cut to the region here rather than with a canvas clip path:
+	// clipping to a path made of the grid's own outer lines shaves half the
+	// pen width off them, and does it unevenly along their length.
+	_atpolDrawLines: function (ctx, step, view, skipMajor) {
+		const bounds = this.options.bounds;
+		const eps = 1e-9;
+
+		const i0 = Math.max(Math.ceil((view.minX / step) - eps) - 1, Math.round(bounds[0][0] / step));
+		const i1 = Math.min(Math.floor((view.maxX / step) + eps) + 1, Math.round(bounds[1][0] / step));
+		for (let i = i0; i <= i1; i += 1) {
+			if (skipMajor && (i % 10 === 0)) continue;
+			const x = this._atpolRound(i * step);
+			for (const span of this._atpolVerticalSpans(x)) {
+				const y0 = Math.max(span[0], view.minY - step);
+				const y1 = Math.min(span[1], view.maxY + step);
+				if (y1 > y0) this._atpolStroke(ctx, x, y0, x, y1);
+			}
+		}
+
+		const j0 = Math.max(Math.ceil((view.minY / step) - eps) - 1, Math.round(bounds[0][1] / step));
+		const j1 = Math.min(Math.floor((view.maxY / step) + eps) + 1, Math.round(bounds[1][1] / step));
+		for (let j = j0; j <= j1; j += 1) {
+			if (skipMajor && (j % 10 === 0)) continue;
+			const y = this._atpolRound(j * step);
+			for (const span of this._atpolHorizontalSpans(y)) {
+				const x0 = Math.max(span[0], view.minX - step);
+				const x1 = Math.min(span[1], view.maxX + step);
+				if (x1 > x0) this._atpolStroke(ctx, x0, y, x1, y);
+			}
+		}
+	},
+
+	// Labels each visible square with its own ATPOL code, anchored to the
+	// square's NW corner - the corner ATPOL names its squares from - and
+	// nudged onto screen so a square running off the edge stays labelled.
+	_atpolDrawLabels: function (ctx, cellKm, view) {
+		const o = this.options;
+		const canvas = this._canvas;
+		const pad = o.labelPadding;
+
+		ctx.fillStyle = o.fontColor || o.color;
+		ctx.font = o.fontWeight + " " + o.fontSize + "px " + o.fontFamily;
+		ctx.textAlign = "left";
+		ctx.textBaseline = "top";
+
+		const textHeight = o.fontSize;
+
+		const i0 = Math.max(Math.floor(view.minX / cellKm), 0);
+		const i1 = Math.min(Math.floor(view.maxX / cellKm), Math.round(700 / cellKm) - 1);
+		const j0 = Math.max(Math.floor(view.minY / cellKm), 0);
+		const j1 = Math.min(Math.floor(view.maxY / cellKm), Math.round(700 / cellKm) - 1);
+
+		for (let j = j0; j <= j1; j += 1) {
+			for (let i = i0; i <= i1; i += 1) {
+				const x = this._atpolRound(i * cellKm);
+				const y = this._atpolRound(j * cellKm);
+				if (!this._atpolCellInRegion(x, y)) continue;
+
+				// axis-aligned screen box of the square (its edges are near
+				// enough straight at any zoom the label is drawn at)
+				const nw = this._atpolPoint(x, y);
+				const ne = this._atpolPoint(x + cellKm, y);
+				const sw = this._atpolPoint(x, y + cellKm);
+				const se = this._atpolPoint(x + cellKm, y + cellKm);
+				const left = Math.min(nw.x, sw.x);
+				const right = Math.max(ne.x, se.x);
+				const top = Math.min(nw.y, ne.y);
+				const bottom = Math.max(sw.y, se.y);
+
+				if ((right - left) < o.minLabelCellPx) continue;
+				if ((bottom - top) < o.minLabelCellPx) continue;
+				if (right < 0 || bottom < 0 || left > canvas.width || top > canvas.height) continue;
+
+				let text = this._atpolCellCode(x, y, cellKm);
+				if (!text) continue;
+
+				// fall back to just this level's own digit pair when the full
+				// code is wider than the square it has to sit in
+				if ((ctx.measureText(text).width + (2 * pad)) > (right - left) && text.length > 2) {
+					text = text.slice(-2);
+				}
+
+				const width = ctx.measureText(text).width;
+				const lx = Math.max(left, 0) + pad;
+				const ly = Math.max(top, 0) + pad;
+				if ((lx + width + pad) > right) continue;
+				if ((ly + textHeight + pad) > bottom) continue;
+				if (lx > canvas.width || ly > canvas.height) continue;
+
+				if (o.labelHalo) {
+					ctx.strokeStyle = o.labelHalo;
+					ctx.lineWidth = 3;
+					ctx.lineJoin = "round";
+					ctx.strokeText(text, lx, ly);
+				}
+				ctx.fillText(text, lx, ly);
+			}
+		}
+	},
+
+	// Base class override - see the class comment for why ATPOL draws itself
+	_draw: function () {
+		const canvas = this._canvas;
+		const map = this._map;
+		if (!L.Browser.canvas || !map) return;
+
+		const ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		const zoom = map.getZoom();
+		if (this.options.minZoom && zoom < this.options.minZoom) return;
+		if (this.options.maxZoom && zoom > this.options.maxZoom) return;
+		if (this.options.skipZoom && this.options.skipZoom.indexOf(zoom) > -1) return;
+
+		const view = this._atpolViewBox();
+		if (!view) return;
+
+		const cellKm = this._atpolCellKm();
+		const majorKm = (cellKm < this.options.levels[0]) ? cellKm * 10 : null;
+
+		ctx.strokeStyle = this.options.color;
+		ctx.lineCap = "butt";
+		ctx.lineJoin = "round";
+
+		// Finer lines first, then the enclosing coarser ones over the top, so
+		// a square's own boundary always reads as the strongest line near it.
+		if (majorKm !== null) {
+			ctx.lineWidth = this.options.weight;
+			this._atpolDrawLines(ctx, cellKm, view, true);
+		}
+		ctx.lineWidth = this.options.majorWeight;
+		this._atpolDrawLines(ctx, majorKm === null ? cellKm : majorKm, view, false);
+
+		if (this.options.showLabels) {
+			this._atpolDrawLabels(ctx, cellKm, view);
+		}
 	},
 });
 
