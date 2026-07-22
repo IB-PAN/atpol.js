@@ -1169,35 +1169,69 @@ L.AtpolGrid = L.MetricGrid.extend({
 				const y = this._atpolRound(j * cellKm);
 				if (!this._atpolCellInRegion(x, y)) continue;
 
-				// axis-aligned screen box of the square (its edges are near
-				// enough straight at any zoom the label is drawn at)
 				const nw = this._atpolPoint(x, y);
 				const ne = this._atpolPoint(x + cellKm, y);
 				const sw = this._atpolPoint(x, y + cellKm);
 				const se = this._atpolPoint(x + cellKm, y + cellKm);
-				const left = Math.min(nw.x, sw.x);
-				const right = Math.max(ne.x, se.x);
-				const top = Math.min(nw.y, ne.y);
-				const bottom = Math.max(sw.y, se.y);
 
-				if ((right - left) < o.minLabelCellPx) continue;
-				if ((bottom - top) < o.minLabelCellPx) continue;
-				if (right < 0 || bottom < 0 || left > canvas.width || top > canvas.height) continue;
+				// The grid is conic, so its meridians converge and a square
+				// lands on screen as a quadrilateral rotated by up to about
+				// four degrees (most in the west, furthest from the 19E central
+				// meridian), not as a screen-aligned box. The label is
+				// therefore placed along the square's *own* edges: measuring
+				// off a bounding box instead puts its top several pixels above
+				// the square's NW corner, which at 100 km is enough to leave
+				// the label sitting on, or clean above, the top grid line.
+				const ux = ne.x - nw.x; // along the top edge, eastward
+				const uy = ne.y - nw.y;
+				const vx = sw.x - nw.x; // along the left edge, southward
+				const vy = sw.y - nw.y;
+				const uLen = Math.hypot(ux, uy);
+				const vLen = Math.hypot(vx, vy);
+				if (uLen < o.minLabelCellPx || vLen < o.minLabelCellPx) continue;
+
+				// cheap reject of squares that are wholly off canvas
+				if (Math.max(ne.x, se.x) < 0 || Math.max(sw.y, se.y) < 0) continue;
+				if (Math.min(nw.x, sw.x) > canvas.width || Math.min(nw.y, ne.y) > canvas.height) continue;
 
 				let text = this._atpolCellCode(x, y, cellKm);
 				if (!text) continue;
 
 				// fall back to just this level's own digit pair when the full
 				// code is wider than the square it has to sit in
-				if ((ctx.measureText(text).width + (2 * pad)) > (right - left) && text.length > 2) {
+				if ((ctx.measureText(text).width + (2 * pad)) > uLen && text.length > 2) {
 					text = text.slice(-2);
 				}
-
 				const width = ctx.measureText(text).width;
-				const lx = Math.max(left, 0) + pad;
-				const ly = Math.max(top, 0) + pad;
-				if ((lx + width + pad) > right) continue;
-				if ((ly + textHeight + pad) > bottom) continue;
+
+				const unx = ux / uLen, uny = uy / uLen;
+				const vnx = vx / vLen, vny = vy / vLen;
+
+				// Position as distances from the NW corner along those two
+				// edges, starting at one padding in from each.
+				let alongU = pad;
+				let alongV = pad;
+
+				// The text is drawn horizontally while the edges are not, so
+				// also clear whatever each edge leans into across the text's
+				// own extent: the top edge where it rises to the right, and
+				// the left edge where it leans right on the way down.
+				if (uny < 0) alongV += -uny * width;
+				if (vnx > 0) alongU += vnx * textHeight;
+
+				// Slide the label further along the edges to bring it on
+				// canvas, so a square running off the edge still gets labelled.
+				const offX = nw.x + (unx * alongU) + (vnx * alongV);
+				const offY = nw.y + (uny * alongU) + (vny * alongV);
+				if (offX < 0 && unx > 0) alongU += -offX / unx;
+				if (offY < 0 && vny > 0) alongV += -offY / vny;
+
+				// ...but never past the far edge of the square itself
+				if ((alongU + width + pad) > uLen) continue;
+				if ((alongV + textHeight + pad) > vLen) continue;
+
+				const lx = nw.x + (unx * alongU) + (vnx * alongV);
+				const ly = nw.y + (uny * alongU) + (vny * alongV);
 				if (lx > canvas.width || ly > canvas.height) continue;
 
 				if (o.labelHalo) {
