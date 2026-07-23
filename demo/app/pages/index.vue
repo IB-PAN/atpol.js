@@ -73,6 +73,13 @@ const tools = [
 				umożliwiając programistyczną konwersję między współrzędnymi geograficznymi a kodami
 				kwadratów siatki ATPOL.
 			</p>
+			<p class="text-muted mb-3">
+				Szczegółowy opis działania biblioteki oraz formatu kodów ATPOL znajduje się na podstronie
+				<NuxtLink
+					to="/docs/"
+					class="px-0 font-semibold underline"
+				>Dokumentacja biblioteki</NuxtLink>.
+			</p>
 			<p class="text-muted">
 				Więcej informacji o siatce ATPOL znajduje się na stronach:
 			</p>

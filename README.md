@@ -1,6 +1,6 @@
 # atpol
 
-TypeScript library for working with the **ATPOL botanical grid system** — a coordinate grid used in Polish and Central European flora atlases to record plant occurrences. It covers the area roughly between 49–55°N and 14–25°E.
+TypeScript library for working with the **ATPOL botanical grid system** — a coordinate grid used in Polish flora atlases to record plant occurrences. It covers the area roughly between 49–55°N and 14–25°E.
 
 ## Installation
 
