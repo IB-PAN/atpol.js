@@ -15,6 +15,10 @@ jobs:
       - run: bun install
       - run: NUXT_APP_BASE_URL=/atpol.js/ bunx nuxt build --preset github_pages
         working-directory: ./demo
+      - name: Inject Google Site Verification Meta Tag
+        run: |
+          META_TAG='<meta name="google-site-verification" content="qw15kRZnHgyKmvNjL0rZsApXBnfPDFlUWqA3KQIm_u4" />'
+          find ./demo/.output/public -name '*.html' -exec sed -i "s|</head>|$META_TAG\n</head>|g" {} +
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

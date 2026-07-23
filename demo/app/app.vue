@@ -16,7 +16,6 @@ useHead({
 	htmlAttrs: { lang: "pl" },
 	meta: [
 		{ name: "viewport", content: "width=device-width, initial-scale=1" },
-		{ name: "google-site-verification", content: "qw15kRZnHgyKmvNjL0rZsApXBnfPDFlUWqA3KQIm_u4" },
 	],
 	link: [
 		{ rel: "icon", type: "image/svg+xml", href: `${baseURL}favicon.svg` },
