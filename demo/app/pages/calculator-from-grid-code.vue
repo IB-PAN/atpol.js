@@ -194,7 +194,7 @@ function downloadFromPreview() {
 							<UBadge
 								label="Standardowe"
 								size="xs"
-								color="neutral"
+								color="primary"
 								variant="subtle"
 							/>
 							<span>
@@ -205,15 +205,27 @@ function downloadFromPreview() {
 						</div>
 						<div class="flex items-center gap-2">
 							<UBadge
-								label="Niestandardowe"
+								label="Nietypowe"
 								size="xs"
-								color="primary"
+								color="neutral"
 								variant="subtle"
 							/>
 							<span>
 								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25d11'">EF25d11</code>,
 								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25c33'">EF25c33</code>,
 								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25p44'">EF25p44</code>, …
+							</span>
+						</div>
+						<div class="flex items-center gap-2">
+							<UBadge
+								label="Wariant podziału WP"
+								size="xs"
+								color="neutral"
+								variant="subtle"
+							/>
+							<span>
+								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25/333'">EF25/333</code>,
+								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25/0'">EF25/0</code>, …
 							</span>
 						</div>
 					</div>
