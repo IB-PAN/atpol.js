@@ -76,7 +76,7 @@ const tools = [
 			<p class="text-muted">
 				Więcej informacji o siatce ATPOL znajduje się na stronach:
 			</p>
-			<ul class="list-disc ps-6 my-5 marker:text-(--ui-border-accented)">
+			<ul class="list-disc ps-6 my-5 marker:text-(--ui-border-accented) space-y-3">
 				<li>
 					<a
 						href="https://worldbig.org/atpol/"
@@ -96,32 +96,46 @@ const tools = [
 						href="http://maxbot.botany.pl/cgi-bin/pubs/data/article_pdf?id=4279"
 						target="blank"
 						class="underline"
-					>Artykuł: Teoretyczna analiza i praktyczne konsekwencje przyjęcia modelowej
-						siatki ATPOL jako odwzorowania stożkowego definiującego
-						konwersję współrzędnych płaskich na elipsoidę WGS 84</a>
-				</li>
-				<li>
-					<a
-						href="https://worldbig.org/atpol/Podzialy_nietypowe.pdf"
-						target="blank"
-						class="underline"
-					>Przykładowe realizacje badań w oparciu o nietypowe podziały
-						siatek ATPOL w bazach i publikacjach</a>
+					>
+						<i>Marek VEREY:</i><br>
+						<b>Teoretyczna analiza i praktyczne konsekwencje przyjęcia modelowej siatki ATPOL jako odwzorowania stożkowego definiującego konwersję współrzędnych płaskich na elipsoidę WGS 84</b>
+						[Theoretical analysis and practical consequences of adopting a model ATPOL grid as a conical projection defining the conversion of plane coordinates to the WGS 84 ellipsoid].<br>
+						Fragmenta Floristica et Geobotanica Polonica 2017 <b>24</b>(2): 469-488.
+					</a>
 				</li>
 				<li>
 					<a
 						href="http://maxbot.botany.pl/cgi-bin/pubs/data/article_pdf?id=4302"
 						target="blank"
 						class="underline"
-					>Artykuł: Standaryzacja zapisu podziałów siatki ATPOL</a>
+					>
+						<i>Marek VEREY, Łukasz KOMSTA:</i><br>
+						<b>Standaryzacja zapisu podziałów siatki ATPOL</b>
+						[Standardization of the notation dividing the ATPOL grid].<br>
+						Fragmenta Floristica et Geobotanica Polonica 2018 <b>25</b>(1): 107–111.
+					</a>
 				</li>
 				<li>
 					<a
 						href="https://www.researchgate.net/profile/Lukasz-Komsta-2/publication/301765938_ATPOL_geobotanical_grid_revisited_-_a_proposal_of_coordinate_conversion_algorithms/links/5726630108aee491cb3f0cfd/ATPOL-geobotanical-grid-revisited-a-proposal-of-coordinate-conversion-algorithms.pdf"
 						target="blank"
 						class="underline"
-					>Artykuł: Rewizja matematyczna siatki geobotanicznej ATPOL
-						– propozycja algorytmów konwersji współrzędnych</a>
+					>
+						<i>Łukasz KOMSTA:</i><br>
+						<b>Rewizja matematyczna siatki geobotanicznej ATPOL – propozycja algorytmów konwersji współrzędnych</b>
+						[ATPOL geobotanical grid revisited – a proposal of coordinate conversion algorithms].<br>
+						Annales UMCS, Sectio E Agricultura 2016 <b>71</b>: 31-37.
+					</a>
+				</li>
+				<li>
+					<a
+						href="https://worldbig.org/atpol/Podzialy_nietypowe.pdf"
+						target="blank"
+						class="underline"
+					>
+						Przykładowe realizacje badań w oparciu o nietypowe podziały
+						siatek ATPOL w bazach i publikacjach
+					</a>
 				</li>
 			</ul>
 		</div>
