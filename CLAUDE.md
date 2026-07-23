@@ -14,7 +14,7 @@ TypeScript library implementing the **ATPOL botanical grid system** — a coordi
   bunup.config.ts   ← build config (bunup, outputs ESM + CJS + .d.ts to dist/)
 demo/               ← standalone Nuxt web app (separate npm workspace)
   app/
-    pages/          ← calculator-from-grid-code, calculator-to-grid-code, converter, docs
+    pages/          ← calculator-from-grid-code, calculator-to-grid-code, converter, docs, map
     components/     ← AtpolMap (Leaflet), AtpolBoundsTable, DarwinCoreFields, etc.
     utils/
       atpol-export.ts  ← KML / GeoJSON / Shapefile ZIP export (pure browser, no deps)

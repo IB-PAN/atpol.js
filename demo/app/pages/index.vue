@@ -86,10 +86,10 @@ const tools = [
 				</li>
 				<li>
 					<a
-						href="https://pl.wikipedia.org/wiki/AtPol"
+						href="https://pl.wikipedia.org/wiki/ATPOL"
 						target="blank"
 						class="underline"
-					>https://pl.wikipedia.org/wiki/AtPol</a>
+					>https://pl.wikipedia.org/wiki/ATPOL</a>
 				</li>
 				<li>
 					<a
