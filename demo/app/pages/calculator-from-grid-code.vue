@@ -187,7 +187,7 @@ function downloadFromPreview() {
 
 				<div class="p-3 bg-elevated rounded-lg text-sm">
 					<p class="font-medium mb-2">
-						Obsługiwane formaty:
+						Przykłady obsługiwanych formatów:
 					</p>
 					<div class="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-muted">
 						<div class="flex items-center gap-2">
@@ -225,7 +225,7 @@ function downloadFromPreview() {
 							/>
 							<span>
 								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25/333'">EF25/333</code>,
-								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25/0'">EF25/0</code>, …
+								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25/00'">EF25/00</code>, …
 							</span>
 						</div>
 					</div>
