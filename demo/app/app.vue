@@ -15,8 +15,26 @@ useHead({
 	titleTemplate: t => t ? `${t} — atpol.js` : "atpol.js",
 	htmlAttrs: { lang: "pl" },
 	meta: [{ name: "viewport", content: "width=device-width, initial-scale=1" }],
-	link: [{ rel: "icon", href: `${baseURL}favicon.ico` }],
+	link: [
+		{ rel: "icon", type: "image/svg+xml", href: `${baseURL}favicon.svg` },
+		{ rel: "icon", type: "image/png", sizes: "32x32", href: `${baseURL}favicon-32x32.png` },
+		{ rel: "icon", href: `${baseURL}favicon.ico` },
+		{ rel: "apple-touch-icon", sizes: "180x180", href: `${baseURL}apple-touch-icon.png` },
+	],
 });
+
+/* Favicon:
+curl "https://api.iconify.design/lucide/grid-2x2.svg?color=%2300C16A" -o public/favicon.svg
+sed -i 's/width="1em" height="1em"/width="24" height="24"/' public/favicon.svg
+
+rsvg-convert -w 32 -h 32 public/favicon.svg -o public/favicon-32x32.png
+rsvg-convert -w 180 -h 180 public/favicon.svg -o public/apple-touch-icon.png
+
+rsvg-convert -w 16 -h 16 public/favicon.svg -o /tmp/icon-16.png
+rsvg-convert -w 32 -h 32 public/favicon.svg -o /tmp/icon-32.png
+rsvg-convert -w 48 -h 48 public/favicon.svg -o /tmp/icon-48.png
+magick /tmp/icon-16.png /tmp/icon-32.png /tmp/icon-48.png public/favicon.ico
+*/
 </script>
 
 <template>

@@ -58,6 +58,7 @@ export default defineNuxtConfig({
 			},
 			// Keep explicit entries for dynamic icon names
 			icons: [
+				"lucide:grid-2x2",
 				"lucide:loader-circle",
 				"lucide:chevron-down",
 				"lucide:chevron-right",
