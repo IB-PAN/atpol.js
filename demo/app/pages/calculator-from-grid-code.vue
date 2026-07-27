@@ -200,7 +200,7 @@ function downloadFromPreview() {
 							<span>
 								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF'">EF</code>,
 								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25'">EF25</code>,
-								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF2533'">EF2533</code>, …
+								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF2533'">EF2533</code>
 							</span>
 						</div>
 						<div class="flex items-center gap-2">
@@ -213,7 +213,7 @@ function downloadFromPreview() {
 							<span>
 								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25d11'">EF25d11</code>,
 								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25c33'">EF25c33</code>,
-								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25p44'">EF25p44</code>, …
+								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25p44'">EF25p44</code>
 							</span>
 						</div>
 						<div class="flex items-center gap-2">
@@ -224,8 +224,8 @@ function downloadFromPreview() {
 								variant="subtle"
 							/>
 							<span>
-								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25/333'">EF25/333</code>,
-								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25/00'">EF25/00</code>, …
+								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25/00'">EF25/00</code>,
+								<code class="font-mono cursor-pointer hover:underline" @click="code = 'EF25/333'">EF25/333</code>
 							</span>
 						</div>
 					</div>
