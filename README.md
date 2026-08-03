@@ -521,6 +521,95 @@ The compiled `RegExp` used internally to parse and validate WP grid codes. Named
 
 ---
 
+## ATMOS grid variant
+
+`ATMOS` is a grid used especially by bryologists, mycologists and lichenologists. It's identical to ATPOL in every respect except the order and case of the letter pair: the first (capital) letter denotes the **row**, and the second (lowercase) letter denotes the **column** — the reverse of ATPOL's easting-then-northing order. Digit pairs keep the same meaning as in ATPOL. There are no division suffixes (`d`/`c`/`p`) in ATMOS.
+
+A divider character (`-` by default) is allowed, and often used, between the letter pair and the digits — e.g. `Gd-59`. The most commonly used square size in the literature is 10 km (one digit pair); finer resolutions are supported mostly "just in case", as they are rarely, if ever, used in practice.
+
+```
+Gd-59
+^^ ^^
+│  └── digit pairs, identical in meaning to ATPOL
+└───── letter pair: G (row, capital) + d (column, lowercase) → ATPOL "DG"
+```
+
+### `ATMOS.grid_is_valid(grid)` / `ATMOS.grid_normalize(grid, sep?)`
+
+Validate and normalize an ATMOS grid code. `grid_normalize` uppercases the first letter, lowercases the second, and inserts `sep` (default `"-"`) between the letters and the digits, if any.
+
+```ts
+ATMOS.grid_is_valid("Gd-59")   // true
+ATMOS.grid_normalize("gd59")   // "Gd-59"
+ATMOS.grid_normalize("gd59", " ")  // "Gd 59"
+```
+
+### `ATMOS._atmos_to_atpol(grid)` / `ATMOS._atpol_to_atmos(grid)`
+
+Convert between an ATMOS grid code and the equivalent ATPOL grid code by swapping the letter pair (digits pass through unchanged). Most other `ATMOS.*` functions are thin wrappers built on top of these two. `_atpol_to_atmos` only accepts ATPOL codes of 10 km resolution or coarser (letters only, or letters + one digit pair), matching ATMOS's real-world usage.
+
+```ts
+ATMOS._atmos_to_atpol("Gd-59")  // "DG59"
+ATMOS._atpol_to_atmos("DG59")   // "Gd-59"
+```
+
+### `ATMOS.grid_to_xy(grid, xoffset?, yoffset?)` / `ATMOS.grid_to_latlon(grid, xoffset?, yoffset?)`
+
+Convert an ATMOS grid code to ATPOL XY or WGS84 coordinates — mirrors `ATPOL.grid_to_xy` / `ATPOL.grid_to_latlon`.
+
+### `ATMOS.xy_to_grid(coords, length?)` / `ATMOS.latlon_to_grid(coords, length?)`
+
+Convert ATPOL XY or WGS84 coordinates to an ATMOS grid code — mirrors `ATPOL.xy_to_grid` / `ATPOL.latlon_to_grid`, without the `div` parameter (ATMOS has no divisions). `length` (default `4`) is the character length of the underlying ATPOL letter+digit part; only `2` (100 km) and `4` (10 km) are supported.
+
+```ts
+ATMOS.xy_to_grid({ x: 395, y: 565 })
+// { grid: "Fd-69", xoffset: ..., yoffset: ... }
+```
+
+### `ATMOS.grid_to_xy_bounds(grid)` / `ATMOS.grid_to_latlon_bounds(grid)`
+
+Return the bounding box (all four corners plus center) of an ATMOS grid square, as ATPOL XY or WGS84 coordinates respectively.
+
+```ts
+ATMOS.grid_to_xy_bounds("Gd-59")  // matches ATPOL.grid_to_xy_bounds("DG59")
+```
+
+### `ATMOS.grid_to_square_side_in_meters(grid)` / `ATMOS.grid_to_square_side_in_km(grid)` / `ATMOS.grid_to_coordinate_uncertainty_in_meters(grid)`
+
+Mirror the equivalent `ATPOL.*` functions.
+
+### `ATMOS.grid_to_polygonWKT(grid)` / `ATMOS.grid_to_centroidWKT(grid)`
+
+Mirror `ATPOL.grid_to_polygonWKT` / `ATPOL.grid_to_centroidWKT`.
+
+### `ATMOS.grid_to_darwincore_fields(grid)`
+
+Returns a `DarwinCoreFields` object for the given ATMOS grid square — mirrors `ATPOL.grid_to_darwincore_fields`, with `verbatimCoordinateSystem` set to `"ATMOS"`.
+
+```ts
+ATMOS.grid_to_darwincore_fields("Gd-59")
+// {
+//   footprintWKT: "POLYGON ((19.824269498214314 49.30898826428281, 19.82271511392987 49.21953352942734, 19.95981950813758 49.21843703857131, 19.96163287247595 49.307889537967384, 19.824269498214314 49.30898826428281))",
+//   footprintSRS: "EPSG:4326",
+//   decimalLatitude: "49.263731531467045",
+//   decimalLongitude: "19.89210924819226",
+//   geodeticDatum: "EPSG:4326",
+//   coordinateUncertaintyInMeters: "7072",
+//   verbatimCoordinates: "Gd-59",
+//   verbatimCoordinateSystem: "ATMOS",
+//   georeferenceProtocol: "Coordinates represent the centroid of an ATMOS 10×10 km grid",
+//   georeferenceSources: "ATMOS (Polish geobotanical grid), reference: https://botany.edu.pl/atmos-grid-code/Gd-59",
+//   sampleSizeValue: "10",
+//   sampleSizeUnit: "km²",
+// }
+```
+
+### `ATMOS.GRID_REGEX`
+
+The compiled `RegExp` used internally to parse and validate ATMOS grid codes. Named capture groups: `letters`, `digits`.
+
+---
+
 ## Types
 
 ```ts
