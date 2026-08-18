@@ -77,7 +77,7 @@ test("Darwin Core fields", () => {
 	expect(fields.coordinateUncertaintyInMeters).toBe(atpolFields.coordinateUncertaintyInMeters);
 	expect(fields.verbatimCoordinates).toBe("Gd-59");
 	expect(fields.verbatimCoordinateSystem).toBe("ATMOS");
-	expect(fields.georeferenceProtocol).toBe("Coordinates represent the centroid of an ATMOS 10×10 km grid");
+	expect(fields.georeferenceProtocol).toBe("Coordinates represent the centroid of an ATMOS 10×10 km grid cell");
 	expect(fields.georeferenceSources).toBe("ATMOS (Polish geobotanical grid), reference: https://botany.edu.pl/atmos-grid-code/Gd-59");
 	expect(fields.sampleSizeValue).toBe("10");
 	expect(fields.sampleSizeUnit).toBe("km²");
