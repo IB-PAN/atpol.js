@@ -246,16 +246,41 @@ describe("Coords to grid", () => {
 		expect(ATPOL.xy_to_grid(xy_out, 4).yoffset).toBeCloseTo(yoffset_expected, 6);
 	}
 
-	{
-		const coords: ATPOL.LatLon = { lat: 50.069000, lon: 19.909200 };
-		const xy_out = ATPOL.latlon_to_xy(coords);
-		const bounds_DF695501 = ATPOL.grid_to_xy_bounds("DF695501");
-		const xoffset_expected = (xy_out.x - bounds_DF695501.nw.x) / ATPOL.grid_to_square_side_in_km("DF695501");
-		const yoffset_expected = (xy_out.y - bounds_DF695501.nw.y) / ATPOL.grid_to_square_side_in_km("DF695501");
-		expect(ATPOL.xy_to_grid(xy_out, 8).grid).toBe("DF695501");
-		expect(ATPOL.xy_to_grid(xy_out, 8).xoffset).toBeCloseTo(xoffset_expected, 4);
-		expect(ATPOL.xy_to_grid(xy_out, 8).yoffset).toBeCloseTo(yoffset_expected, 4);
-	}
+	const expectCoordsInSquare = (coords: ATPOL.LatLon, grid: string) => {
+		test(`Expect coords ${JSON.stringify(coords)} in grid square ${grid}`, () => {
+			const xy_out = ATPOL.latlon_to_xy(coords);
+			const bounds = ATPOL.grid_to_xy_bounds(grid);
+			const xoffset_expected = (xy_out.x - bounds.nw.x) / ATPOL.grid_to_square_side_in_km(grid);
+			const yoffset_expected = (xy_out.y - bounds.nw.y) / ATPOL.grid_to_square_side_in_km(grid);
+
+			console.log({ xy_out, bounds });
+			expect(xy_out.x).toBeGreaterThanOrEqual(bounds.nw.x);
+			expect(xy_out.y).toBeGreaterThanOrEqual(bounds.nw.y);
+			expect(xy_out.x).toBeLessThanOrEqual(bounds.se.x);
+			expect(xy_out.y).toBeLessThanOrEqual(bounds.se.y);
+
+			const div = ATPOL.grid_get_division_type(grid);
+			let length = grid.length;
+			if (div !== null) length -= 3;
+
+			expect(ATPOL.xy_to_grid(xy_out, length, div).grid).toBe(grid);
+			expect(ATPOL.xy_to_grid(xy_out, length, div).xoffset).toBeCloseTo(xoffset_expected, 5);
+			expect(ATPOL.xy_to_grid(xy_out, length, div).yoffset).toBeCloseTo(yoffset_expected, 5);
+		});
+	};
+
+	expectCoordsInSquare({ lat: 50.069000, lon: 19.909200 }, "DF695501");
+
+	/*expectCoordsInSquare({ lat: 50.889646, lon: 20.669989 }, "EE74d01"); // 5 km, centroid
+	expectCoordsInSquare({ lat: 50.912558, lon: 20.635268 }, "EE74d01"); // 5 km, NW edge
+	expectCoordsInSquare({ lat: 50.911528, lon: 20.706341 }, "EE74d01"); // 5 km, NE edge
+	expectCoordsInSquare({ lat: 50.866725, lon: 20.704675 }, "EE74d01"); // 5 km, SE edge
+	expectCoordsInSquare({ lat: 50.867753, lon: 20.633671 }, "EE74d01"); // 5 km, SW edge*/
+
+	expectCoordsInSquare({ lat: 50.8803, lon: 20.6573 }, "EE7436"); // 1 km
+	expectCoordsInSquare({ lat: 50.8803, lon: 20.6573 }, "EE74d01"); // 5 km
+	expectCoordsInSquare({ lat: 50.8803, lon: 20.6573 }, "EE74p13"); // 2 km
+	expectCoordsInSquare({ lat: 50.8803, lon: 20.6573 }, "EE74c12"); // 2.5 km
 });
 
 test("Parse and re-stringify grid", () => {
