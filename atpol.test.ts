@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { ATPOL } from "./main";
 
 test("Grid validity", () => {
@@ -152,7 +152,70 @@ test("WKT", () => {
 	expect(ATPOL.grid_to_centroidWKT("DF97p21")).toBe("POINT (19.596942067739906 49.80270857490112)");
 });
 
-test("Coords to grid", () => {
+describe("XY offsets", () => {
+	expect(ATPOL.xy_to_grid({ x: 400, y: 600 })).toMatchObject({ grid: "EG000000", xoffset: 0, yoffset: 0 });
+	expect(ATPOL.xy_to_grid({ x: 400, y: 600 }, 4)).toMatchObject({ grid: "EG00", xoffset: 0, yoffset: 0 });
+
+	test("Invalid division requested", () => {
+		expect(() => ATPOL.xy_to_grid({ x: 400, y: 600 }, 4, "INVALID" as "D")).toThrowError("[ATPOL.xy_to_grid] Invalid division requested: INVALID");
+	});
+
+	const testXYOffsetsInGridCode = (grid: string) => {
+		const div = ATPOL.grid_get_division_type(grid);
+		let length = grid.length;
+		if (div !== null) length -= 3;
+
+		const bounds = ATPOL.grid_to_xy_bounds(grid);
+
+		const diff = Math.min(
+			bounds.ne.x - bounds.nw.x,
+			bounds.se.x - bounds.sw.x,
+			bounds.sw.y - bounds.nw.y,
+			bounds.se.y - bounds.ne.y,
+
+			bounds.se.x - bounds.nw.x,
+			bounds.se.y - bounds.nw.y,
+			bounds.ne.x - bounds.sw.x,
+			bounds.se.y - bounds.ne.y,
+		);
+		// console.log({ grid, diff });
+		if (diff > 0.001) { // 1 m square is too small to test due to rounding errors
+			test(`xy_to_grid with grid square ${grid}`, () => {
+				expect(ATPOL.xy_to_grid({ x: bounds.nw.x, y: bounds.nw.y }, length, div))
+					.toMatchObject({ grid: grid, xoffset: 0, yoffset: 0 });
+				expect(ATPOL.xy_to_grid({ x: bounds.center.x, y: bounds.center.y }, length, div))
+					.toMatchObject({ grid: grid, xoffset: 0.5, yoffset: 0.5 });
+			});
+		}
+
+		test(`grid_to_xy with grid square ${grid}`, () => {
+			expect(ATPOL.grid_to_xy(grid, 0, 0)).toMatchObject(bounds.nw);
+			expect(ATPOL.grid_to_xy(grid, 1, 0)).toMatchObject(bounds.ne);
+			expect(ATPOL.grid_to_xy(grid, 0, 1)).toMatchObject(bounds.sw);
+			expect(ATPOL.grid_to_xy(grid, 1, 1)).toMatchObject(bounds.se);
+			expect(ATPOL.grid_to_xy(grid, 0.5, 0.5)).toMatchObject(bounds.center);
+		});
+	};
+
+	testXYOffsetsInGridCode("EG00");
+	testXYOffsetsInGridCode("EG000000");
+
+	testXYOffsetsInGridCode("DF6955013220");
+	testXYOffsetsInGridCode("DF69550132");
+	testXYOffsetsInGridCode("DF695501");
+	testXYOffsetsInGridCode("DF695501");
+	testXYOffsetsInGridCode("DF6955");
+	testXYOffsetsInGridCode("DF69");
+	testXYOffsetsInGridCode("DF");
+
+	testXYOffsetsInGridCode("EE74"); // 10 km
+	testXYOffsetsInGridCode("EE7436"); // 1 km
+	testXYOffsetsInGridCode("EE74d01"); // 5 km
+	testXYOffsetsInGridCode("EE74p13"); // 2 km
+	testXYOffsetsInGridCode("EE74c12"); // 2.5 km
+});
+
+describe("Coords to grid", () => {
 	expect(ATPOL.grid_to_xy("EG00", 0, 0)).toMatchObject({ x: 400, y: 600 });
 
 	{

@@ -101,7 +101,7 @@ export function xy_to_grid(coords: XY, length: number = 8, div: null | "D" | "C"
 		throw new Error(`[ATPOL.xy_to_grid] Invalid grid code length requested: ${length}`);
 	if (!(x >= 0 && x <= 700 && y >= 0 && y <= 700))
 		throw new Error(`[ATPOL.xy_to_grid] Invalid parameters: ${JSON.stringify({ x, y })}`);
-	if (!(div === null || ["D", "C", "P".includes(div)]))
+	if (!(div === null || ["D", "C", "P"].includes(div)))
 		throw new Error(`[ATPOL.xy_to_grid] Invalid division requested: ${div}`);
 
 	const xs = (1e15 + Math.round(x * 1000) + "").slice(-6);
@@ -113,24 +113,33 @@ export function xy_to_grid(coords: XY, length: number = 8, div: null | "D" | "C"
 	}
 	let grid = grid_full.substring(0, length);
 
-	let xoffset_str = (1e15 + Math.round(x * 1000000) + "").slice(-9);
-	let yoffset_str = (1e15 + Math.round(y * 1000000) + "").slice(-9);
-	xoffset_str = "0." + xoffset_str.slice(-9 + length / 2);
-	yoffset_str = "0." + yoffset_str.slice(-9 + length / 2);
+	// fractional part of the position inside the grid square, as integer digits
+	// (kept as integers so that the division arithmetic below stays exact)
+	const xoffset_digits = (1e15 + Math.round(x * 1000000) + "").slice(-9 + length / 2);
+	const yoffset_digits = (1e15 + Math.round(y * 1000000) + "").slice(-9 + length / 2);
+	const offset_scale = 10 ** xoffset_digits.length;
 
-	const xoffset = parseFloat(xoffset_str);
-	const yoffset = parseFloat(yoffset_str);
+	let xoffset_num = parseInt(xoffset_digits);
+	let yoffset_num = parseInt(yoffset_digits);
 
 	if (typeof div === "string") {
 		const div_count = {
-			D: 2,
-			C: 5,
-			P: 5,
+			D: 2, // halved
+			C: 4, // quartered
+			P: 5, // quintupled
 		}[div];
-		const div_y = Math.min(div_count - 1, Math.floor(yoffset * div_count));
-		const div_x = Math.min(div_count - 1, Math.floor(xoffset * div_count));
+		xoffset_num *= div_count;
+		yoffset_num *= div_count;
+		const div_y = Math.min(div_count - 1, Math.floor(yoffset_num / offset_scale));
+		const div_x = Math.min(div_count - 1, Math.floor(xoffset_num / offset_scale));
 		grid += `${div.toLowerCase()}${div_y}${div_x}`;
+		// re-base the offsets on the division square instead of the parent square
+		xoffset_num -= div_x * offset_scale;
+		yoffset_num -= div_y * offset_scale;
 	}
+
+	const xoffset = xoffset_num / offset_scale;
+	const yoffset = yoffset_num / offset_scale;
 
 	return { grid, xoffset, yoffset };
 }
