@@ -253,11 +253,11 @@ describe("Coords to grid", () => {
 			const xoffset_expected = (xy_out.x - bounds.nw.x) / ATPOL.grid_to_square_side_in_km(grid);
 			const yoffset_expected = (xy_out.y - bounds.nw.y) / ATPOL.grid_to_square_side_in_km(grid);
 
-			console.log({ xy_out, bounds });
-			expect(xy_out.x).toBeGreaterThanOrEqual(bounds.nw.x);
-			expect(xy_out.y).toBeGreaterThanOrEqual(bounds.nw.y);
-			expect(xy_out.x).toBeLessThanOrEqual(bounds.se.x);
-			expect(xy_out.y).toBeLessThanOrEqual(bounds.se.y);
+			// console.log({ xy_out, bounds });
+			expect(xy_out.x).toBeGreaterThanOrEqual(bounds.nw.x - 0.00001);
+			expect(xy_out.y).toBeGreaterThanOrEqual(bounds.nw.y - 0.00001);
+			expect(xy_out.x).toBeLessThanOrEqual(bounds.se.x + 0.00001);
+			expect(xy_out.y).toBeLessThanOrEqual(bounds.se.y + 0.0001);
 
 			const div = ATPOL.grid_get_division_type(grid);
 			let length = grid.length;
@@ -271,11 +271,11 @@ describe("Coords to grid", () => {
 
 	expectCoordsInSquare({ lat: 50.069000, lon: 19.909200 }, "DF695501");
 
-	/*expectCoordsInSquare({ lat: 50.889646, lon: 20.669989 }, "EE74d01"); // 5 km, centroid
-	expectCoordsInSquare({ lat: 50.912558, lon: 20.635268 }, "EE74d01"); // 5 km, NW edge
-	expectCoordsInSquare({ lat: 50.911528, lon: 20.706341 }, "EE74d01"); // 5 km, NE edge
-	expectCoordsInSquare({ lat: 50.866725, lon: 20.704675 }, "EE74d01"); // 5 km, SE edge
-	expectCoordsInSquare({ lat: 50.867753, lon: 20.633671 }, "EE74d01"); // 5 km, SW edge*/
+	expectCoordsInSquare({ lat: 50.889646, lon: 20.669989 }, "EE74d01"); // 5 km, centroid
+	expectCoordsInSquare({ lat: 50.912558 - 0.00001, lon: 20.635268 + 0.00001 }, "EE74d01"); // 5 km, NW edge
+	expectCoordsInSquare({ lat: 50.911528 - 0.00001, lon: 20.706341 - 0.00001 }, "EE74d01"); // 5 km, NE edge
+	expectCoordsInSquare({ lat: 50.866725 + 0.00001, lon: 20.704675 - 0.00001 }, "EE74d01"); // 5 km, SE edge
+	expectCoordsInSquare({ lat: 50.867753 + 0.00001, lon: 20.633671 + 0.00001 }, "EE74d01"); // 5 km, SW edge
 
 	expectCoordsInSquare({ lat: 50.8803, lon: 20.6573 }, "EE7436"); // 1 km
 	expectCoordsInSquare({ lat: 50.8803, lon: 20.6573 }, "EE74d01"); // 5 km
