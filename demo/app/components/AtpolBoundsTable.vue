@@ -18,11 +18,11 @@ function toDMS(decimal: number, isLat: boolean): string {
 const rows = computed(() => {
 	if (!props.bounds) return [];
 	return [
-		{ label: "ŚRODEK (Centrum)", point: props.bounds.center, isCenter: true },
-		{ label: "NW (Górny Lewy)", point: props.bounds.nw },
-		{ label: "NE (Górny Prawy)", point: props.bounds.ne },
-		{ label: "SE (Dolny Prawy)", point: props.bounds.se },
-		{ label: "SW (Dolny Lewy)", point: props.bounds.sw },
+		{ icon: "i-lucide-square-dot", label: "ŚRODEK (Centrum)", point: props.bounds.center, isCenter: true }, // ⊡
+		{ icon: "i-lucide-move-up-left", label: "NW (Górny Lewy)", point: props.bounds.nw }, // ↖
+		{ icon: "i-lucide-move-up-right", label: "NE (Górny Prawy)", point: props.bounds.ne }, // ↗
+		{ icon: "i-lucide-move-down-left", label: "SE (Dolny Prawy)", point: props.bounds.se }, // ↘
+		{ icon: "i-lucide-move-down-right", label: "SW (Dolny Lewy)", point: props.bounds.sw }, // ↙
 	];
 });
 
@@ -58,7 +58,13 @@ async function copyText(key: string, text: string) {
 						:class="['border-b border-default last:border-0', row.isCenter && 'bg-success/10']"
 					>
 						<td class="py-2 px-3 font-medium whitespace-nowrap">
-							{{ row.label }}
+							<div class="flex items-center gap-1.5">
+								<UIcon
+									:name="row.icon"
+									class="size-4"
+								/>
+								{{ row.label }}
+							</div>
 						</td>
 						<td class="py-2 px-3 text-center">
 							<div class="group/dec flex items-center justify-center gap-1">
