@@ -73,10 +73,8 @@ watch(activeTab, () => setHovered(null));
 
 const geoCoverageDecimals = ref(3);
 
-/**
- * Rounds away from the square (down for S/W, up for N/E) so that the rounded
- * range always still contains the whole square, whatever the precision.
- */
+// Rounds away from the square (down for S/W, up for N/E) so that the rounded
+// range always still contains the whole square, whatever the precision.
 function roundOutward(value: number, up: boolean, digits: number): number {
 	const factor = 10 ** digits;
 	return (up ? Math.ceil(value * factor) : Math.floor(value * factor)) / factor;
@@ -88,9 +86,9 @@ const geoCoverageTables = computed(() => {
 	const lats = [b.nw.lat, b.ne.lat, b.se.lat, b.sw.lat];
 	const lons = [b.nw.lon, b.ne.lon, b.se.lon, b.sw.lon];
 
-	function cell(key: string, value: number, up: boolean, isLat: boolean) {
+	function cell(key: string, value: number, up: Boolean) {
 		const rounded = roundOutward(value, up, geoCoverageDecimals.value);
-		return { key, dec: rounded.toFixed(geoCoverageDecimals.value), dms: toDMS(rounded, isLat) };
+		return { key, dec: rounded.toFixed(geoCoverageDecimals.value) };
 	}
 
 	return [
@@ -99,8 +97,8 @@ const geoCoverageTables = computed(() => {
 			label: "↕ Szerokość geograficzna",
 			hint: "(od dołu do góry)",
 			cols: [
-				{ head: "↓ South", headHint: "(południe)", ...cell("south", Math.min(...lats), false, true) },
-				{ head: "North", headHint: "(północ) ↑", ...cell("north", Math.max(...lats), true, true) },
+				{ head: "↓ South", headHint: "(południe)", ...cell("south", Math.min(...lats), false) },
+				{ head: "North", headHint: "(północ) ↑", ...cell("north", Math.max(...lats), true) },
 			],
 		},
 		{
@@ -108,8 +106,8 @@ const geoCoverageTables = computed(() => {
 			label: "↔ Długość geograficzna",
 			hint: "(od lewej do prawej)",
 			cols: [
-				{ head: "← West", headHint: "(zachód)", ...cell("west", Math.min(...lons), false, false) },
-				{ head: "East", headHint: "(wschód) →", ...cell("east", Math.max(...lons), true, false) },
+				{ head: "← West", headHint: "(zachód)", ...cell("west", Math.min(...lons), false) },
+				{ head: "East", headHint: "(wschód) →", ...cell("east", Math.max(...lons), true) },
 			],
 		},
 	];
@@ -253,26 +251,6 @@ async function copyText(key: string, text: string) {
 
 			<!-- Tab 2: geographic coverage (bounding box) -->
 			<template #coverage>
-				<UAlert
-					icon="i-lucide-triangle-alert"
-					color="warning"
-					variant="soft"
-					class="mb-4"
-				>
-					<template #description>
-						<p>
-							Uwaga! Wartości te określają rozpiętość geograficzną skrajnych współrzędnych kwadratu,
-							jednak w przeciwieństwie do tabeli punktów brzegowych, nie określają one poprawnie
-							kształtu kwadratu na mapie. Właściwy kwadrat jedynie zawiera się w podanym zakresie
-							współrzędnych.
-						</p>
-						<p class="mt-2">
-							Podane wartości mogą być użyteczne np. do wypełnienia strony „Geographic Coverage”
-							w metadanych zbioru danych w systemie GBIF IPT.
-						</p>
-					</template>
-				</UAlert>
-
 				<div
 					v-for="table in geoCoverageTables"
 					:key="table.key"
@@ -316,18 +294,6 @@ async function copyText(key: string, text: string) {
 											class="opacity-0 group-hover/dec:opacity-100 transition-opacity"
 											:aria-label="`Kopiuj ${col.dec}`"
 											@click="copyText(`geoCoverage-${col.key}-dec`, col.dec)"
-										/>
-									</div>
-									<div class="group/dms flex items-center justify-center gap-1 mt-0.5">
-										<span class="text-xs text-muted">{{ col.dms }}</span>
-										<UButton
-											:icon="copiedFields.has(`geoCoverage-${col.key}-dms`) ? 'i-lucide-check' : 'i-lucide-copy'"
-											:color="copiedFields.has(`geoCoverage-${col.key}-dms`) ? 'primary' : 'neutral'"
-											size="xs"
-											variant="ghost"
-											class="opacity-0 group-hover/dms:opacity-100 transition-opacity"
-											:aria-label="`Kopiuj ${col.dms}`"
-											@click="copyText(`geoCoverage-${col.key}-dms`, col.dms)"
 										/>
 									</div>
 								</td>
@@ -397,6 +363,26 @@ async function copyText(key: string, text: string) {
 						</div>
 					</div>
 				</div>
+
+				<UAlert
+					icon="i-lucide-triangle-alert"
+					color="warning"
+					variant="outline"
+					class="mt-4"
+				>
+					<template #description>
+						<p>
+							Uwaga! Wartości te określają rozpiętość geograficzną skrajnych współrzędnych kwadratu,
+							jednak w przeciwieństwie do tabeli punktów brzegowych, nie określają one poprawnie
+							kształtu kwadratu na mapie. Właściwy kwadrat jedynie zawiera się w podanym zakresie
+							współrzędnych.
+						</p>
+						<p class="mt-2">
+							Podane wartości mogą być użyteczne np. do wypełnienia strony „Geographic Coverage”
+							w metadanych zbioru danych w systemie GBIF IPT.
+						</p>
+					</template>
+				</UAlert>
 			</template>
 		</UTabs>
 	</UCard>
