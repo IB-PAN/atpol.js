@@ -56,6 +56,13 @@ const fields = computed<Item[]>(() => {
 		},
 		{
 			type: "field",
+			key: "coordinatePrecision",
+			caption: "Precyzja współrzędnych środka",
+			tooltip: "Określa liczbę miejsc po przecinku, z jaką podano współrzędne środka (pola decimalLatitude i decimalLongitude).",
+			value: dc.coordinatePrecision,
+		},
+		{
+			type: "field",
 			key: "geodeticDatum",
 			caption: "Układ odniesienia (dot. pól decimalLatitude i decimalLongitude)",
 			tooltip: "EPSG:4326 odpowiada układowi WGS84 — standardowemu układowi stosowanemu w GPS i większości danych geograficznych.",

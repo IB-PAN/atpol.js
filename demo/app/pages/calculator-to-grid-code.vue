@@ -531,13 +531,13 @@ function downloadFromPreview() {
 									<div class="p-3 bg-elevated rounded-lg text-sm">
 										<span class="text-muted text-xs">Współrzędna X:</span>
 										<div class="font-mono font-bold text-primary text-base mt-0.5">
-											{{ xy.x.toFixed(3) }} m
+											{{ xy.x.toFixed(3) }} km
 										</div>
 									</div>
 									<div class="p-3 bg-elevated rounded-lg text-sm">
 										<span class="text-muted text-xs">Współrzędna Y:</span>
 										<div class="font-mono font-bold text-primary text-base mt-0.5">
-											{{ xy.y.toFixed(3) }} m
+											{{ xy.y.toFixed(3) }} km
 										</div>
 									</div>
 								</div>
