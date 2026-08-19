@@ -62,7 +62,7 @@ let leafletMarker: L.CircleMarker | null = null;
 let highlightMarker: L.CircleMarker | null = null;
 let hoverPolygon: L.Polygon | null = null;
 let hoverDiv: HTMLDivElement | null = null;
-let geoCoverageLines: L.Polyline[] = [];
+const geoCoverageLines = new Map<string, L.Polyline>();
 let atpolGridLayer: L.Layer | null = null;
 
 const baseMaps = {
@@ -148,7 +148,7 @@ onUnmounted(() => {
 	highlightMarker = null;
 	hoverPolygon = null;
 	hoverDiv = null;
-	geoCoverageLines = [];
+	geoCoverageLines.clear();
 	atpolGridLayer = null;
 });
 
@@ -211,34 +211,36 @@ function clearHighlight() {
 	highlightMarker = null;
 }
 
-// The lines are drawn from pole to pole / all the way around the globe so they
-// keep spanning the viewport at any pan or zoom without being redrawn.
+// Each line is drawn from pole to pole / all the way around the globe, so it
+// keeps spanning the viewport at any pan or zoom without ever being redrawn.
+// Existing lines are moved rather than recreated: the values change on every
+// step of the rounding slider, and recreating would flicker and would restart
+// the highlight transition.
 function drawGeoCoverage(coverage: NonNullable<typeof props.geoCoverage>) {
 	if (!leafletMap) return;
 
-	clearGeoCoverage();
-
-	const lines: { key: string; latlngs: L.LatLngExpression[] }[] = [
+	const defs: { key: string; latlngs: L.LatLngExpression[] }[] = [
 		{ key: "south", latlngs: [[coverage.south, -180], [coverage.south, 180]] },
 		{ key: "north", latlngs: [[coverage.north, -180], [coverage.north, 180]] },
 		{ key: "west", latlngs: [[-85, coverage.west], [85, coverage.west]] },
 		{ key: "east", latlngs: [[-85, coverage.east], [85, coverage.east]] },
 	];
 
-	for (const line of lines) {
-		const active = coverage.highlighted.includes(line.key);
-		geoCoverageLines.push(
-			L.polyline(line.latlngs, {
-				className: `atpol-coverage-line${active ? " atpol-coverage-line-active" : ""}`,
-				interactive: false,
-			}).addTo(leafletMap),
-		);
+	for (const def of defs) {
+		let line = geoCoverageLines.get(def.key);
+		if (line) {
+			line.setLatLngs(def.latlngs);
+		} else {
+			line = L.polyline(def.latlngs, { className: "atpol-coverage-line", interactive: false }).addTo(leafletMap);
+			geoCoverageLines.set(def.key, line);
+		}
+		line.getElement()?.classList.toggle("atpol-coverage-line-active", coverage.highlighted.includes(def.key));
 	}
 }
 
 function clearGeoCoverage() {
-	for (const line of geoCoverageLines) line.remove();
-	geoCoverageLines = [];
+	for (const line of geoCoverageLines.values()) line.remove();
+	geoCoverageLines.clear();
 }
 
 watch(() => props.bounds, (bounds) => {
@@ -378,17 +380,18 @@ function renderHoverInfo(latlon: ATPOL.LatLon, grid: string) {
 }
 
 .atpol-coverage-line {
-	stroke: var(--ui-text-highlighted, #f59e0b);
-	stroke-width: 1.5;
-	stroke-dasharray: 5 5;
-	stroke-opacity: 0.45;
+	stroke: var(--ui-text-muted, #6b7280);
+	stroke-width: 2;
+	stroke-dasharray: 6 6;
+	stroke-opacity: 0.7;
 	fill: none;
 	pointer-events: none;
+	transition: stroke 0.15s, stroke-width 0.15s, stroke-opacity 0.15s;
 }
 
 .atpol-coverage-line-active {
 	stroke: #f59e0b;
-	stroke-width: 3;
+	stroke-width: 3.5;
 	stroke-opacity: 1;
 }
 
