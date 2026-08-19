@@ -305,6 +305,7 @@ export interface DarwinCoreFields {
 	footprintSRS: string;
 	decimalLatitude: string;
 	decimalLongitude: string;
+	coordinatePrecision: string;
 	geodeticDatum: string;
 	coordinateUncertaintyInMeters: string;
 	verbatimCoordinates: string;
@@ -328,8 +329,9 @@ export function grid_to_darwincore_fields(grid: string): DarwinCoreFields {
 	return {
 		footprintWKT: grid_to_polygonWKT(grid),
 		footprintSRS: "EPSG:4326",
-		decimalLatitude: bounds.center.lat.toString(),
-		decimalLongitude: bounds.center.lon.toString(),
+		decimalLatitude: bounds.center.lat.toFixed(6).toString(),
+		decimalLongitude: bounds.center.lon.toFixed(6).toString(),
+		coordinatePrecision: "0.000001",
 		geodeticDatum: "EPSG:4326",
 		coordinateUncertaintyInMeters: grid_to_coordinate_uncertainty_in_meters(grid).toString(),
 		verbatimCoordinates: grid,

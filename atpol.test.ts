@@ -303,8 +303,9 @@ test("Darwin Core fields", () => {
 	const fields = ATPOL.grid_to_darwincore_fields("EF25p44");
 	expect(fields.footprintWKT).toBe("POLYGON ((20.79964292570421 50.39018677093136, 20.798947347955973 50.37227361671613, 20.827044160538623 50.3718268689209, 20.827750593067336 50.38973984253578, 20.79964292570421 50.39018677093136))");
 	expect(fields.footprintSRS).toBe("EPSG:4326");
-	expect(fields.decimalLatitude).toBe("50.38100760114409");
-	expect(fields.decimalLongitude).toBe("20.813346256816548");
+	expect(fields.decimalLatitude).toBe("50.381008");
+	expect(fields.decimalLongitude).toBe("20.813346");
+	expect(fields.coordinatePrecision).toBe("0.000001");
 	expect(fields.geodeticDatum).toBe("EPSG:4326");
 	expect(fields.coordinateUncertaintyInMeters).toBe("1415");
 	expect(fields.verbatimCoordinates).toBe("EF25p44");
