@@ -80,34 +80,38 @@ function roundOutward(value: number, up: boolean, digits: number): number {
 	return (up ? Math.ceil(value * factor) : Math.floor(value * factor)) / factor;
 }
 
-const geoCoverageTables = computed(() => {
+const geoCoverageRows = computed(() => {
 	const b = props.bounds;
 	if (!b) return [];
 	const lats = [b.nw.lat, b.ne.lat, b.se.lat, b.sw.lat];
 	const lons = [b.nw.lon, b.ne.lon, b.se.lon, b.sw.lon];
 
-	function cell(key: string, value: number, up: Boolean) {
-		const rounded = roundOutward(value, up, geoCoverageDecimals.value);
-		return { key, dec: rounded.toFixed(geoCoverageDecimals.value) };
+	// `max` marks the upper end of the range: it both picks the rounding
+	// direction and puts the direction icon after the label instead of before.
+	function cell(key: string, label: string, hint: string, icon: string, value: number, max: boolean) {
+		const rounded = roundOutward(value, max, geoCoverageDecimals.value);
+		return { key, label, hint, icon, max, dec: rounded.toFixed(geoCoverageDecimals.value) };
 	}
 
 	return [
 		{
 			key: "lat",
-			label: "↕ Szerokość geograficzna",
+			icon: "i-lucide-move-vertical",
+			label: "Szerokość geograficzna",
 			hint: "(od dołu do góry)",
-			cols: [
-				{ head: "↓ South", headHint: "(południe)", ...cell("south", Math.min(...lats), false) },
-				{ head: "North", headHint: "(północ) ↑", ...cell("north", Math.max(...lats), true) },
+			cells: [
+				cell("south", "South", "(południe)", "i-lucide-move-down", Math.min(...lats), false),
+				cell("north", "North", "(północ)", "i-lucide-move-up", Math.max(...lats), true),
 			],
 		},
 		{
 			key: "lon",
-			label: "↔ Długość geograficzna",
+			icon: "i-lucide-move-horizontal",
+			label: "Długość geograficzna",
 			hint: "(od lewej do prawej)",
-			cols: [
-				{ head: "← West", headHint: "(zachód)", ...cell("west", Math.min(...lons), false) },
-				{ head: "East", headHint: "(wschód) →", ...cell("east", Math.max(...lons), true) },
+			cells: [
+				cell("west", "West", "(zachód)", "i-lucide-move-left", Math.min(...lons), false),
+				cell("east", "East", "(wschód)", "i-lucide-move-right", Math.max(...lons), true),
 			],
 		},
 	];
@@ -251,50 +255,81 @@ async function copyText(key: string, text: string) {
 
 			<!-- Tab 2: geographic coverage (bounding box) -->
 			<template #coverage>
-				<div
-					v-for="table in geoCoverageTables"
-					:key="table.key"
-					class="overflow-x-auto"
+				<UAlert
+					icon="i-lucide-triangle-alert"
+					color="warning"
+					variant="outline"
+					class="mb-4"
 				>
+					<template #description>
+						<p>
+							Uwaga! Wartości powyżej określają rozpiętość geograficzną skrajnych współrzędnych kwadratu,
+							jednak w przeciwieństwie do tabeli punktów brzegowych, nie określają one poprawnie
+							kształtu kwadratu na mapie. Właściwy kwadrat jedynie zawiera się w podanym zakresie
+							współrzędnych.
+						</p>
+						<p class="mt-2">
+							Podane wartości mogą być użyteczne np. do wypełnienia strony „Geographic Coverage”
+							w metadanych zbioru danych w systemie GBIF IPT.
+						</p>
+					</template>
+				</UAlert>
+
+				<div class="overflow-x-auto">
 					<table class="w-full text-sm">
-						<thead>
-							<tr class="border-b border-default">
-								<th class="w-1/3" />
-								<th
-									v-for="col in table.cols"
-									:key="col.key"
-									class="text-center py-2 px-3 text-muted font-medium whitespace-nowrap"
-								>
-									{{ col.head }}<br>{{ col.headHint }}
-								</th>
-							</tr>
-						</thead>
 						<tbody>
-							<tr class="border-b border-default">
+							<tr
+								v-for="row in geoCoverageRows"
+								:key="row.key"
+								class="border-b border-default last:border-0"
+							>
 								<td class="py-2 px-3 font-medium">
-									<div class="whitespace-nowrap">
-										{{ table.label }}
+									<div class="flex items-center gap-1.5 whitespace-nowrap">
+										<UIcon
+											:name="row.icon"
+											class="size-4"
+										/>
+										{{ row.label }}
 									</div>
 									<div class="text-xs text-muted whitespace-nowrap">
-										{{ table.hint }}
+										{{ row.hint }}
 									</div>
 								</td>
 								<td
-									v-for="col in table.cols"
+									v-for="col in row.cells"
 									:key="col.key"
 									class="py-2 px-3 text-center"
 								>
-									<div class="group/dec flex items-center justify-center gap-1">
-										<span class="font-mono font-bold text-primary">{{ col.dec }}</span>
-										<UButton
-											:icon="copiedFields.has(`geoCoverage-${col.key}-dec`) ? 'i-lucide-check' : 'i-lucide-copy'"
-											:color="copiedFields.has(`geoCoverage-${col.key}-dec`) ? 'primary' : 'neutral'"
-											size="xs"
-											variant="ghost"
-											class="opacity-0 group-hover/dec:opacity-100 transition-opacity"
-											:aria-label="`Kopiuj ${col.dec}`"
-											@click="copyText(`geoCoverage-${col.key}-dec`, col.dec)"
+									<div class="flex items-center justify-center gap-1 whitespace-nowrap font-medium">
+										<UIcon
+											v-if="!col.max"
+											:name="col.icon"
+											class="size-4"
 										/>
+										{{ col.label }}
+										<UIcon
+											v-if="col.max"
+											:name="col.icon"
+											class="size-4"
+										/>
+									</div>
+									<div class="text-xs text-muted whitespace-nowrap">
+										{{ col.hint }}
+									</div>
+									<div class="flex justify-center mt-0.5">
+										<!-- The copy button sits outside the flow so the space it would reserve while hidden does not shift the value off-centre. -->
+										<div class="group/dec relative">
+											<span class="font-mono font-bold text-primary">{{ col.dec }}</span>
+											<UButton
+												:icon="copiedFields.has(`geoCoverage-${col.key}-dec`) ? 'i-lucide-check' : 'i-lucide-copy'"
+												:color="copiedFields.has(`geoCoverage-${col.key}-dec`) ? 'primary' : 'neutral'"
+												size="xs"
+												variant="ghost"
+												class="absolute left-full top-1/2 -translate-y-1/2 ml-0.5 opacity-0 group-hover/dec:opacity-100 transition-opacity"
+												:aria-label="`Kopiuj ${col.dec}`"
+												@click="copyText(`geoCoverage-${col.key}-dec`, col.dec)"
+											/>
+										</div>
 									</div>
 								</td>
 							</tr>
@@ -363,26 +398,6 @@ async function copyText(key: string, text: string) {
 						</div>
 					</div>
 				</div>
-
-				<UAlert
-					icon="i-lucide-triangle-alert"
-					color="warning"
-					variant="outline"
-					class="mt-4"
-				>
-					<template #description>
-						<p>
-							Uwaga! Wartości te określają rozpiętość geograficzną skrajnych współrzędnych kwadratu,
-							jednak w przeciwieństwie do tabeli punktów brzegowych, nie określają one poprawnie
-							kształtu kwadratu na mapie. Właściwy kwadrat jedynie zawiera się w podanym zakresie
-							współrzędnych.
-						</p>
-						<p class="mt-2">
-							Podane wartości mogą być użyteczne np. do wypełnienia strony „Geographic Coverage”
-							w metadanych zbioru danych w systemie GBIF IPT.
-						</p>
-					</template>
-				</UAlert>
 			</template>
 		</UTabs>
 	</UCard>
