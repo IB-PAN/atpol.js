@@ -73,6 +73,8 @@ export default defineNuxtConfig({
 				"lucide:move-up-right",
 				"lucide:move-down-left",
 				"lucide:move-down-right",
+				"lucide:frame",
+				"lucide:expand",
 			],
 		},
 		serverBundle: false,

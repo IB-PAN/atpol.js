@@ -274,6 +274,7 @@ function downloadFromPreview() {
 
 			<AtpolBoundsTable
 				:bounds="result.bounds"
+				:atpol-code="codeNormalized"
 				class="mb-4"
 				@hover="hoveredPoint = $event"
 			/>

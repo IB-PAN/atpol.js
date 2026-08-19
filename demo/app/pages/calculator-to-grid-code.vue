@@ -590,6 +590,7 @@ function downloadFromPreview() {
 					<div class="px-px pb-px">
 						<AtpolBoundsTable
 							:bounds="bounds"
+							:atpol-code="gridSelectedNormalized"
 							class="mt-2"
 							@hover="hoveredPoint = $event"
 						/>
