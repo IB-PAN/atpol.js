@@ -102,6 +102,10 @@ onBeforeUnmount(() => {
 
 watch(code, updateHashFromCode);
 
+// ---- Bounds table ↔ map hover ----
+
+const hoveredPoint = ref<{ point: ATPOL.LatLon; label: string } | null>(null);
+
 // ---- File preview modal ----
 
 const previewOpen = ref(false);
@@ -271,10 +275,12 @@ function downloadFromPreview() {
 			<AtpolBoundsTable
 				:bounds="result.bounds"
 				class="mb-4"
+				@hover="hoveredPoint = $event"
 			/>
 
 			<AtpolMap
 				:bounds="result.bounds"
+				:highlight="hoveredPoint"
 				:draw-atpol-grid-lines="true"
 				class="mb-4"
 			/>

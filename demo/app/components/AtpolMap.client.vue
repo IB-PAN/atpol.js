@@ -10,6 +10,9 @@ import { ATPOL } from "../../../main";
 const props = withDefaults(defineProps<{
 	bounds: ATPOL.Bounds_LatLon | null;
 	marker?: ATPOL.LatLon | null;
+	// A single point to call out on the map, e.g. the corner belonging to the
+	// row currently hovered in a sibling AtpolBoundsTable.
+	highlight?: { point: ATPOL.LatLon; label: string } | null;
 	// Interactive mode: highlights the ATPOL square under the cursor, shows a
 	// GPS-coordinates/grid-code readout, and emits `hover`/`select` events.
 	interactive?: boolean;
@@ -23,6 +26,7 @@ const props = withDefaults(defineProps<{
 	mapClass?: string;
 }>(), {
 	marker: null,
+	highlight: null,
 	interactive: false,
 	interactiveGridLength: 8,
 	interactiveGridDiv: null,
@@ -50,6 +54,7 @@ const mapEl = useTemplateRef<HTMLElement>("mapEl");
 let leafletMap: L.Map | null = null;
 let leafletPolygon: L.Polygon | null = null;
 let leafletMarker: L.CircleMarker | null = null;
+let highlightMarker: L.CircleMarker | null = null;
 let hoverPolygon: L.Polygon | null = null;
 let hoverDiv: HTMLDivElement | null = null;
 let atpolGridLayer: L.Layer | null = null;
@@ -116,6 +121,7 @@ function initMap(el: HTMLElement) {
 
 	if (props.bounds) drawPolygon(props.bounds);
 	if (props.marker) drawMarker(props.marker);
+	if (props.highlight) drawHighlight(props.highlight);
 }
 
 // Watch the ref instead of using onMounted: when this component is created
@@ -132,6 +138,7 @@ onUnmounted(() => {
 	leafletMap = null;
 	leafletPolygon = null;
 	leafletMarker = null;
+	highlightMarker = null;
 	hoverPolygon = null;
 	hoverDiv = null;
 	atpolGridLayer = null;
@@ -171,6 +178,31 @@ function drawMarker(latlon: ATPOL.LatLon) {
 		.addTo(leafletMap);
 }
 
+function drawHighlight(highlight: { point: ATPOL.LatLon; label: string }) {
+	if (!leafletMap) return;
+
+	highlightMarker?.remove();
+
+	highlightMarker = L.circleMarker([highlight.point.lat, highlight.point.lon], {
+		radius: 8,
+		fillColor: "#f59e0b",
+		color: "#fff",
+		weight: 2,
+		fillOpacity: 1,
+		className: "atpol-highlight-marker",
+		interactive: false,
+	}).bindTooltip(highlight.label, {
+		permanent: true,
+		direction: "top",
+		className: "atpol-highlight-tooltip",
+	}).addTo(leafletMap);
+}
+
+function clearHighlight() {
+	highlightMarker?.remove();
+	highlightMarker = null;
+}
+
 watch(() => props.bounds, (bounds) => {
 	if (bounds) {
 		drawPolygon(bounds);
@@ -187,6 +219,14 @@ watch(() => props.marker, (marker) => {
 	} else {
 		leafletMarker?.remove();
 		leafletMarker = null;
+	}
+});
+
+watch(() => props.highlight, (highlight) => {
+	if (highlight) {
+		drawHighlight(highlight);
+	} else {
+		clearHighlight();
 	}
 });
 
@@ -289,6 +329,38 @@ function renderHoverInfo(latlon: ATPOL.LatLon, grid: string) {
 	fill: var(--ui-text-highlighted, #f59e0b);
 	fill-opacity: 0.15;
 	pointer-events: none;
+}
+
+.atpol-highlight-marker {
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: atpol-highlight-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes atpol-highlight-pulse {
+	0%, 100% { transform: scale(1); }
+	50% { transform: scale(1.3); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.atpol-highlight-marker {
+		animation: none;
+	}
+}
+
+.leaflet-tooltip.atpol-highlight-tooltip {
+	background: #f59e0b;
+	border: none;
+	color: #fff;
+	font-weight: 700;
+	font-size: 0.7rem;
+	letter-spacing: 0.03em;
+	padding: 1px 6px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.leaflet-tooltip.atpol-highlight-tooltip::before {
+	border-top-color: #f59e0b;
 }
 
 .atpol-hover-info {

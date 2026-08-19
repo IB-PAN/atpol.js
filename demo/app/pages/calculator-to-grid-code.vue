@@ -153,6 +153,10 @@ const bounds = computed(() => {
 	try { return ATPOL.grid_to_latlon_bounds(gridSelected.value); } catch { return null; }
 });
 
+// ---- Bounds table ↔ map hover ----
+
+const hoveredPoint = ref<{ point: ATPOL.LatLon; label: string } | null>(null);
+
 // ---- File preview ----
 
 const previewOpen = ref(false);
@@ -587,6 +591,7 @@ function downloadFromPreview() {
 						<AtpolBoundsTable
 							:bounds="bounds"
 							class="mt-2"
+							@hover="hoveredPoint = $event"
 						/>
 					</div>
 				</template>
@@ -596,6 +601,7 @@ function downloadFromPreview() {
 			<AtpolMap
 				:bounds="bounds"
 				:marker="latDD !== null && lonDD !== null ? { lat: latDD, lon: lonDD } : null"
+				:highlight="hoveredPoint"
 				:draw-atpol-grid-lines="true"
 				class="mb-4"
 			/>

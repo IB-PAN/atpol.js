@@ -5,6 +5,11 @@ const props = defineProps<{
 	bounds: ATPOL.Bounds_LatLon | null;
 }>();
 
+// Lets a sibling AtpolMap highlight the point belonging to the hovered row.
+const emit = defineEmits<{
+	hover: [payload: { point: ATPOL.LatLon; label: string } | null];
+}>();
+
 function toDMS(decimal: number, isLat: boolean): string {
 	const abs = Math.abs(decimal);
 	const deg = Math.floor(abs);
@@ -18,13 +23,37 @@ function toDMS(decimal: number, isLat: boolean): string {
 const rows = computed(() => {
 	if (!props.bounds) return [];
 	return [
-		{ icon: "i-lucide-square-dot", label: "ŚRODEK (Centrum)", point: props.bounds.center, isCenter: true }, // ⊡
-		{ icon: "i-lucide-move-up-left", label: "NW (Górny Lewy)", point: props.bounds.nw }, // ↖
-		{ icon: "i-lucide-move-up-right", label: "NE (Górny Prawy)", point: props.bounds.ne }, // ↗
-		{ icon: "i-lucide-move-down-left", label: "SE (Dolny Prawy)", point: props.bounds.se }, // ↘
-		{ icon: "i-lucide-move-down-right", label: "SW (Dolny Lewy)", point: props.bounds.sw }, // ↙
+		{ icon: "i-lucide-square-dot", label: "ŚRODEK (Centrum)", short: "⊡ ŚRODEK", point: props.bounds.center, isCenter: true },
+		{ icon: "i-lucide-move-up-left", label: "NW (Górny Lewy)", short: "↖ NW", point: props.bounds.nw },
+		{ icon: "i-lucide-move-up-right", label: "NE (Górny Prawy)", short: "NE ↗", point: props.bounds.ne },
+		{ icon: "i-lucide-move-down-left", label: "SE (Dolny Prawy)", short: "SE ↘", point: props.bounds.se },
+		{ icon: "i-lucide-move-down-right", label: "SW (Dolny Lewy)", short: "↙ SW", point: props.bounds.sw },
 	];
 });
+
+type Row = (typeof rows.value)[number];
+
+const hoveredLabel = ref<string | null>(null);
+
+function setHovered(row: Row | null) {
+	hoveredLabel.value = row?.label ?? null;
+	emit("hover", row ? { point: row.point, label: row.short } : null);
+}
+
+// The bounds can change while a row is hovered (e.g. the user edits the grid
+// code with the pointer resting on the table), which would leave the map
+// highlighting a stale point.
+watch(() => props.bounds, () => setHovered(null));
+
+onUnmounted(() => {
+	if (hoveredLabel.value) emit("hover", null);
+});
+
+function rowClass(row: Row) {
+	const hovered = hoveredLabel.value === row.label;
+	if (row.isCenter) return hovered ? "bg-success/25" : "bg-success/10";
+	return hovered ? "bg-primary/10" : "";
+}
 
 const copiedFields = reactive(new Set<string>());
 async function copyText(key: string, text: string) {
@@ -55,7 +84,11 @@ async function copyText(key: string, text: string) {
 					<tr
 						v-for="row in rows"
 						:key="row.label"
-						:class="['border-b border-default last:border-0', row.isCenter && 'bg-success/10']"
+						:class="['border-b border-default last:border-0 transition-colors cursor-default', rowClass(row)]"
+						@mouseenter="setHovered(row)"
+						@mouseleave="setHovered(null)"
+						@focusin="setHovered(row)"
+						@focusout="setHovered(null)"
 					>
 						<td class="py-2 px-3 font-medium whitespace-nowrap">
 							<div class="flex items-center gap-1.5">
