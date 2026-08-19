@@ -105,6 +105,7 @@ watch(code, updateHashFromCode);
 // ---- Bounds table ↔ map hover ----
 
 const hoveredPoint = ref<{ point: ATPOL.LatLon; label: string } | null>(null);
+const geoCoverage = ref<{ south: number; north: number; west: number; east: number; highlighted: string[] } | null>(null);
 
 // ---- File preview modal ----
 
@@ -276,12 +277,14 @@ function downloadFromPreview() {
 				:bounds="result.bounds"
 				:atpol-code="codeNormalized"
 				class="mb-4"
-				@hover="hoveredPoint = $event"
+				@geo-bounds-hover="hoveredPoint = $event"
+				@geo-coverage-hover="geoCoverage = $event"
 			/>
 
 			<AtpolMap
 				:bounds="result.bounds"
 				:highlight="hoveredPoint"
+				:geo-coverage="geoCoverage"
 				:draw-atpol-grid-lines="true"
 				class="mb-4"
 			/>

@@ -6,9 +6,12 @@ const props = defineProps<{
 	atpolCode: string;
 }>();
 
-// Lets a sibling AtpolMap highlight the point belonging to the hovered row.
+// Lets a sibling AtpolMap highlight the point belonging to the hovered row,
+// and — while the coverage tab is open — draw the four rounded bounding-box
+// coordinates as lines across the map.
 const emit = defineEmits<{
-	hover: [payload: { point: ATPOL.LatLon; label: string } | null];
+	geoBoundsHover: [payload: { point: ATPOL.LatLon; label: string } | null];
+	geoCoverageHover: [payload: { south: number; north: number; west: number; east: number; highlighted: string[] } | null];
 }>();
 
 function toDMS(decimal: number, isLat: boolean): string {
@@ -38,7 +41,7 @@ const hoveredLabel = ref<string | null>(null);
 
 function setHovered(row: Row | null) {
 	hoveredLabel.value = row?.label ?? null;
-	emit("hover", row ? { point: row.point, label: row.short } : null);
+	emit("geoBoundsHover", row ? { point: row.point, label: row.short } : null);
 }
 
 // The bounds can change while a row is hovered (e.g. the user edits the grid
@@ -47,7 +50,7 @@ function setHovered(row: Row | null) {
 watch(() => props.bounds, () => setHovered(null));
 
 onUnmounted(() => {
-	if (hoveredLabel.value) emit("hover", null);
+	if (hoveredLabel.value) emit("geoBoundsHover", null);
 });
 
 function rowClass(row: Row) {
@@ -90,7 +93,7 @@ const geoCoverageRows = computed(() => {
 	// direction and puts the direction icon after the label instead of before.
 	function cell(key: string, label: string, hint: string, icon: string, value: number, max: boolean) {
 		const rounded = roundOutward(value, max, geoCoverageDecimals.value);
-		return { key, label, hint, icon, max, dec: rounded.toFixed(geoCoverageDecimals.value) };
+		return { key, label, hint, icon, max, value: rounded, dec: rounded.toFixed(geoCoverageDecimals.value) };
 	}
 
 	return [
@@ -115,6 +118,46 @@ const geoCoverageRows = computed(() => {
 			],
 		},
 	];
+});
+
+// Either a single cell key ("south"/"north"/"west"/"east") or a row key
+// ("lat"/"lon"), which stands for both of that row's cells.
+const geoCoverageHovered = ref<string | null>(null);
+
+const geoCoverageHighlighted = computed(() => {
+	const hovered = geoCoverageHovered.value;
+	if (!hovered) return [];
+	const row = geoCoverageRows.value.find(r => r.key === hovered);
+	// Hovering a row's label cell counts as hovering both of its value cells.
+	return row ? [row.key, ...row.cells.map(c => c.key)] : [hovered];
+});
+
+function geoCoverageCellClass(key: string) {
+	return geoCoverageHighlighted.value.includes(key) ? "bg-primary/10" : "";
+}
+
+// Lets the map draw the same four rounded values as lines. Only while the tab
+// is open — the lines belong to what this tab is showing.
+const geoCoveragePayload = computed(() => {
+	if (activeTab.value !== "coverage") return null;
+	const values: Record<string, number> = {};
+	for (const row of geoCoverageRows.value) {
+		for (const col of row.cells) values[col.key] = col.value;
+	}
+	const { south, north, west, east } = values;
+	if (south === undefined || north === undefined || west === undefined || east === undefined) return null;
+	return { south, north, west, east, highlighted: geoCoverageHighlighted.value.filter(key => key in values) };
+});
+
+watch(geoCoveragePayload, payload => emit("geoCoverageHover", payload), { immediate: true });
+
+// Switching away unmounts the hovered cell without firing mouseleave.
+watch(activeTab, () => {
+	geoCoverageHovered.value = null;
+});
+
+onUnmounted(() => {
+	if (geoCoveragePayload.value) emit("geoCoverageHover", null);
 });
 
 // Polish needs three plural forms for "miejsce po przecinku".
@@ -283,7 +326,13 @@ async function copyText(key: string, text: string) {
 								:key="row.key"
 								class="border-b border-default last:border-0"
 							>
-								<td class="py-2 px-3 font-medium">
+								<td
+									:class="['py-2 px-3 font-medium transition-colors cursor-default', geoCoverageCellClass(row.key)]"
+									@mouseenter="geoCoverageHovered = row.key"
+									@mouseleave="geoCoverageHovered = null"
+									@focusin="geoCoverageHovered = row.key"
+									@focusout="geoCoverageHovered = null"
+								>
 									<div class="flex items-center gap-1.5 whitespace-nowrap">
 										<UIcon
 											:name="row.icon"
@@ -298,7 +347,11 @@ async function copyText(key: string, text: string) {
 								<td
 									v-for="col in row.cells"
 									:key="col.key"
-									class="py-2 px-3 text-center"
+									:class="['py-2 px-3 text-center transition-colors cursor-default', geoCoverageCellClass(col.key)]"
+									@mouseenter="geoCoverageHovered = col.key"
+									@mouseleave="geoCoverageHovered = null"
+									@focusin="geoCoverageHovered = col.key"
+									@focusout="geoCoverageHovered = null"
 								>
 									<div class="flex items-center justify-center gap-1 whitespace-nowrap font-medium">
 										<UIcon

@@ -156,6 +156,7 @@ const bounds = computed(() => {
 // ---- Bounds table ↔ map hover ----
 
 const hoveredPoint = ref<{ point: ATPOL.LatLon; label: string } | null>(null);
+const geoCoverage = ref<{ south: number; north: number; west: number; east: number; highlighted: string[] } | null>(null);
 
 // ---- File preview ----
 
@@ -592,7 +593,8 @@ function downloadFromPreview() {
 							:bounds="bounds"
 							:atpol-code="gridSelectedNormalized"
 							class="mt-2"
-							@hover="hoveredPoint = $event"
+							@geo-bounds-hover="hoveredPoint = $event"
+							@geo-coverage-hover="geoCoverage = $event"
 						/>
 					</div>
 				</template>
@@ -603,6 +605,7 @@ function downloadFromPreview() {
 				:bounds="bounds"
 				:marker="latDD !== null && lonDD !== null ? { lat: latDD, lon: lonDD } : null"
 				:highlight="hoveredPoint"
+				:geo-coverage="geoCoverage"
 				:draw-atpol-grid-lines="true"
 				class="mb-4"
 			/>

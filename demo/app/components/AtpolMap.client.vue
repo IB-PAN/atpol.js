@@ -13,6 +13,10 @@ const props = withDefaults(defineProps<{
 	// A single point to call out on the map, e.g. the corner belonging to the
 	// row currently hovered in a sibling AtpolBoundsTable.
 	highlight?: { point: ATPOL.LatLon; label: string } | null;
+	// The rounded bounding box of a sibling AtpolBoundsTable's geographic
+	// coverage tab, drawn as four dashed lines running across the whole map.
+	// `highlighted` names the ones whose cell is currently hovered.
+	geoCoverage?: { south: number; north: number; west: number; east: number; highlighted: string[] } | null;
 	// Interactive mode: highlights the ATPOL square under the cursor, shows a
 	// GPS-coordinates/grid-code readout, and emits `hover`/`select` events.
 	interactive?: boolean;
@@ -27,6 +31,7 @@ const props = withDefaults(defineProps<{
 }>(), {
 	marker: null,
 	highlight: null,
+	geoCoverage: null,
 	interactive: false,
 	interactiveGridLength: 8,
 	interactiveGridDiv: null,
@@ -57,6 +62,7 @@ let leafletMarker: L.CircleMarker | null = null;
 let highlightMarker: L.CircleMarker | null = null;
 let hoverPolygon: L.Polygon | null = null;
 let hoverDiv: HTMLDivElement | null = null;
+let geoCoverageLines: L.Polyline[] = [];
 let atpolGridLayer: L.Layer | null = null;
 
 const baseMaps = {
@@ -122,6 +128,7 @@ function initMap(el: HTMLElement) {
 	if (props.bounds) drawPolygon(props.bounds);
 	if (props.marker) drawMarker(props.marker);
 	if (props.highlight) drawHighlight(props.highlight);
+	if (props.geoCoverage) drawGeoCoverage(props.geoCoverage);
 }
 
 // Watch the ref instead of using onMounted: when this component is created
@@ -141,6 +148,7 @@ onUnmounted(() => {
 	highlightMarker = null;
 	hoverPolygon = null;
 	hoverDiv = null;
+	geoCoverageLines = [];
 	atpolGridLayer = null;
 });
 
@@ -203,6 +211,36 @@ function clearHighlight() {
 	highlightMarker = null;
 }
 
+// The lines are drawn from pole to pole / all the way around the globe so they
+// keep spanning the viewport at any pan or zoom without being redrawn.
+function drawGeoCoverage(coverage: NonNullable<typeof props.geoCoverage>) {
+	if (!leafletMap) return;
+
+	clearGeoCoverage();
+
+	const lines: { key: string; latlngs: L.LatLngExpression[] }[] = [
+		{ key: "south", latlngs: [[coverage.south, -180], [coverage.south, 180]] },
+		{ key: "north", latlngs: [[coverage.north, -180], [coverage.north, 180]] },
+		{ key: "west", latlngs: [[-85, coverage.west], [85, coverage.west]] },
+		{ key: "east", latlngs: [[-85, coverage.east], [85, coverage.east]] },
+	];
+
+	for (const line of lines) {
+		const active = coverage.highlighted.includes(line.key);
+		geoCoverageLines.push(
+			L.polyline(line.latlngs, {
+				className: `atpol-coverage-line${active ? " atpol-coverage-line-active" : ""}`,
+				interactive: false,
+			}).addTo(leafletMap),
+		);
+	}
+}
+
+function clearGeoCoverage() {
+	for (const line of geoCoverageLines) line.remove();
+	geoCoverageLines = [];
+}
+
 watch(() => props.bounds, (bounds) => {
 	if (bounds) {
 		drawPolygon(bounds);
@@ -227,6 +265,14 @@ watch(() => props.highlight, (highlight) => {
 		drawHighlight(highlight);
 	} else {
 		clearHighlight();
+	}
+});
+
+watch(() => props.geoCoverage, (coverage) => {
+	if (coverage) {
+		drawGeoCoverage(coverage);
+	} else {
+		clearGeoCoverage();
 	}
 });
 
@@ -329,6 +375,21 @@ function renderHoverInfo(latlon: ATPOL.LatLon, grid: string) {
 	fill: var(--ui-text-highlighted, #f59e0b);
 	fill-opacity: 0.15;
 	pointer-events: none;
+}
+
+.atpol-coverage-line {
+	stroke: var(--ui-text-highlighted, #f59e0b);
+	stroke-width: 1.5;
+	stroke-dasharray: 5 5;
+	stroke-opacity: 0.45;
+	fill: none;
+	pointer-events: none;
+}
+
+.atpol-coverage-line-active {
+	stroke: #f59e0b;
+	stroke-width: 3;
+	stroke-opacity: 1;
 }
 
 .atpol-highlight-marker {
